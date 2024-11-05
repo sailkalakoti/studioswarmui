@@ -54,7 +54,7 @@ export const CustomNode = ({ data }: { data: { label: string } }) => {
   );
 }
 
-export const AgentNode = ({ data }: { data: { label: string } }) => {
+export const AgentNode = ({ data }) => {
   console.log({ data });
   return (
     <>

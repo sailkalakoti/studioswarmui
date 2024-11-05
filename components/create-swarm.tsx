@@ -21,7 +21,7 @@ import {
   Save,
   Play,
 } from "lucide-react";
-import { FlowchartComponent } from "@/app/workflow/page";
+import { FlowchartComponent } from "@/components/workflow/page";
 import { useDnD } from "./DnDContext";
 import { useSidebar } from "./ui/sidebar";
 import ChatContainer from "./ChatContainer";
@@ -100,7 +100,7 @@ export function CreateSwarm() {
   ]
 
   const onDragStart = (
-    event: React.DragEvent<HTMLButtonElement>,
+    event: React.DragEvent<HTMLDivElement>,
     type: string,
     nodeType: string,
     nodeItem: object,
@@ -112,7 +112,6 @@ export function CreateSwarm() {
   };
 
   const toggleSection = (section: string) => {
-    // @ts-expect-error Allow dynamic key access
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 

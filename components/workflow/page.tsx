@@ -169,7 +169,6 @@ export const FlowchartComponent: React.FC = () => {
     [screenToFlowPosition, setNodes, type],
   );
 
-  // @ts-expect-error - nodeClassName is a valid prop
   const nodeClassName = (node) => node.type;
 
   return (

@@ -91,7 +91,6 @@ export function CreateAgentComponent() {
                   </Label>
                   <Select
                     onValueChange={(value) =>
-                      // @ts-expect-error value is always a string
                       setSelectedRoutines((prev) => [...prev, value])
                     }
                   >

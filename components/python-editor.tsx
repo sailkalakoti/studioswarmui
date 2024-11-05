@@ -52,7 +52,6 @@ export function PythonEditorComponent() {
     setOutput(`Simulated output:\n${code}`);
     setShowOutput(true);
     setLastRun(new Date());
-    // @ts-expect-error Random success rate between 90-100%
     setSuccessRate(Math.floor(Math.random() * 11) + 90); // Random success rate between 90-100%
   };
 
