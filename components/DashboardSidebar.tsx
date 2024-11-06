@@ -17,21 +17,21 @@ import {
 
 const options = [
   {
-    title: "Routine",
+    title: "Routines",
     description:
       "Design automated workflows and processes for your AI agents.",
     icon: <Cog className="!h-[24px] !w-[24px] text-[#002856]" />,
     link: "/routines",
   },
   {
-    title: "Agent",
+    title: "Agents",
     description:
       "Build specialized AI agents tailored to your specific needs.",
     icon: <Users className="!h-[24px] !w-[24px] text-[#002856]" />,
     link: "/agents",
   },
   {
-    title: "Swarm",
+    title: "Swarms",
     description:
       "Orchestrate multiple AI agents to work together on complex tasks.",
     icon: <Zap className="!h-[24px] !w-[24px] text-[#002856]" />,
