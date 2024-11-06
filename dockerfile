@@ -29,7 +29,7 @@ COPY --from=builder /app ./
 RUN npm install --production
 
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 4000
 
 # Define the command to run the app
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start", "--", "-p", "4000"]
