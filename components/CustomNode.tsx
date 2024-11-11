@@ -55,22 +55,28 @@ export const CustomNode = ({ data }: { data: { label: string } }) => {
 }
 
 export const AgentNode = ({ data }) => {
-  console.log({ data });
   return (
     <>
-      <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Top} id='custom-target-top' />
+      <Handle type="source" position={Position.Top} id='custom-source-top' />
       <div className="rounded-md p-0.5 bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
-        <div className="h-full w-full p-3 rounded-md bg-white flex items-center gap-2">
-          {data.icon}
-          <label htmlFor="text">{data.label}</label>
+        <div className="rounded-md bg-white p-3">
+          <div className="h-full w-full bg-white flex items-center gap-2">
+            {/* {data.icon} */}
+            <label htmlFor="text">{data.label}</label>
+          </div>
+          <div className="pt-2 h-full w-full bg-white max-w-[300px] min-w-[300px]">
+            {/* <div className="text-xs text-gray-400">Model Name</div> */}
+            <div className="text-sm">{data.description}</div>
+          </div>
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} id="a" />
       <Handle
-        type="source"
+        type="target"
         position={Position.Bottom}
-        id="b"
+        id="custom-target-bottom"
       />
+      <Handle type="source" position={Position.Bottom} id="custom-source-bottom" />
     </>
   );
 }

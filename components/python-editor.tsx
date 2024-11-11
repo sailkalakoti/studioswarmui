@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Editor from "react-simple-code-editor";
 import "prismjs/themes/prism.css";
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import Header from "./header";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import axiosInstance from "@/lib/apiService";
+import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
 
 const highlightWithoutPython = (code: string) => {
   return code
@@ -32,7 +34,26 @@ const highlightWithoutPython = (code: string) => {
     .join("\n");
 };
 
-export function PythonEditorComponent() {
+const createRoutine = async (payload) => {
+  if (payload.id !== 'create') {
+    const { data } = await axiosInstance.put('/routines/' + payload.id , payload.data);
+    return data;  
+  }
+  const { data } = await axiosInstance.post('/routines/', payload.data);
+  return data;
+}
+
+const executeCode = async (payload) => {
+  const { data } = await axiosInstance.post('/code/', payload);
+  return data;
+}
+
+const getRoutine = async ({ queryKey }) => {
+  const { data } = await axiosInstance.get(queryKey[0]);
+  return data;
+}
+
+export function PythonEditorComponent({ id }) {
   const [code, setCode] = useState(
     '# Write your Python code here\nprint("Hello, World!")',
   );
@@ -48,11 +69,43 @@ export function PythonEditorComponent() {
   const [routineDescription, setRoutineDescription] = useState("");
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const isCreate = id === 'create';
+
+  const { data: routineData } = useQuery(!isCreate ? '/routines/'+id : null, getRoutine);
+
+  useEffect(() => {
+    if (Object?.keys(routineData || {})?.length > 0) {
+      setCode(routineData.code);
+      setRoutineName(routineData.name);
+      setRoutineDescription(routineData.description);
+    }
+  } , [routineData]);
+
+  const mutation = useMutation(createRoutine, {
+    onSuccess: () => {
+      queryClient.invalidateQueries([]);
+      toast.success("Created new routine");
+      router.push('/routines');
+      setIsSaveDialogOpen(false);
+    }
+  });
+
+  const codeMutation = useMutation(executeCode, {
+    onSuccess: (data) => {
+      setOutput(data.output);
+      setShowOutput(true);
+      setLastRun(new Date());
+      setSuccessRate(Math.floor(Math.random() * 11) + 90); // Random success rate between 90-100%
+    }
+  });
+
   const runCode = () => {
-    setOutput(`Simulated output:\n${code}`);
-    setShowOutput(true);
-    setLastRun(new Date());
-    setSuccessRate(Math.floor(Math.random() * 11) + 90); // Random success rate between 90-100%
+    codeMutation.mutate({
+      code,
+      dependencies: [],
+    })
   };
 
   const generateCode = () => {
@@ -66,12 +119,32 @@ export function PythonEditorComponent() {
     console.log("Routine Description:", routineDescription);
     console.log("Code saved:", code);
     console.log("Requirements saved:", requirements);
-    setIsSaveDialogOpen(false);
+    mutation.mutate({
+      id,
+      data: {
+        name: routineName,
+        description: routineDescription,
+        code,
+        requirements,
+        metadata: {},
+        metadata_info: {},
+      }
+    })
   };
+
+  const onSaveClick = (event) => {
+    if (!isCreate) {
+      event?.stopPropagation();
+      event?.preventDefault();
+      saveCode();
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-black w-full">
       {/* <Header /> */}
+        <Toaster toastOptions={{ position: "bottom-right" }} />
+
 
       <main className="flex-grow p-6">
         <div className="max-w-6xl mx-auto">
@@ -79,7 +152,7 @@ export function PythonEditorComponent() {
           <p className="text-sm font-regular mb-6">Create, run, and save your own routines with ease. Write or generate code, all in one place.</p>
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
             <div className="p-4 border-b border-gray-200">
-              <h3 className="text-xl font-semibold mb-2">Code Generation</h3>
+              <h3 className="text-xl font-semibold mb-2">How can I assist with generating code for your routine?</h3>
               <div className="flex space-x-4">
                 <Input
                   type="text"
@@ -142,6 +215,7 @@ export function PythonEditorComponent() {
                 onClick={runCode}
                 className="mr-2"
                 variant={"secondary"}
+                loading={codeMutation.isLoading}
               >
                 <Play className="h-4 w-4 mr-2" />
                 Run Code
@@ -151,7 +225,7 @@ export function PythonEditorComponent() {
                 onOpenChange={setIsSaveDialogOpen}
               >
                 <DialogTrigger asChild>
-                  <Button variant={"primary"}>
+                  <Button variant={"primary"} onClick={onSaveClick}>
                     <Save className="h-4 w-4 mr-2" />
                     Save
                   </Button>
@@ -190,7 +264,8 @@ export function PythonEditorComponent() {
                   <DialogFooter>
                     <Button
                       onClick={saveCode}
-                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                      loading={mutation.isLoading}
+                      variant="primary"
                     >
                       Save Routine
                     </Button>

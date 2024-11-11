@@ -1,11 +1,16 @@
+import React from "react";
 import { RoutinesList } from "@/components/routines-list";
 import { NextPage } from "next";
-import React from "react";
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'StudioSwarm: Swarms',
+};
 
 const RoutineListPage: NextPage = () => {
   return (
     <div>
-      <RoutinesList page="routines" />
+      <RoutinesList page="swarms" />
     </div>
   );
 };

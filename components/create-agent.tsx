@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,33 +13,91 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
-import Header from "./header";
 
-// Mock data for routines
-const routines = [
-  { id: 1, name: "Data Processing Workflow" },
-  { id: 2, name: "Customer Support Bot" },
-  { id: 3, name: "Content Generation" },
-  { id: 4, name: "Market Analysis" },
-];
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import axiosInstance from "@/lib/apiService";
+import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
 
-export function CreateAgentComponent() {
+const createAgent = async (payload) => {
+  if (payload.id !== 'create') {
+    const { data } = await axiosInstance.put('/agents/' + payload.id, payload.data);
+  return data;
+  }
+  const { data } = await axiosInstance.post('/agents/', payload.data);
+  return data;
+}
+
+const getRoutines = async ({ queryKey }) => {
+  const { data } = await axiosInstance.get(queryKey[0]);
+  return data;
+}
+
+const getAgent = async ({ queryKey }) => {
+  const { data } = await axiosInstance.get(queryKey[0]);
+  return data;
+}
+
+export function CreateAgentComponent({ id }) {
   const [name, setName] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [selectedRoutines, setSelectedRoutines] = useState([]);
 
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const isCreate = id === 'create';
+
+  const { data: routineList, error } = useQuery('/routines/', getRoutines);
+  const { data: agentData } = useQuery(!isCreate ? '/agents/'+id : null, getAgent);
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Error while fetching routines');
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (Object?.keys(agentData || {})?.length > 0) {
+      setName(agentData?.name);
+      setSystemPrompt(agentData?.prompt);
+      setSelectedRoutines(agentData?.routines);
+    }
+  }, [agentData]);
+
+  const mutation = useMutation(createAgent, {
+    onSuccess: () => {
+      queryClient.invalidateQueries([]);
+      toast.success("Created new Agent");
+      router.push('/agents');
+    }
+  });
+
   const handleCreateAgent = () => {
     console.log("Creating agent:", { name, systemPrompt, selectedRoutines });
     // Here you would typically send this data to your backend
+    mutation.mutate({
+      id,
+      data: {
+        userid: "abcd",
+        orgid: 0,
+        suborgid: 0,
+        name: name,
+        prompt: systemPrompt,
+        description: systemPrompt,
+        routines: selectedRoutines.map(item => Number(item)),
+        metadata: {},
+        metadata_info: {},
+      }
+    })
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-black w-full">
       {/* <Header /> */}
-
+      <Toaster toastOptions={{ position: "bottom-right" }} />
       <main className="flex-grow p-6">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6">Create New Agent</h2>
+          <h2 className="text-3xl font-bold mb-6">{isCreate ? "Create New Agent" : "Update Agent"}</h2>
 
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
             <form
@@ -98,10 +156,10 @@ export function CreateAgentComponent() {
                       <SelectValue placeholder="Select routines" />
                     </SelectTrigger>
                     <SelectContent>
-                      {routines.map((routine) => (
+                      {routineList?.map((routine) => (
                         <SelectItem
-                          key={routine.id}
-                          value={routine.id.toString()}
+                          key={routine.routineid}
+                          value={routine.routineid.toString()}
                         >
                           {routine.name}
                         </SelectItem>
@@ -110,8 +168,8 @@ export function CreateAgentComponent() {
                   </Select>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {selectedRoutines.map((routineId) => {
-                      const routine = routines.find(
-                        (r) => r.id.toString() === routineId,
+                      const routine = routineList.find(
+                        (r) => r.routineid.toString() === routineId.toString(),
                       ) || { name: "" };
                       return (
                         <div
@@ -140,7 +198,7 @@ export function CreateAgentComponent() {
                   className="w-full"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Agent
+                  {isCreate ? "Create Agent" : "Update Agent"}
                 </Button>
               </div>
             </form>

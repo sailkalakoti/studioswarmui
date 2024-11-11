@@ -7,7 +7,7 @@ const Header = () => {
       <div className="flex items-center justify-between mx-auto">
         <Link href="/dashboard" className="h-8 flex items-center gap-2">
           <Logo color="brand" />
-          <span className="font-semibold text-[18px]">StudioSwarm</span>
+          <span className="font-semibold text-[28px] text-[#002856]">StudioSwarm</span>
         </Link>
       </div>
     </header>

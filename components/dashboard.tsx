@@ -9,19 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Cog, Users, Zap, BarChart, Clock, Cpu, Database, Bot, Route, Brain } from "lucide-react";
-import Header from "./header";
-import { Sidebar, SidebarProvider } from "./ui/sidebar";
-import {
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarTrigger
-} from "@/components/ui/sidebar"
-import { AppSidebar } from "./DashboardSidebar";
+import { Cog, Users, Zap, BarChart, Clock, Cpu } from "lucide-react";
+import axiosInstance from "@/lib/apiService";
+import { useQuery } from "react-query";
 
-
+const getData = async (url) => {
+  const { data } = await axiosInstance.get(url);
+  return data;
+}
 export function Dashboard() {
   const summaryData = [
     {
@@ -47,23 +42,26 @@ export function Dashboard() {
       description:
         "Design automated workflows and processes for your AI agents.",
       icon: <Cog className="h-12 w-12 text-[#002856]" />,
-      link: "/routines/create-routine",
+      link: "/routines/create",
     },
     {
       title: "Create Agent",
       description:
         "Build specialized AI agents tailored to your specific needs.",
       icon: <Users className="h-12 w-12 text-[#002856]" />,
-      link: "/agents/create-agent",
+      link: "/agents/create",
     },
     {
       title: "Create Swarm",
       description:
         "Orchestrate multiple AI agents to work together on complex tasks.",
       icon: <Zap className="h-12 w-12 text-[#002856]" />,
-      link: "/swarms/create-swarm",
+      link: "/swarms/create",
     },
   ];
+
+  const { data: graphComplexity } = useQuery('graphComplexityDistribution', () => getData('/metrics/graph-complexity-distribution'));
+  const { data: averageRoutinePerAgent } = useQuery('averageRoutinePerAgent', () => getData('/metrics/average-routines-per-agent'));
 
   return (
     <div className="min-h-screen bg-gray-50">

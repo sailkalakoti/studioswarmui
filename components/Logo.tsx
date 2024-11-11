@@ -10,7 +10,7 @@ const Logo: React.FC<LogoProps> = ({ color }) => (
     preserveAspectRatio="xMidYMid meet">
 
     <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
-      fill="#000000" stroke="none">
+      fill="#002856" stroke="none">
       <path d="M1588 4825 c-218 -55 -378 -234 -428 -477 -11 -56 -12 -58 -53 -68
 -317 -80 -531 -266 -624 -545 -24 -73 -27 -95 -27 -235 -1 -136 2 -164 22
 -230 27 -85 38 -66 -83 -154 -87 -63 -166 -160 -221 -271 -53 -108 -74 -197

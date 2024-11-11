@@ -9,49 +9,35 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Play, Pause, Clock, BarChart, ChevronDown, MoreVerticalIcon } from "lucide-react";
-import Header from "./header";
+import { Plus, MoreVerticalIcon } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import axiosInstance from "@/lib/apiService";
+import toast, { Toaster } from "react-hot-toast";
+
+const fetchData = async (type) => {
+  const { data } = await axiosInstance.get('/' + type?.queryKey[0] + '/?limit=100');
+  return data;
+}
+
+const deleteItem = async (payload) => {
+  const endPoint = payload.page;
+  const { data } = await axiosInstance.delete('/' + endPoint + '/' + payload.id);
+  return data;
+}
 
 export function RoutinesList({ page }: { page: keyof typeof titleList }) {
-  const routines = [
-    {
-      id: 1,
-      name: "Data Processing Workflow",
-      description: "Automated data cleaning and analysis pipeline",
-      status: "Active",
-      lastRun: "2 hours ago",
-      successRate: "98%",
-    },
-    {
-      id: 2,
-      name: "Customer Support Bot",
-      description: "AI-powered customer inquiry handling system",
-      status: "Paused",
-      lastRun: "1 day ago",
-      successRate: "95%",
-    },
-    {
-      id: 3,
-      name: "Content Generation",
-      description: "Automated blog post and social media content creator",
-      status: "Active",
-      lastRun: "30 minutes ago",
-      successRate: "92%",
-    },
-    {
-      id: 4,
-      name: "Market Analysis",
-      description: "Daily market trend analysis and report generation",
-      status: "Active",
-      lastRun: "4 hours ago",
-      successRate: "97%",
-    },
-  ];
+  const [toBeDeletedItem, setToBeDeletedItem] = useState({});
+  const queryClient = useQueryClient();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const openDeleteDialog = (routine) => {
+    setIsDeleteDialogOpen(true);
+    setToBeDeletedItem(routine);
+  }
 
   const titleList = {
     routines: "Routines",
@@ -59,10 +45,26 @@ export function RoutinesList({ page }: { page: keyof typeof titleList }) {
     swarms: "Swarms",
   };
 
-  const openStateChange = (e) => {
-    console.log({ e });
+  const { data = [] } = useQuery(page, fetchData);
+  const deleteMutation = useMutation(deleteItem, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(page);
+    },
+    onError: (error) => {
+      console.log({ error });
+      toast.error("Something went wrong");
+      queryClient.invalidateQueries(page);
+    }
+  })
+
+  const onDeleteClick = () => {
+    setIsDeleteDialogOpen(false);
+    deleteMutation.mutate({
+      page,
+      id: toBeDeletedItem.routineid || toBeDeletedItem.agentid
+    })
   }
-  console.log({ isDeleteDialogOpen });
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 w-full">
       {/* <Header /> */}
@@ -71,50 +73,9 @@ export function RoutinesList({ page }: { page: keyof typeof titleList }) {
         <h1 className="text-3xl font-bold product-text-color mb-8">
           {titleList[page]}
         </h1>
+        <Toaster toastOptions={{ position: "bottom-right" }} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {routines.map((routine) => (
-            <Card key={routine.id} className="flex flex-col">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{routine.name}</span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <MoreVerticalIcon />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem >
-                        <p className="w-full" onClick={() => setIsDeleteDialogOpen(true)}>Delete</p>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <p className="text-sm text-gray-600 mb-4">
-                  {routine.description}
-                </p>
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span>Last run: {routine.lastRun}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <BarChart className="h-4 w-4 mr-1" />
-                    <span>Success: {routine.successRate}</span>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  asChild
-                  className="w-full border-[#0000a9] border-[1px] bg-[#ffffff] hover:border-[#0000d3] hover:bg-[#ffffff] text-[#0000a9] hover:text-[#0000d3]"
-                >
-                  <Link href={`/${page}/${routine.id}`}>View Details</Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
 
           <Card className="flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300">
             <CardContent className="flex flex-col items-center py-8">
@@ -133,6 +94,52 @@ export function RoutinesList({ page }: { page: keyof typeof titleList }) {
               </Button>
             </CardContent>
           </Card>
+          {data?.map(routine => ({
+            ...routine,
+            id: routine.routineid || routine.agentid || routine.swarmid
+          }))
+            ?.map((routine) => (
+              <Card key={routine.routineid || routine.agentid || routine.swarmid} className="flex flex-col">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>{routine.name}</span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <MoreVerticalIcon />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem >
+                          <p className="w-full" onClick={() => openDeleteDialog(routine)}>Delete</p>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <p className="text-sm text-gray-600 mb-4">
+                    {routine.description}
+                  </p>
+                  {/* <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-1" />
+                    <span>Last run: {routine.lastRun}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <BarChart className="h-4 w-4 mr-1" />
+                    <span>Success: {routine.successRate}</span>
+                  </div>
+                </div> */}
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    asChild
+                    className="w-full border-[#0000a9] border-[1px] bg-[#ffffff] hover:border-[#0000d3] hover:bg-[#ffffff] text-[#0000a9] hover:text-[#0000d3]"
+                  >
+                    <Link href={`/${page}/${routine.id}`}>View Details</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           <Dialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
@@ -148,7 +155,7 @@ export function RoutinesList({ page }: { page: keyof typeof titleList }) {
               </div>
               <DialogFooter>
                 <Button
-                  onClick={() => setIsDeleteDialogOpen(false)}
+                  onClick={onDeleteClick}
                   variant={'primary'}
                   tabIndex={-1}
                 >

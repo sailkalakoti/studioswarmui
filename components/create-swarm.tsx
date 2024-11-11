@@ -25,23 +25,61 @@ import { FlowchartComponent } from "@/components/workflow/page";
 import { useDnD } from "./DnDContext";
 import { useSidebar } from "./ui/sidebar";
 import ChatContainer from "./ChatContainer";
+import axiosInstance from "@/lib/apiService";
+import { useMutation, useQuery } from "react-query";
 
-export function CreateSwarm() {
+const getAgent = async ({ queryKey }) => {
+  const { data } = await axiosInstance.get(queryKey[0]);
+  return data;
+}
+
+const getSwarmData = async ({ queryKey }) => {
+  const { data } = await axiosInstance.get(queryKey[0]);
+  return data;
+}
+
+const createSwarm = async (payload) => {
+  const { data } = await axiosInstance.post('/swarms/', payload);
+  return data;
+}
+
+export function CreateSwarm({ id }) {
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
-  const { setType, setNodeType, setNodeDetails } = useDnD();
+  const { setType, setNodeType, setNodeDetails, allNodes, allEdges, setAllNodes, setAllEdges } = useDnD();
   const [swarmName, setSwarmName] = useState("");
   const [swarmDescription, setSwarmDescription] = useState("");
   const [expandedSections, setExpandedSections] = useState({
     standardNodes: true,
     agents: true,
   });
+  const [existingNodes, setExistingNodes] = useState([]);
+  const [existingEdges, setExistingEdges] = useState([]);
+  const isCreate = id === 'create';
+
+  const { data: agentData } = useQuery('/agents/', getAgent);
+
+  const { data: swarmData } = useQuery(!isCreate ? '/swarms/'+id : null, getSwarmData);
 
   const [showChatBubble, setShowChatBubble] = useState(false);
+
+  const createSwarmMutation = useMutation(createSwarm, {
+  });
 
   const { setOpen } = useSidebar();
   useEffect(() => {
     setOpen(false);
   }, []);
+
+  useEffect(() => {
+    if (Object?.keys(swarmData || {})) {
+      const {
+        nodes,
+        edges,
+      } = swarmData?.graph || {};
+      setExistingEdges(edges);
+      setExistingNodes(nodes);
+    }
+  }, [swarmData]);
 
   const standardNodes = [
     {
@@ -105,7 +143,7 @@ export function CreateSwarm() {
     nodeType: string,
     nodeItem: object,
   ) => {
-    setType(type);
+    setType(nodeType);
     setNodeType(nodeType)
     setNodeDetails(nodeItem);
     event.dataTransfer.effectAllowed = "move";
@@ -116,7 +154,15 @@ export function CreateSwarm() {
   };
 
   const handleSave = () => {
-    // Here you would typically save the swarm configuration
+
+    createSwarmMutation.mutate({
+      name: swarmName,
+      description: swarmDescription,
+      graph: {
+        nodes: allNodes,
+        edges: allEdges,
+      }
+    });
     console.log("Saving swarm:", {
       name: swarmName,
       description: swarmDescription,
@@ -183,34 +229,23 @@ export function CreateSwarm() {
                   <ChevronRight className="h-4 w-4" />
                 )}
               </button>
-              {expandedSections.agents && (
-                <div className="mt-2 space-y-2">
-                  <div
-                    className="flex items-center space-x-2 cursor-move p-2 cursor-move"
-                    draggable
-                    onDragStart={(event) => onDragStart(event, "analysisAgent", "agent", {
-                      label: "Analysis Agent",
-                      id: "analysisAgent",
-                      icon: <User className="h-4 w-4 text-green-500" />,
-                    })}
-                  >
-                    <User className="h-4 w-4 text-green-500" />
-                    <span>Analysis Agent</span>
-                  </div>
-                  <div
-                    className="flex items-center space-x-2 cursor-move p-2 cursor-move"
-                    draggable
-                    onDragStart={(event) => onDragStart(event, "decisionAgent", "agent", {
-                      label: "Decision Agent",
-                      id: "decisionAgent",
-                      icon: <User className="h-4 w-4 text-purple-500" />,
-                    })}
-                  >
-                    <User className="h-4 w-4 text-purple-500" />
-                    <span>Decision Agent</span>
-                  </div>
+              {agentData?.map(agentItem => (
+                <div
+                  className="flex items-center space-x-2 cursor-move p-2 cursor-move"
+                  draggable
+                  key={agentItem.agentid}
+                  onDragStart={(event) => onDragStart(event, agentItem?.agentid, "agent", {
+                    label: agentItem?.name,
+                    id: agentItem?.agentid,
+                    ...agentItem,
+                    icon: <User className="h-4 w-4 text-green-500" />,
+                  })}
+                >
+                  <User className="h-4 w-4 text-green-500" />
+                  <span>{agentItem?.name}</span>
                 </div>
-              )}
+              ))}
+
             </div>
           </nav>
         </aside>
@@ -239,7 +274,7 @@ export function CreateSwarm() {
           {/* Canvas */}
           <Card className="mb-8">
             <CardContent className="h-[80vh] pt-6 bg-transparent rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-              <FlowchartComponent />
+              <FlowchartComponent nodes={existingNodes} edges={existingEdges} />
             </CardContent>
           </Card>
 

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
+import { v4 as uuid } from 'uuid';
 import {
   ReactFlow,
   Node,
@@ -43,6 +44,7 @@ const nodeTypes: NodeTypes = {
   analysisAgent: CustomNode,
   decisionAgent: CustomNode,
   agent: AgentNode,
+  standardNodes: CustomNode,
 };
 
 interface DropEvent extends React.DragEvent {
@@ -52,6 +54,7 @@ interface DropEvent extends React.DragEvent {
 
 interface NewNode extends Node {
   id: string;
+  nodeId: string;
   type: string;
   position: { x: number; y: number };
   data: { label?: string };
@@ -63,7 +66,7 @@ const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
 
 let id = 0;
-const getId = () => `dndnode_${id++}`;
+const getId = () => `dndnode_${uuid()}`;
 
 const Topbar = () => {
   return (
@@ -87,12 +90,12 @@ const checkIfBothNodeAgent = (sourceId:string, targetId: string, nodes: any): bo
   return false;
 }
 
-export const FlowchartComponent: React.FC = () => {
+export const FlowchartComponent: React.FC = ({ nodes: nodesFromProps, edges: edgesFromProps} : { nodes, edges }) => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const { screenToFlowPosition } = useReactFlow();
-  const { type, nodeType, nodeDetails } = useDnD();
+  const { type, nodeType, nodeDetails, setAllEdges, setAllNodes } = useDnD();
   const onConnect = useCallback(
     ({
       source,
@@ -105,7 +108,6 @@ export const FlowchartComponent: React.FC = () => {
       sourceHandle: string | null;
       targetHandle: string | null;
     }) => {
-
       return setEdges((eds) =>
         nodes
           .filter((node) => node.id === source)
@@ -117,12 +119,13 @@ export const FlowchartComponent: React.FC = () => {
               target,
               sourceHandle: sourceHandle,
               targetHandle: targetHandle,
+              type: 'bidirectional',
               // animated: true,
               markerEnd: {
                 type: MarkerType.ArrowClosed,
                 color: '#4F46E5',
               },
-              ...(isAgentToAgent ? {label: "Handoff"} : {}),
+              // ...(isAgentToAgent ? {label: "Handoff"} : {label: ""}),
               style: {
                 strokeWidth: 2,
                 stroke: '#4F46E5',
@@ -136,8 +139,23 @@ export const FlowchartComponent: React.FC = () => {
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [nodes],
+    [nodes, nodeDetails],
   );
+
+  useEffect(() => {
+    if (Object?.keys(nodesFromProps || {})?.length > 0) {
+      setNodes(nodesFromProps);
+      setEdges(edgesFromProps);
+    }
+  }, [nodesFromProps, edgesFromProps]);
+
+  useEffect(() => {
+    setAllEdges(edges);
+  }, [edges]);
+
+  useEffect(() => {
+    setAllNodes(nodes);
+  }, [nodes]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -156,17 +174,19 @@ export const FlowchartComponent: React.FC = () => {
         x: event.clientX,
         y: event.clientY,
       });
+      const dataToInsert = initialNodes.find((node) => node.nodeId === nodeDetails.id)?.data || nodeDetails;
       const newNode: NewNode = {
         id: getId(),
+        nodeId: nodeDetails.id,
         type,
         position,
-        data: initialNodes.find((node) => node.type === type)?.data || nodeDetails,
+        data: initialNodes.find((node) => node.nodeId === nodeDetails.id)?.data || nodeDetails,
         nodeType: nodeType,
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, setNodes, type],
+    [screenToFlowPosition, setNodes, type, nodeDetails],
   );
 
   const nodeClassName = (node) => node.type;
