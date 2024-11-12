@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Cog, Users, Zap, BarChart, Clock, Cpu } from "lucide-react";
 import axiosInstance from "@/lib/apiService";
 import { useQuery } from "react-query";
+import AverageRoutineChart from "./AverageRoutineChart";
+import VerticalBarChart from "./SwarmComplexityDistribution";
+import { useFetchData } from "@/lib/utils";
 
 const getData = async (url) => {
   const { data } = await axiosInstance.get(url);
@@ -60,8 +63,30 @@ export function Dashboard() {
     },
   ];
 
-  const { data: graphComplexity } = useQuery('graphComplexityDistribution', () => getData('/metrics/graph-complexity-distribution'));
-  const { data: averageRoutinePerAgent } = useQuery('averageRoutinePerAgent', () => getData('/metrics/average-routines-per-agent'));
+  const headerOptions  = [
+    {
+      title: "Total Routines",
+      icon: <Cog className="h-12 w-12 text-[#002856]" />,
+      id: 'routines',
+    },
+    {
+      title: "Total Agents",
+      icon: <Users className="h-12 w-12 text-[#002856]" />,
+      id: 'agents',
+    },
+    {
+      title: "Total Swarms",
+      icon: <Zap className="h-12 w-12 text-[#002856]" />,
+      id: 'swarms',
+    },
+  ];
+
+  // const { data: graphComplexity } = useQuery('graphComplexityDistribution', () => getData('/metrics/graph-complexity-distribution'));
+  const { data: graphComplexity } = useFetchData('/metrics/graph-complexity-distribution');
+  const { data: averageRoutinePerAgent } = useFetchData('/metrics/average-routines-per-agent');
+  const { data: counts } = useFetchData('/metrics/counts');
+
+  console.log({ graphComplexity, averageRoutinePerAgent, counts });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -96,22 +121,27 @@ export function Dashboard() {
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {summaryData.map((item, index) => (
+            {headerOptions.map((item, index) => (
               <Card key={index}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
+                  <CardTitle className="text-xl font-medium">
                     {item.title}
                   </CardTitle>
                   {item.icon}
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{item.value}</div>
+                  <div className="text-2xl font-bold">{counts?.[item.id]}</div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <Card className="mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+              <VerticalBarChart graphComplexity={graphComplexity} />
+              <AverageRoutineChart averageRoutinePerAgent={averageRoutinePerAgent} />
+          </div>
+
+          {/* <Card className="mb-12">
             <CardHeader>
               <CardTitle>Task Completion Rate</CardTitle>
             </CardHeader>
@@ -120,7 +150,7 @@ export function Dashboard() {
                 <BarChart className="h-full w-full text-gray-400" />
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Create New</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

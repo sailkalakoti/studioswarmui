@@ -27,6 +27,9 @@ import { useSidebar } from "./ui/sidebar";
 import ChatContainer from "./ChatContainer";
 import axiosInstance from "@/lib/apiService";
 import { useMutation, useQuery } from "react-query";
+import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
+import { useFetchData } from "@/lib/utils";
 
 const getAgent = async ({ queryKey }) => {
   const { data } = await axiosInstance.get(queryKey[0]);
@@ -39,13 +42,17 @@ const getSwarmData = async ({ queryKey }) => {
 }
 
 const createSwarm = async (payload) => {
-  const { data } = await axiosInstance.post('/swarms/', payload);
+  if (payload.id !== 'create') {
+    const { data } = await axiosInstance.put('/swarms/' + payload.id, payload.data);
+  return data;
+  }
+  const { data } = await axiosInstance.post('/swarms/', payload.data);
   return data;
 }
 
 export function CreateSwarm({ id }) {
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
-  const { setType, setNodeType, setNodeDetails, allNodes, allEdges, setAllNodes, setAllEdges } = useDnD();
+  const { setType, setNodeType, setNodeDetails, allNodes, allEdges } = useDnD();
   const [swarmName, setSwarmName] = useState("");
   const [swarmDescription, setSwarmDescription] = useState("");
   const [expandedSections, setExpandedSections] = useState({
@@ -55,14 +62,18 @@ export function CreateSwarm({ id }) {
   const [existingNodes, setExistingNodes] = useState([]);
   const [existingEdges, setExistingEdges] = useState([]);
   const isCreate = id === 'create';
+  const router = useRouter();
 
-  const { data: agentData } = useQuery('/agents/', getAgent);
-
-  const { data: swarmData } = useQuery(!isCreate ? '/swarms/'+id : null, getSwarmData);
+  const { data: agentData } = useFetchData('/agents/?limit=100');
+  const { data: swarmData } = useFetchData(!isCreate ? '/swarms/'+id : null);
 
   const [showChatBubble, setShowChatBubble] = useState(false);
 
   const createSwarmMutation = useMutation(createSwarm, {
+    onSuccess: () => {
+      toast.success(isCreate ? 'Created new Swarm' : 'Updated Swarm')
+      router.push('/swarms');
+    }
   });
 
   const { setOpen } = useSidebar();
@@ -71,13 +82,15 @@ export function CreateSwarm({ id }) {
   }, []);
 
   useEffect(() => {
-    if (Object?.keys(swarmData || {})) {
+    if (Object?.keys(swarmData || {})?.length > 0) {
       const {
         nodes,
         edges,
       } = swarmData?.graph || {};
       setExistingEdges(edges);
       setExistingNodes(nodes);
+      setSwarmName(swarmData?.name);
+      setSwarmDescription(swarmData?.description);
     }
   }, [swarmData]);
 
@@ -93,49 +106,6 @@ export function CreateSwarm({ id }) {
       id: 'endNode',
     },
   ];
-  const oldNodes = [
-    {
-      icon: <Database className="h-4 w-4 text-blue-500" />,
-      label: "Data Source",
-      id: 'dataSource',
-    },
-    {
-      icon: <Zap className="h-4 w-4 text-yellow-500" />,
-      label: "Process",
-      id: 'process',
-    },
-    {
-      icon: <Zap className="h-4 w-4 text-yellow-500" />,
-      label: "Chat Input Node",
-      id: "chatInput"
-    },
-    {
-      icon: <Zap className="h-4 w-4 text-yellow-500" />,
-      label: "Prompt Node",
-      id: "prompt",
-    },
-    {
-      icon: <Zap className="h-4 w-4 text-yellow-500" />,
-      label: "OpenAI Node",
-      id: "openai"
-    },
-    {
-      icon: <Zap className="h-4 w-4 text-yellow-500" />,
-      label: "Chat Output Node",
-      id: "chatOutput"
-    }
-  ];
-
-  const agentNodes = [
-    {
-      icon: <User className="h-4 w-4 text-green-500" />,
-      label: "Analysis Agent",
-    },
-    {
-      icon: <User className="h-4 w-4 text-purple-500" />,
-      label: "Decision Agent",
-    }
-  ]
 
   const onDragStart = (
     event: React.DragEvent<HTMLDivElement>,
@@ -153,14 +123,27 @@ export function CreateSwarm({ id }) {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const onSaveTrigger = (event) => {
+    if (!isCreate) {
+      event?.stopPropagation();
+      event?.preventDefault();
+      handleSave();
+      return ;
+    }
+    setIsSaveDialogOpen(true);
+  }
+
   const handleSave = () => {
 
     createSwarmMutation.mutate({
-      name: swarmName,
-      description: swarmDescription,
-      graph: {
-        nodes: allNodes,
-        edges: allEdges,
+      id,
+      data: {
+        name: swarmName,
+        description: swarmDescription,
+        graph: {
+          nodes: allNodes,
+          edges: allEdges,
+        }
       }
     });
     console.log("Saving swarm:", {
@@ -181,9 +164,7 @@ export function CreateSwarm({ id }) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col w-full">
-      {/* Header */}
-      {/* <Header /> */}
-
+      <Toaster toastOptions={{ position: "bottom-right" }} />
       {/* Main content */}
       <div className="flex-1 flex">
         {/* Sidebar */}
@@ -258,7 +239,7 @@ export function CreateSwarm({ id }) {
             {/* Action Buttons */}
             <div className="flex space-x-4">
               <Button
-                onClick={() => setIsSaveDialogOpen(true)}
+                onClick={onSaveTrigger}
                 variant={"primary"}
               >
                 <Save className="h-4 w-4 mr-2" />

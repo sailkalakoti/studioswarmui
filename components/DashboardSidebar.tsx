@@ -89,6 +89,13 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenuButton>
+          <a href="/settings">
+            <Settings />
+          </a>
+        </SidebarMenuButton>
+      </SidebarFooter>
     </Sidebar>
   )
 }

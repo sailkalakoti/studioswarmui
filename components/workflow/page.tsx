@@ -125,7 +125,7 @@ export const FlowchartComponent: React.FC = ({ nodes: nodesFromProps, edges: edg
                 type: MarkerType.ArrowClosed,
                 color: '#4F46E5',
               },
-              // ...(isAgentToAgent ? {label: "Handoff"} : {label: ""}),
+              ...(isAgentToAgent ? {label: "Handoff"} : {label: ""}),
               style: {
                 strokeWidth: 2,
                 stroke: '#4F46E5',

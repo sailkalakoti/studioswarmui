@@ -1,6 +1,6 @@
 "use client";
 import { Handle, Position } from "@xyflow/react";
-import { ComputerIcon, EditIcon, MessageSquareQuote } from "lucide-react";
+import { ComputerIcon, EditIcon, MessageSquareQuote, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,23 +32,21 @@ import { useState } from "react";
 import { Textarea } from "./ui/textarea";
 
 export const CustomNode = ({ data }: { data: { label: string } }) => {
-  console.log({ data });
   return (
     <>
-      <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Left} id='custom-target-top' />
+      <Handle type="source" position={Position.Left} id='custom-source-top' />
       <div className="rounded-md p-0.5 bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
         <div className="h-full w-full p-3 rounded-md bg-white">
           <label htmlFor="text">{data.label}</label>
 
         </div>
       </div>
-      {/* <div className="bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
-    </div> */}
-      <Handle type="source" position={Position.Bottom} id="a" />
+      <Handle type="target" position={Position.Right} id="custom-target-bottom" />
       <Handle
         type="source"
-        position={Position.Bottom}
-        id="b"
+        position={Position.Right}
+        id="custom-source-bottom"
       />
     </>
   );
@@ -57,12 +55,12 @@ export const CustomNode = ({ data }: { data: { label: string } }) => {
 export const AgentNode = ({ data }) => {
   return (
     <>
-      <Handle type="target" position={Position.Top} id='custom-target-top' />
-      <Handle type="source" position={Position.Top} id='custom-source-top' />
+      <Handle type="target" position={Position.Left} id='custom-target-top' />
+      <Handle type="source" position={Position.Left} id='custom-source-top' />
       <div className="rounded-md p-0.5 bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
         <div className="rounded-md bg-white p-3">
           <div className="h-full w-full bg-white flex items-center gap-2">
-            {/* {data.icon} */}
+            <User className="h-4 w-4 text-green-500" />
             <label htmlFor="text">{data.label}</label>
           </div>
           <div className="pt-2 h-full w-full bg-white max-w-[300px] min-w-[300px]">
@@ -73,10 +71,10 @@ export const AgentNode = ({ data }) => {
       </div>
       <Handle
         type="target"
-        position={Position.Bottom}
+        position={Position.Right}
         id="custom-target-bottom"
       />
-      <Handle type="source" position={Position.Bottom} id="custom-source-bottom" />
+      <Handle type="source" position={Position.Right} id="custom-source-bottom" />
     </>
   );
 }

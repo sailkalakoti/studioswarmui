@@ -2,13 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@radix-ui/themes/styles.css";
 import "./globals.css";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/DashboardSidebar";
-import Header from "@/components/header";
-import Link from "next/link";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 import { Theme } from "@radix-ui/themes";
-
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

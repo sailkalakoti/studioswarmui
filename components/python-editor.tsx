@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Editor from "react-simple-code-editor";
 import "prismjs/themes/prism.css";
 import { Button } from "@/components/ui/button";
@@ -18,10 +18,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import axiosInstance from "@/lib/apiService";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
+import useDebounce, { debounce, useApiMutation, useFetchData } from "@/lib/utils";
 
 const highlightWithoutPython = (code: string) => {
   return code
@@ -33,25 +32,6 @@ const highlightWithoutPython = (code: string) => {
     )
     .join("\n");
 };
-
-const createRoutine = async (payload) => {
-  if (payload.id !== 'create') {
-    const { data } = await axiosInstance.put('/routines/' + payload.id , payload.data);
-    return data;  
-  }
-  const { data } = await axiosInstance.post('/routines/', payload.data);
-  return data;
-}
-
-const executeCode = async (payload) => {
-  const { data } = await axiosInstance.post('/code/', payload);
-  return data;
-}
-
-const getRoutine = async ({ queryKey }) => {
-  const { data } = await axiosInstance.get(queryKey[0]);
-  return data;
-}
 
 export function PythonEditorComponent({ id }) {
   const [code, setCode] = useState(
@@ -69,11 +49,17 @@ export function PythonEditorComponent({ id }) {
   const [routineDescription, setRoutineDescription] = useState("");
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
-  const queryClient = useQueryClient();
+  const debouncedRoutineName = useDebounce(routineName, 300);
+
+  const {
+    data: routineExists,
+    isLoading: isRoutineExistLoading
+  } = useFetchData(debouncedRoutineName?.length > 0 ? '/routines/exists?name=' + debouncedRoutineName : null);
+
   const router = useRouter();
   const isCreate = id === 'create';
 
-  const { data: routineData } = useQuery(!isCreate ? '/routines/'+id : null, getRoutine);
+  const { data: routineData } = useFetchData(!isCreate ? '/routines/' + id : null);
 
   useEffect(() => {
     if (Object?.keys(routineData || {})?.length > 0) {
@@ -81,19 +67,18 @@ export function PythonEditorComponent({ id }) {
       setRoutineName(routineData.name);
       setRoutineDescription(routineData.description);
     }
-  } , [routineData]);
+  }, [routineData]);
 
-  const mutation = useMutation(createRoutine, {
+  const mutation = useApiMutation(isCreate ? '/routines/' : `/routines/${id}`, isCreate ? 'POST' : 'PUT', {
     onSuccess: () => {
-      queryClient.invalidateQueries([]);
-      toast.success("Created new routine");
+      toast.success(isCreate ? "Created new routine" : "Updated routine");
       router.push('/routines');
       setIsSaveDialogOpen(false);
     }
   });
 
-  const codeMutation = useMutation(executeCode, {
-    onSuccess: (data) => {
+  const codeMutation = useApiMutation('/routines/code/execution/', 'POST', {
+    onSuccess: (data: any) => {
       setOutput(data.output);
       setShowOutput(true);
       setLastRun(new Date());
@@ -120,15 +105,12 @@ export function PythonEditorComponent({ id }) {
     console.log("Code saved:", code);
     console.log("Requirements saved:", requirements);
     mutation.mutate({
-      id,
-      data: {
-        name: routineName,
-        description: routineDescription,
-        code,
-        requirements,
-        metadata: {},
-        metadata_info: {},
-      }
+      name: routineName,
+      description: routineDescription,
+      code,
+      requirements,
+      metadata: {},
+      metadata_info: {},
     })
   };
 
@@ -143,7 +125,7 @@ export function PythonEditorComponent({ id }) {
   return (
     <div className="flex flex-col min-h-screen bg-white text-black w-full">
       {/* <Header /> */}
-        <Toaster toastOptions={{ position: "bottom-right" }} />
+      <Toaster toastOptions={{ position: "bottom-right" }} />
 
 
       <main className="flex-grow p-6">
@@ -237,18 +219,29 @@ export function PythonEditorComponent({ id }) {
                       Enter the name and description for your routine.
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="grid gap-4 py-4">
+                  <div className="grid gap-8 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="name" className="text-right">
                         Name
                       </Label>
-                      <Input
-                        id="name"
-                        value={routineName}
-                        onChange={(e) => setRoutineName(e.target.value)}
-                        className="col-span-3"
-                      />
+                      <div className="col-span-3">
+                        <Input
+                          id="name"
+                          value={routineName}
+                          onChange={(e) => setRoutineName(e.target.value)}
+
+                        />
+                        <Label htmlFor="name" className="text-right font-normal absolute pt-1 text-xs">
+                          {isRoutineExistLoading ? "Checking" : ""}
+                          {(routineExists !== undefined ? (
+                            (routineExists && !isRoutineExistLoading) ? 
+                              <span className="text-red-700">Routine name already taken</span> :
+                              <span className="text-green-800">Routine name is available</span>
+                          ) : null)}
+                        </Label>
+                      </div>
                     </div>
+
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="description" className="text-right">
                         Description
@@ -266,6 +259,7 @@ export function PythonEditorComponent({ id }) {
                       onClick={saveCode}
                       loading={mutation.isLoading}
                       variant="primary"
+                      disabled={Boolean(routineExists)}
                     >
                       Save Routine
                     </Button>

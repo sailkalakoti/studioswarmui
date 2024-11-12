@@ -16,10 +16,12 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import axiosInstance from "@/lib/apiService";
 import toast, { Toaster } from "react-hot-toast";
+import { useFetchData } from "@/lib/utils";
 
-const fetchData = async (type) => {
-  const { data } = await axiosInstance.get('/' + type?.queryKey[0] + '/?limit=100');
-  return data;
+interface ToBeDeletedItemProps {
+  routineid?: string;
+  agentid?: string;
+  swarmid?: string;
 }
 
 const deleteItem = async (payload) => {
@@ -29,7 +31,7 @@ const deleteItem = async (payload) => {
 }
 
 export function RoutinesList({ page }: { page: keyof typeof titleList }) {
-  const [toBeDeletedItem, setToBeDeletedItem] = useState({});
+  const [toBeDeletedItem, setToBeDeletedItem] = useState<ToBeDeletedItemProps>({});
   const queryClient = useQueryClient();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -45,15 +47,21 @@ export function RoutinesList({ page }: { page: keyof typeof titleList }) {
     swarms: "Swarms",
   };
 
-  const { data = [] } = useQuery(page, fetchData);
+  const pageType = {
+    routines: "Routine",
+    agents: "Agent",
+    swarms: "Swarm",
+  }
+
+  const { data = [] } = useFetchData(`/${page}/?limit=100`);
   const deleteMutation = useMutation(deleteItem, {
     onSuccess: () => {
-      queryClient.invalidateQueries(page);
+      queryClient.invalidateQueries(`/${page}/?limit=100`);
+      toast.success("Deleted " + pageType[page]);
     },
     onError: (error) => {
-      console.log({ error });
       toast.error("Something went wrong");
-      queryClient.invalidateQueries(page);
+      queryClient.invalidateQueries(`/${page}/?limit=100`);
     }
   })
 
@@ -61,7 +69,7 @@ export function RoutinesList({ page }: { page: keyof typeof titleList }) {
     setIsDeleteDialogOpen(false);
     deleteMutation.mutate({
       page,
-      id: toBeDeletedItem.routineid || toBeDeletedItem.agentid
+      id: toBeDeletedItem.routineid || toBeDeletedItem.agentid || toBeDeletedItem.swarmid
     })
   }
 
@@ -99,7 +107,7 @@ export function RoutinesList({ page }: { page: keyof typeof titleList }) {
             id: routine.routineid || routine.agentid || routine.swarmid
           }))
             ?.map((routine) => (
-              <Card key={routine.routineid || routine.agentid || routine.swarmid} className="flex flex-col">
+              <Card key={routine.routineid || routine.agentid || routine.swarmid} className="flex flex-col" draggable>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>{routine.name}</span>

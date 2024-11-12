@@ -36,6 +36,7 @@ export default function BidirectionalEdge({
   sourcePosition,
   targetPosition,
   markerEnd,
+  ...rest
 }: EdgeProps) {
   const isBiDirectionEdge = useStore((s: ReactFlowState) => {
     const edgeExists = s.edges.some(
@@ -46,6 +47,8 @@ export default function BidirectionalEdge({
 
     return edgeExists;
   });
+
+  console.log({ rest });
 
   const edgePathParams = {
     sourceX,
@@ -64,5 +67,5 @@ export default function BidirectionalEdge({
     [path] = getBezierPath(edgePathParams);
   }
 
-  return <BaseEdge path={path} markerEnd={markerEnd} />;
+  return <BaseEdge path={path} markerEnd={markerEnd} {...rest} />;
 }

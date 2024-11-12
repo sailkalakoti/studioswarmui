@@ -14,27 +14,18 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import axiosInstance from "@/lib/apiService";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
+import useDebounce, { useFetchData } from "@/lib/utils";
 
 const createAgent = async (payload) => {
   if (payload.id !== 'create') {
     const { data } = await axiosInstance.put('/agents/' + payload.id, payload.data);
-  return data;
+    return data;
   }
   const { data } = await axiosInstance.post('/agents/', payload.data);
-  return data;
-}
-
-const getRoutines = async ({ queryKey }) => {
-  const { data } = await axiosInstance.get(queryKey[0]);
-  return data;
-}
-
-const getAgent = async ({ queryKey }) => {
-  const { data } = await axiosInstance.get(queryKey[0]);
   return data;
 }
 
@@ -46,9 +37,16 @@ export function CreateAgentComponent({ id }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const isCreate = id === 'create';
+  const { data: routineList, error } = useFetchData('/routines/?limit=100');
+  const { data: agentData }: { data: any } = useFetchData(!isCreate ? '/agents/' + id : null);
 
-  const { data: routineList, error } = useQuery('/routines/', getRoutines);
-  const { data: agentData } = useQuery(!isCreate ? '/agents/'+id : null, getAgent);
+  const debouncedAgentName = useDebounce(name, 300);
+
+  const {
+    data: agentExist,
+    isLoading: isAgentExistLoading
+  } = useFetchData(debouncedAgentName?.length > 0 ? '/agents/exists?name=' + debouncedAgentName : null);
+
 
   useEffect(() => {
     if (error) {
@@ -67,7 +65,7 @@ export function CreateAgentComponent({ id }) {
   const mutation = useMutation(createAgent, {
     onSuccess: () => {
       queryClient.invalidateQueries([]);
-      toast.success("Created new Agent");
+      toast.success(isCreate ? "Created new Agent" : "Updated agent");
       router.push('/agents');
     }
   });
@@ -121,6 +119,14 @@ export function CreateAgentComponent({ id }) {
                     className="mt-1"
                     placeholder="Enter agent name"
                   />
+                  <Label htmlFor="name" className="text-right font-normal absolute pt-1 text-xs">
+                    {isAgentExistLoading ? "Checking" : ""}
+                    {(agentExist !== undefined ? (
+                      (agentExist && !isAgentExistLoading) ?
+                        <span className="text-red-700">Agent name already taken</span> :
+                        <span className="text-green-800">Agent name is available</span>
+                    ) : null)}
+                  </Label>
                 </div>
 
                 <div>
@@ -196,6 +202,7 @@ export function CreateAgentComponent({ id }) {
                 <Button
                   type="submit"
                   className="w-full"
+                  disabled={Boolean(agentExist) || name?.length === 0 || isAgentExistLoading}
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   {isCreate ? "Create Agent" : "Update Agent"}
