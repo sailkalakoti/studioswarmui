@@ -1,4 +1,5 @@
-import { Calendar, Cog, Home, Inbox, Search, Settings, Users, Zap } from "lucide-react"
+"use client"
+import { Calendar, Cog, Home, Inbox, LogOut, Search, Settings, Users, Zap } from "lucide-react"
 
 import {
   Sidebar,
@@ -67,6 +68,11 @@ const items = [
 ]
 
 export function AppSidebar() {
+
+  const deleteToken = () => {
+    localStorage.removeItem('swarm_token');
+  }
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -93,6 +99,11 @@ export function AppSidebar() {
         <SidebarMenuButton>
           <a href="/settings">
             <Settings />
+          </a>
+        </SidebarMenuButton>
+        <SidebarMenuButton>
+          <a href="/login" onClick={deleteToken}>
+            <LogOut />
           </a>
         </SidebarMenuButton>
       </SidebarFooter>

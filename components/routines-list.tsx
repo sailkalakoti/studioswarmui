@@ -17,6 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import axiosInstance from "@/lib/apiService";
 import toast, { Toaster } from "react-hot-toast";
 import { useFetchData } from "@/lib/utils";
+import CardSkeleton from "./CardSkeleton";
 
 interface ToBeDeletedItemProps {
   routineid?: string;
@@ -30,7 +31,7 @@ const deleteItem = async (payload) => {
   return data;
 }
 
-export function RoutinesList({ page }: { page: keyof typeof titleList }) {
+export function RoutinesList({ page }: { page: string }) {
   const [toBeDeletedItem, setToBeDeletedItem] = useState<ToBeDeletedItemProps>({});
   const queryClient = useQueryClient();
 
@@ -53,7 +54,11 @@ export function RoutinesList({ page }: { page: keyof typeof titleList }) {
     swarms: "Swarm",
   }
 
-  const { data = [] } = useFetchData(`/${page}/?limit=100`);
+  const { data = [], isLoading }: {
+    data: [];
+    isLoading: boolean;
+  } = useFetchData(`/${page}/?limit=100`);
+  console.log({ isLoading });
   const deleteMutation = useMutation(deleteItem, {
     onSuccess: () => {
       queryClient.invalidateQueries(`/${page}/?limit=100`);
@@ -102,18 +107,21 @@ export function RoutinesList({ page }: { page: keyof typeof titleList }) {
               </Button>
             </CardContent>
           </Card>
-          {data?.map(routine => ({
+          {isLoading && [...new Array(10)]?.map((item) => 
+            <CardSkeleton key={item} />
+          )}
+          {!isLoading && data?.map((routine: any) => ({
             ...routine,
             id: routine.routineid || routine.agentid || routine.swarmid
           }))
             ?.map((routine) => (
-              <Card key={routine.routineid || routine.agentid || routine.swarmid} className="flex flex-col" draggable>
+              <Card key={routine.routineid || routine.agentid || routine.swarmid} className="flex flex-col" >
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>{routine.name}</span>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <MoreVerticalIcon />
+                        <MoreVerticalIcon className="cursor"/>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem >

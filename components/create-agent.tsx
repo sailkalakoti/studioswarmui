@@ -37,7 +37,7 @@ export function CreateAgentComponent({ id }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const isCreate = id === 'create';
-  const { data: routineList, error } = useFetchData('/routines/?limit=100');
+  const { data: routineList, error }: { data: [], error: {}} = useFetchData('/routines/?limit=100');
   const { data: agentData }: { data: any } = useFetchData(!isCreate ? '/agents/' + id : null);
 
   const debouncedAgentName = useDebounce(name, 300);
@@ -45,7 +45,7 @@ export function CreateAgentComponent({ id }) {
   const {
     data: agentExist,
     isLoading: isAgentExistLoading
-  } = useFetchData(debouncedAgentName?.length > 0 ? '/agents/exists?name=' + debouncedAgentName : null);
+  } = useFetchData(isCreate && debouncedAgentName?.length > 0 ? '/agents/exists?name=' + debouncedAgentName : null);
 
 
   useEffect(() => {
@@ -162,7 +162,7 @@ export function CreateAgentComponent({ id }) {
                       <SelectValue placeholder="Select routines" />
                     </SelectTrigger>
                     <SelectContent>
-                      {routineList?.map((routine) => (
+                      {routineList?.map((routine: any) => (
                         <SelectItem
                           key={routine.routineid}
                           value={routine.routineid.toString()}
@@ -174,8 +174,8 @@ export function CreateAgentComponent({ id }) {
                   </Select>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {selectedRoutines.map((routineId) => {
-                      const routine = routineList.find(
-                        (r) => r.routineid.toString() === routineId.toString(),
+                      const routine: any = routineList.find(
+                        (r: any) => r.routineid.toString() === routineId.toString(),
                       ) || { name: "" };
                       return (
                         <div
@@ -202,7 +202,12 @@ export function CreateAgentComponent({ id }) {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={Boolean(agentExist) || name?.length === 0 || isAgentExistLoading}
+                  disabled={
+                    Boolean(agentExist) ||
+                    name?.length === 0 ||
+                    isAgentExistLoading ||
+                    !systemPrompt?.length
+                  }
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   {isCreate ? "Create Agent" : "Update Agent"}
@@ -212,23 +217,6 @@ export function CreateAgentComponent({ id }) {
           </div>
         </div>
       </main>
-
-      {/* <footer className="bg-gray-100 border-t border-gray-200 p-4 text-center text-sm text-gray-600">
-        <p>© 2024 StudioSwarm. All rights reserved.</p>
-        <div className="mt-2">
-          <a href="#" className="hover:text-black">
-            Terms of Service
-          </a>
-          <span className="mx-2">|</span>
-          <a href="#" className="hover:text-black">
-            Privacy Policy
-          </a>
-          <span className="mx-2">|</span>
-          <a href="#" className="hover:text-black">
-            Contact Us
-          </a>
-        </div>
-      </footer> */}
     </div>
   );
 }

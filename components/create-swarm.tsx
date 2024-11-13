@@ -29,7 +29,11 @@ import axiosInstance from "@/lib/apiService";
 import { useMutation, useQuery } from "react-query";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
-import { useFetchData } from "@/lib/utils";
+import useDebounce, { useFetchData } from "@/lib/utils";
+import { Label } from "./ui/label";
+import { Skeleton } from "./ui/skeleton";
+import { NewNode, NodeDetails } from "@/lib/types";
+import { Edge } from "@xyflow/react";
 
 const getAgent = async ({ queryKey }) => {
   const { data } = await axiosInstance.get(queryKey[0]);
@@ -59,15 +63,30 @@ export function CreateSwarm({ id }) {
     standardNodes: true,
     agents: true,
   });
-  const [existingNodes, setExistingNodes] = useState([]);
-  const [existingEdges, setExistingEdges] = useState([]);
+  const [existingNodes, setExistingNodes] = useState<NewNode[]>([]);
+  const [existingEdges, setExistingEdges] = useState<Edge[]>([]);
   const isCreate = id === 'create';
   const router = useRouter();
 
-  const { data: agentData } = useFetchData('/agents/?limit=100');
-  const { data: swarmData } = useFetchData(!isCreate ? '/swarms/'+id : null);
+  const { data: agentData, isLoading: isAgentListLoading }: {
+    data: [];
+    isLoading: boolean;
+  } = useFetchData('/agents/?limit=100');
+  const { data: swarmData }: { data: any } = useFetchData(!isCreate ? '/swarms/' + id : null);
 
   const [showChatBubble, setShowChatBubble] = useState(false);
+
+
+  const debouncedSwarmName = useDebounce(swarmName, 300);
+
+  const {
+    data: swarmExists,
+    isLoading: isSwarmExistsLoading,
+  }: {
+    data: boolean;
+    isLoading: boolean;
+  } = useFetchData(isCreate && debouncedSwarmName?.length > 0 ? '/swarms/exists?name=' + debouncedSwarmName : null);
+
 
   const createSwarmMutation = useMutation(createSwarm, {
     onSuccess: () => {
@@ -76,17 +95,12 @@ export function CreateSwarm({ id }) {
     }
   });
 
-  const { setOpen } = useSidebar();
-  useEffect(() => {
-    setOpen(false);
-  }, []);
-
   useEffect(() => {
     if (Object?.keys(swarmData || {})?.length > 0) {
       const {
         nodes,
         edges,
-      } = swarmData?.graph || {};
+      } = swarmData?.metadata_info || {};
       setExistingEdges(edges);
       setExistingNodes(nodes);
       setSwarmName(swarmData?.name);
@@ -96,22 +110,15 @@ export function CreateSwarm({ id }) {
 
   const standardNodes = [
     {
-      icon: null,
       label: "Start Node",
-      id: 'startNode',
-    },
-    {
-      icon: null,
-      label: "End Node",
-      id: 'endNode',
+      id: 0,
     },
   ];
 
   const onDragStart = (
     event: React.DragEvent<HTMLDivElement>,
-    type: string,
     nodeType: string,
-    nodeItem: object,
+    nodeItem: NodeDetails,
   ) => {
     setType(nodeType);
     setNodeType(nodeType)
@@ -128,22 +135,33 @@ export function CreateSwarm({ id }) {
       event?.stopPropagation();
       event?.preventDefault();
       handleSave();
-      return ;
+      return;
     }
     setIsSaveDialogOpen(true);
   }
 
   const handleSave = () => {
-
+    console.log("Saving");
     createSwarmMutation.mutate({
       id,
       data: {
         name: swarmName,
         description: swarmDescription,
         graph: {
+          nodes: allNodes?.map((nodeItem: any) => ({
+            id: Number(nodeItem.id),
+            name: nodeItem?.data?.label,
+            description: nodeItem?.data?.description || "",
+            type: nodeItem?.type || "",
+            edges: allEdges
+              ?.filter((edgeItem: any) => edgeItem.source === nodeItem.id)
+              ?.map((edgeItem: any) => Number(edgeItem?.target)),
+          })),
+        },
+        metadata_info: {
           nodes: allNodes,
           edges: allEdges,
-        }
+        },
       }
     });
     console.log("Saving swarm:", {
@@ -189,9 +207,9 @@ export function CreateSwarm({ id }) {
                       key={nodeItem.id}
                       className="flex items-center space-x-2 cursor-move p-2 cursor-move p-2"
                       draggable
-                      onDragStart={(event) => onDragStart(event, nodeItem?.id, "standardNodes", nodeItem)}
+                      onDragStart={(event) => onDragStart(event, "start", nodeItem)}
                     >
-                      {nodeItem?.icon}
+                      <Play className="h-4 w-4 text-green-500" />
                       <span>{nodeItem.label}</span>
                     </div>
                   ))}
@@ -210,16 +228,25 @@ export function CreateSwarm({ id }) {
                   <ChevronRight className="h-4 w-4" />
                 )}
               </button>
-              {agentData?.map(agentItem => (
+              {isAgentListLoading && (
+                <div className="pt-2">
+                  {[...Array(5)]?.map((agentLoadingItem) => (
+                    <div className="flex items-center space-x-2 p-2" key={agentLoadingItem} >
+                      <Skeleton className="w-6 h-[24px]" />
+                      <Skeleton className="w-1/2 h-[24px]" />
+                    </div>
+                  ))}
+                </div>
+              )}
+              {!isAgentListLoading && agentData?.map((agentItem: any) => (
                 <div
                   className="flex items-center space-x-2 cursor-move p-2 cursor-move"
                   draggable
                   key={agentItem.agentid}
-                  onDragStart={(event) => onDragStart(event, agentItem?.agentid, "agent", {
+                  onDragStart={(event) => onDragStart(event, "agent", {
                     label: agentItem?.name,
                     id: agentItem?.agentid,
                     ...agentItem,
-                    icon: <User className="h-4 w-4 text-green-500" />,
                   })}
                 >
                   <User className="h-4 w-4 text-green-500" />
@@ -241,6 +268,7 @@ export function CreateSwarm({ id }) {
               <Button
                 onClick={onSaveTrigger}
                 variant={"primary"}
+                disabled={!allNodes?.length}
               >
                 <Save className="h-4 w-4 mr-2" />
                 Save
@@ -265,7 +293,7 @@ export function CreateSwarm({ id }) {
               <DialogHeader>
                 <DialogTitle>Save Swarm</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="space-y-8">
                 <div>
                   <label
                     htmlFor="swarm-name"
@@ -279,6 +307,14 @@ export function CreateSwarm({ id }) {
                     onChange={(e) => setSwarmName(e.target.value)}
                     placeholder="Enter swarm name"
                   />
+                  <Label htmlFor="name" className="text-right font-normal absolute pt-1 text-xs">
+                    {isSwarmExistsLoading ? "Checking" : ""}
+                    {(swarmExists !== undefined ? (
+                      (swarmExists && !isSwarmExistsLoading) ?
+                        <span className="text-red-700">Swarm name already taken</span> :
+                        <span className="text-green-800">Swarm name is available</span>
+                    ) : null)}
+                  </Label>
                 </div>
                 <div>
                   <label
@@ -305,6 +341,12 @@ export function CreateSwarm({ id }) {
                 </Button>
                 <Button
                   onClick={handleSave}
+                  disabled={
+                    swarmExists ||
+                    isSwarmExistsLoading ||
+                    !swarmName?.length ||
+                    !swarmDescription?.length
+                  }
                   variant="primary"
                 >
                   Save Swarm

@@ -18,8 +18,7 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.log({ error: error.request.responseURL });
-    const url = error.request.responseURL;
+    const url = error?.request?.responseURL;
     if (error.response && (error.response.status === 401) && !url.includes('/auth/signin')) {
       // Redirect to login page or handle token refresh
       window.location.href = '/login'; // Or use a history push in React Router

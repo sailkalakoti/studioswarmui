@@ -5,6 +5,7 @@
     "skipLibCheck": true,
     "strict": false,
     "noEmit": false,
+    "target": "es6",
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",

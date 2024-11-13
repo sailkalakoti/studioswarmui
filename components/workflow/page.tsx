@@ -32,6 +32,8 @@ import { Button } from "@/components/ui/button";
 
 import "@xyflow/react/dist/style.css";
 import BidirectionalEdge from "@/components/BidirectionalEdge";
+import toast from "react-hot-toast";
+import { NewNode } from "@/lib/types";
 
 const nodeTypes: NodeTypes = {
   chatInput: ChatInputNode,
@@ -39,7 +41,7 @@ const nodeTypes: NodeTypes = {
   openai: OpenAINode,
   chatOutput: ChatOutputNode,
   customNode: CustomNode,
-  startNode: CustomNode,
+  start: CustomNode,
   endNode: CustomNode,
   analysisAgent: CustomNode,
   decisionAgent: CustomNode,
@@ -52,14 +54,14 @@ interface DropEvent extends React.DragEvent {
   clientY: number;
 }
 
-interface NewNode extends Node {
-  id: string;
-  nodeId: string;
-  type: string;
-  position: { x: number; y: number };
-  data: { label?: string };
-  nodeType?: string;
-}
+// interface NewNode extends Node {
+//   id: string;
+//   nodeId: string;
+//   type: string;
+//   position: { x: number; y: number };
+//   data: { label?: string };
+//   nodeType?: string;
+// }
 
 const initialNodes: Node[] = [];
 
@@ -90,7 +92,7 @@ const checkIfBothNodeAgent = (sourceId:string, targetId: string, nodes: any): bo
   return false;
 }
 
-export const FlowchartComponent: React.FC = ({ nodes: nodesFromProps, edges: edgesFromProps} : { nodes, edges }) => {
+export const FlowchartComponent = ({ nodes: nodesFromProps, edges: edgesFromProps} : { nodes: NewNode[]; edges: Edge[] }) => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -174,13 +176,20 @@ export const FlowchartComponent: React.FC = ({ nodes: nodesFromProps, edges: edg
         x: event.clientX,
         y: event.clientY,
       });
-      const dataToInsert = initialNodes.find((node) => node.nodeId === nodeDetails.id)?.data || nodeDetails;
+      const dataToInsert = initialNodes.find((node) => node.id === String(nodeDetails.id))?.data || nodeDetails;
+      const doesNodeExist = nodes?.some((node) => node.id === String(nodeDetails.id));
+      if (doesNodeExist) {
+        toast.error("Node already exist");
+        return;
+      }
+
+      console.log({ dataToInsert });
       const newNode: NewNode = {
-        id: getId(),
+        id: String(nodeDetails.id),
         nodeId: nodeDetails.id,
         type,
         position,
-        data: initialNodes.find((node) => node.nodeId === nodeDetails.id)?.data || nodeDetails,
+        data: initialNodes.find((node) => node.id === String(nodeDetails.id))?.data || nodeDetails,
         nodeType: nodeType,
       };
 
@@ -188,6 +197,7 @@ export const FlowchartComponent: React.FC = ({ nodes: nodesFromProps, edges: edg
     },
     [screenToFlowPosition, setNodes, type, nodeDetails],
   );
+  console.log({ nodes, edges });
 
   const nodeClassName = (node) => node.type;
 
@@ -232,23 +242,3 @@ export const FlowchartComponent: React.FC = ({ nodes: nodesFromProps, edges: edg
     </div>
   );
 };
-
-const DashboardPage = () => {
-  return (
-    <ReactFlowProvider>
-      <DnDProvider>
-        <div className="h-screen w-screen bg-stone-50">
-          <div className="dndflow">
-            <Sidebar />
-            <div className="h-screen flex-1 flex flex-col">
-              <Topbar />
-              <FlowchartComponent />
-            </div>
-          </div>
-        </div>
-      </DnDProvider>
-    </ReactFlowProvider>
-  );
-};
-
-export default DashboardPage;

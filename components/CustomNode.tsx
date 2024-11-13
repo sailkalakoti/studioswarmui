@@ -1,6 +1,6 @@
 "use client";
 import { Handle, Position } from "@xyflow/react";
-import { ComputerIcon, EditIcon, MessageSquareQuote, User } from "lucide-react";
+import { ComputerIcon, EditIcon, MessageSquareQuote, Play, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -37,9 +37,9 @@ export const CustomNode = ({ data }: { data: { label: string } }) => {
       <Handle type="target" position={Position.Left} id='custom-target-top' />
       <Handle type="source" position={Position.Left} id='custom-source-top' />
       <div className="rounded-md p-0.5 bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
-        <div className="h-full w-full p-3 rounded-md bg-white">
+        <div className="h-full w-full p-3 rounded-md bg-white flex items-center gap-2">
+          <Play className="h-4 w-4 text-green-500" />
           <label htmlFor="text">{data.label}</label>
-
         </div>
       </div>
       <Handle type="target" position={Position.Right} id="custom-target-bottom" />

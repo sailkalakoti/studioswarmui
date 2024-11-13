@@ -48,8 +48,6 @@ export default function BidirectionalEdge({
     return edgeExists;
   });
 
-  console.log({ rest });
-
   const edgePathParams = {
     sourceX,
     sourceY,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Editor from "react-simple-code-editor";
 import "prismjs/themes/prism.css";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
-import useDebounce, { debounce, useApiMutation, useFetchData } from "@/lib/utils";
+import useDebounce, { useApiMutation, useFetchData } from "@/lib/utils";
 
 const highlightWithoutPython = (code: string) => {
   return code
@@ -34,15 +34,11 @@ const highlightWithoutPython = (code: string) => {
 };
 
 export function PythonEditorComponent({ id }) {
-  const [code, setCode] = useState(
-    '# Write your Python code here\nprint("Hello, World!")',
-  );
+  const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
   const [prompt, setPrompt] = useState("");
   const [showOutput, setShowOutput] = useState(false);
-  const [requirements, setRequirements] = useState(
-    "# List your Python dependencies here\n# Example:\n# numpy==1.21.0\n# pandas==1.3.0",
-  );
+  const [requirements, setRequirements] = useState("");
   const [lastRun, setLastRun] = useState(new Date());
   const [successRate, setSuccessRate] = useState(null);
   const [routineName, setRoutineName] = useState("");
@@ -50,16 +46,15 @@ export function PythonEditorComponent({ id }) {
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
   const debouncedRoutineName = useDebounce(routineName, 300);
+  const router = useRouter();
+  const isCreate = id === 'create';
 
   const {
     data: routineExists,
     isLoading: isRoutineExistLoading
-  } = useFetchData(debouncedRoutineName?.length > 0 ? '/routines/exists?name=' + debouncedRoutineName : null);
+  } = useFetchData(isCreate && debouncedRoutineName?.length > 0 ? '/routines/exists?name=' + debouncedRoutineName : null);
 
-  const router = useRouter();
-  const isCreate = id === 'create';
-
-  const { data: routineData } = useFetchData(!isCreate ? '/routines/' + id : null);
+  const { data: routineData }: { data: any } = useFetchData(!isCreate ? '/routines/' + id : null);
 
   useEffect(() => {
     if (Object?.keys(routineData || {})?.length > 0) {
@@ -124,10 +119,7 @@ export function PythonEditorComponent({ id }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-black w-full">
-      {/* <Header /> */}
       <Toaster toastOptions={{ position: "bottom-right" }} />
-
-
       <main className="flex-grow p-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold">Craft Your Own Routines</h2>
@@ -145,7 +137,6 @@ export function PythonEditorComponent({ id }) {
                 />
                 <Button
                   onClick={generateCode}
-                  // className="bg-red-500 hover:bg-red-600 text-white"
                   variant={"secondary"}
                 >
                   Generate
@@ -198,6 +189,7 @@ export function PythonEditorComponent({ id }) {
                 className="mr-2"
                 variant={"secondary"}
                 loading={codeMutation.isLoading}
+                disabled={!code?.length}
               >
                 <Play className="h-4 w-4 mr-2" />
                 Run Code
@@ -207,7 +199,7 @@ export function PythonEditorComponent({ id }) {
                 onOpenChange={setIsSaveDialogOpen}
               >
                 <DialogTrigger asChild>
-                  <Button variant={"primary"} onClick={onSaveClick}>
+                  <Button variant={"primary"} onClick={onSaveClick} disabled={!code?.length}>
                     <Save className="h-4 w-4 mr-2" />
                     Save
                   </Button>
@@ -259,7 +251,12 @@ export function PythonEditorComponent({ id }) {
                       onClick={saveCode}
                       loading={mutation.isLoading}
                       variant="primary"
-                      disabled={Boolean(routineExists)}
+                      disabled={
+                        Boolean(routineExists) ||
+                        isRoutineExistLoading ||
+                        !routineName?.length ||
+                        !routineDescription?.length
+                      }
                     >
                       Save Routine
                     </Button>

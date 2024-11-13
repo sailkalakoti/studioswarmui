@@ -17,7 +17,7 @@ export default function ApplicationLayout({
           <SidebarProvider open={false}>
             {/* <SidebarTrigger /> */}
             <AppSidebar />
-            <div className="mt-[65px] w-full">
+            <div className="mt-[65px] w-[calc(100%-80px)]">
               {children}
             </div>
           </SidebarProvider>

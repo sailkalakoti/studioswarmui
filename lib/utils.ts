@@ -36,8 +36,10 @@ export const apiRequest = async <TData, TVariables>({ url, method = 'GET', data,
     });
     return response.data;
   } catch (error) {
-    console.error('API call error:', error);
-    throw error;
+    if (error.code !== "ERR_CANCELED") {
+      console.error('API call error:', error);
+      throw error;
+    }
   }
 };
 

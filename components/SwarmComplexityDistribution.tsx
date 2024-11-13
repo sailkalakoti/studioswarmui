@@ -30,11 +30,11 @@ export default function VerticalBarChart({ graphComplexity }) {
       </CardHeader>
       <CardContent>
         <ChartContainer className="h-fit">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={380}>
             <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
               <XAxis dataKey="category" tickLine={false} />
               <ChartTooltip />
-              <Bar dataKey="value" fill="#002856" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" fill="#002856" radius={[4, 4, 0, 0]}  />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>

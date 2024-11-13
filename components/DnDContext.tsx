@@ -1,16 +1,18 @@
 "use client";
+import { NewNode, NodeDetails } from "@/lib/types";
+import { Edge } from "@xyflow/react";
 import { createContext, useContext, useState, ReactNode } from "react";
 
 const DnDContext = createContext<{
   type: string,
   nodeType: string,
-  nodeDetails: object,
+  nodeDetails: NodeDetails,
   setType: Function,
   setNodeType: Function,
   setNodeDetails: Function,
-  allNodes: [];
+  allNodes: NewNode[];
   setAllNodes: Function,
-  allEdges: [];
+  allEdges: Edge[];
   setAllEdges: Function;
 }>({
   type: "",
