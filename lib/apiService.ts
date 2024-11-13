@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 // Create an Axios instance
+const isProduction = process.env.NODE_ENV === 'production';
+
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8001/studioswarm',
+  baseURL: isProduction ? 'http://178.156.143.254:8001/studioswarm' : 'http://localhost:8001/studioswarm',
 });
 
 // Request interceptor to add the token to headers
