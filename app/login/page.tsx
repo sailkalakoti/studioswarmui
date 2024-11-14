@@ -7,7 +7,8 @@ import { useState } from 'react';
 import axiosInstance from '@/lib/apiService';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/navigation';
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import Logo from '@/components/Logo';
 
 const login = async (payload) => {
   let x = new FormData();
@@ -20,6 +21,7 @@ const login = async (payload) => {
 export default function Login() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState('');
 
   const router = useRouter();
 
@@ -27,18 +29,25 @@ export default function Login() {
     onSuccess: (data) => {
       localStorage.setItem('swarm_token', data?.access_token);
       router.push('/dashboard');
-    }
+    },
+    onError: () => {
+      setError("Something went wrong. Please try again");
+    },
   });
   const onSignIn = () => {
+    setError("");
     loginMutation.mutate({
       userName,
       password,
     })
   }
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
-
+    <div className="flex flex-col gap-8 h-screen w-screen items-center justify-center bg-gray-50">
       <Toaster toastOptions={{ position: "bottom-right" }} />
+      <div className='h-8 flex items-center gap-2'>
+        <Logo />
+        <span className="font-semibold text-[28px] text-[#002856]">StudioSwarm</span>
+      </div>
       <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl">
         <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 py-6 pt-8 text-center sm:px-16">
           <h3 className="text-xl font-semibold">Sign In</h3>
@@ -89,6 +98,9 @@ export default function Login() {
 
           <center>
             <Button onClick={onSignIn}>Sign in</Button>
+          </center>
+          <center>
+            <p className='text-red-700'>{error}</p>
           </center>
           <p className="text-center text-sm text-gray-600">
             {"Don't have an account? "}
