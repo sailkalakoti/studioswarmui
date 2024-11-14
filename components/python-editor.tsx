@@ -212,7 +212,7 @@ export function PythonEditorComponent({ id }) {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-8 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div>
                       <Label htmlFor="name" className="text-right">
                         Name
                       </Label>
@@ -234,7 +234,7 @@ export function PythonEditorComponent({ id }) {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div>
                       <Label htmlFor="description" className="text-right">
                         Description
                       </Label>
@@ -258,7 +258,7 @@ export function PythonEditorComponent({ id }) {
                         !routineDescription?.length
                       }
                     >
-                      Save Routine
+                      Save
                     </Button>
                   </DialogFooter>
                 </DialogContent>

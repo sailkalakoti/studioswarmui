@@ -32,6 +32,7 @@ const createAgent = async (payload) => {
 export function CreateAgentComponent({ id }) {
   const [name, setName] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedRoutines, setSelectedRoutines] = useState([]);
 
   const queryClient = useQueryClient();
@@ -81,7 +82,7 @@ export function CreateAgentComponent({ id }) {
         suborgid: 0,
         name: name,
         prompt: systemPrompt,
-        description: systemPrompt,
+        description: description,
         routines: selectedRoutines.map(item => Number(item)),
         metadata: {},
         metadata_info: {},
@@ -94,7 +95,7 @@ export function CreateAgentComponent({ id }) {
       {/* <Header /> */}
       <Toaster toastOptions={{ position: "bottom-right" }} />
       <main className="flex-grow p-6">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-6xl mx-auto mx-auto">
           <h2 className="text-3xl font-bold mb-6">{isCreate ? "Create New Agent" : "Update Agent"}</h2>
 
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
@@ -128,7 +129,22 @@ export function CreateAgentComponent({ id }) {
                     ) : null)}
                   </Label>
                 </div>
-
+                <div>
+                  <Label
+                    htmlFor="description"
+                    className="text-sm font-bold text-gray-700"
+                  >
+                    Description
+                  </Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="mt-1"
+                    placeholder="Enter description"
+                    rows={3}
+                  />
+                </div>
                 <div>
                   <Label
                     htmlFor="system-prompt"
@@ -142,16 +158,15 @@ export function CreateAgentComponent({ id }) {
                     onChange={(e) => setSystemPrompt(e.target.value)}
                     className="mt-1"
                     placeholder="Enter system prompt"
-                    rows={4}
+                    rows={8}
                   />
                 </div>
-
                 <div>
                   <Label
                     htmlFor="routines"
                     className="text-sm font-bold text-gray-700"
                   >
-                    Routines
+                    Add Routines
                   </Label>
                   <Select
                     onValueChange={(value) =>
@@ -173,8 +188,8 @@ export function CreateAgentComponent({ id }) {
                     </SelectContent>
                   </Select>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {selectedRoutines.map((routineId) => {
-                      const routine: any = routineList.find(
+                    {selectedRoutines?.map((routineId) => {
+                      const routine: any = routineList?.find(
                         (r: any) => r.routineid.toString() === routineId.toString(),
                       ) || { name: "" };
                       return (
@@ -198,20 +213,23 @@ export function CreateAgentComponent({ id }) {
                     })}
                   </div>
                 </div>
+                  <div className="flex justify-end">
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={
-                    Boolean(agentExist) ||
-                    name?.length === 0 ||
-                    isAgentExistLoading ||
-                    !systemPrompt?.length
-                  }
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  {isCreate ? "Create Agent" : "Update Agent"}
-                </Button>
+                  <Button
+                    type="submit"
+                    // className="w-full"
+                    disabled={
+                      Boolean(agentExist) ||
+                      name?.length === 0 ||
+                      isAgentExistLoading ||
+                      !systemPrompt?.length ||
+                      !description?.length
+                    }
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    {isCreate ? "Create Agent" : "Update Agent"}
+                  </Button>
+                  </div>
               </div>
             </form>
           </div>

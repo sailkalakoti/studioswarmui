@@ -29,7 +29,7 @@ import axiosInstance from "@/lib/apiService";
 import { useMutation, useQuery } from "react-query";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
-import useDebounce, { useFetchData } from "@/lib/utils";
+import useDebounce, { downloadFile, useApiMutation, useFetchData } from "@/lib/utils";
 import { Label } from "./ui/label";
 import { Skeleton } from "./ui/skeleton";
 import { NewNode, NodeDetails } from "@/lib/types";
@@ -48,7 +48,7 @@ const getSwarmData = async ({ queryKey }) => {
 const createSwarm = async (payload) => {
   if (payload.id !== 'create') {
     const { data } = await axiosInstance.put('/swarms/' + payload.id, payload.data);
-  return data;
+    return data;
   }
   const { data } = await axiosInstance.post('/swarms/', payload.data);
   return data;
@@ -75,9 +75,9 @@ export function CreateSwarm({ id }) {
   const { data: swarmData }: { data: any } = useFetchData(!isCreate ? '/swarms/' + id : null);
 
   const [showChatBubble, setShowChatBubble] = useState(false);
-
-
+  const [timestampToDownload, setTimestampToDownload] = useState('');
   const debouncedSwarmName = useDebounce(swarmName, 300);
+  const [triggerDownload, setTriggerDownload] = useState(false);
 
   const {
     data: swarmExists,
@@ -94,6 +94,39 @@ export function CreateSwarm({ id }) {
       router.push('/swarms');
     }
   });
+
+  const publishSwarmMutation = useApiMutation('/swarm_execution/generate', 'POST', {
+    onSuccess: (data: any) => {
+      toast.success("Swarm published");
+      const downloadLink = data?.codebase_zip_path || "";
+      let match = downloadLink.match(/\d+/);
+      setTimestampToDownload(match[0]);
+    },
+  });
+
+  const { data: swarmDownloadData, isLoading: isDownloadLoading } = useFetchData(
+    '/swarm_execution/download/' + timestampToDownload,
+    {},
+    'blob',
+    { enabled: triggerDownload }
+  );
+
+  useEffect(() => {
+    if (isDownloadLoading) {
+      setTriggerDownload(false);
+    }
+
+    if (!isDownloadLoading && swarmDownloadData) {
+      downloadFile(swarmDownloadData, `${timestampToDownload}.zip`);
+    }
+  }, [swarmDownloadData, isDownloadLoading]);
+
+  useEffect(() => {
+    if (!isSaveDialogOpen) {
+      setSwarmName('');
+      setSwarmDescription('');
+    }
+  }, [isSaveDialogOpen]);
 
   useEffect(() => {
     if (Object?.keys(swarmData || {})?.length > 0) {
@@ -140,8 +173,17 @@ export function CreateSwarm({ id }) {
     setIsSaveDialogOpen(true);
   }
 
+  const onPublishSwarm = () => {
+    publishSwarmMutation.mutate({
+      swarm_id: id
+    });
+  }
+
+  const onDownloadSwarm = () => {
+    setTriggerDownload(true);
+  }
+
   const handleSave = () => {
-    console.log("Saving");
     createSwarmMutation.mutate({
       id,
       data: {
@@ -273,6 +315,12 @@ export function CreateSwarm({ id }) {
                 <Save className="h-4 w-4 mr-2" />
                 Save
               </Button>
+              <Button disabled={isCreate} variant="secondary" onClick={onPublishSwarm}>
+                Publish
+              </Button>
+              <Button disabled={!timestampToDownload?.length} variant="secondary" onClick={onDownloadSwarm}>
+                Download
+              </Button>
               <Button variant={'secondary'} onClick={onRunSwarm}>
                 <Play className="h-4 w-4 mr-2" />
                 Run
@@ -299,7 +347,7 @@ export function CreateSwarm({ id }) {
                     htmlFor="swarm-name"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Swarm Name
+                    Name
                   </label>
                   <Input
                     id="swarm-name"
@@ -349,7 +397,7 @@ export function CreateSwarm({ id }) {
                   }
                   variant="primary"
                 >
-                  Save Swarm
+                  Save
                 </Button>
               </DialogFooter>
             </DialogContent>

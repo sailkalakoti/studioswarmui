@@ -1,7 +1,7 @@
 import React from "react";
 
 interface LogoProps {
-  color: string;
+  color?: string;
 }
 
 const Logo: React.FC<LogoProps> = ({ color }) => (

@@ -9,6 +9,7 @@ import { useMutation } from 'react-query';
 import { useRouter } from 'next/navigation';
 import axiosInstance from '@/lib/apiService';
 import toast, { Toaster } from "react-hot-toast";
+import Logo from '@/components/Logo';
 
 const login = async (payload) => {
   let x = new FormData();
@@ -29,21 +30,23 @@ export default function Login() {
 
   const loginMutation = useMutation(login, {
     onSuccess: (data) => {
-      console.log({ data });
       toast.success("User created, please login");
       localStorage.setItem('swarm_token', data?.access_token);
       router.push('/login');
     }
   });
   const onSignUp = () => {
-    console.log({ userName, password })
     loginMutation.mutate({
       userName,
       password,
     })
   }
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
+    <div className="flex flex-col gap-8 h-screen w-screen items-center justify-center bg-gray-50">
+      <div className='h-8 flex items-center gap-2'>
+        <Logo />
+        <span className="font-semibold text-[28px] text-[#002856]">StudioSwarm</span>
+      </div>
       <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl">
         <Toaster toastOptions={{ position: "bottom-right" }} />
         <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 py-6 pt-8 text-center sm:px-16">

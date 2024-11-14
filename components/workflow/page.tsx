@@ -182,8 +182,7 @@ export const FlowchartComponent = ({ nodes: nodesFromProps, edges: edgesFromProp
         toast.error("Node already exist");
         return;
       }
-
-      console.log({ dataToInsert });
+      
       const newNode: NewNode = {
         id: String(nodeDetails.id),
         nodeId: nodeDetails.id,
@@ -197,7 +196,6 @@ export const FlowchartComponent = ({ nodes: nodesFromProps, edges: edgesFromProp
     },
     [screenToFlowPosition, setNodes, type, nodeDetails],
   );
-  console.log({ nodes, edges });
 
   const nodeClassName = (node) => node.type;
 
