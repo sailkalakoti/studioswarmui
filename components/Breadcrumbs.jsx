@@ -11,16 +11,16 @@ export default function BreadCrumbs({ path = [] }) {
         {path?.map((item, index) => {
           if (index !== (path.length - 1))
             return (
-              <>
+              <React.Fragment key={item?.label}>
                 <BreadcrumbItem>
                   <BreadcrumbLink href={item?.href}>{item?.label}</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-              </>
+              </React.Fragment>
             );
 
           return (
-            <BreadcrumbItem>
+            <BreadcrumbItem key={item?.label}>
               <BreadcrumbPage>{item?.label}</BreadcrumbPage>
             </BreadcrumbItem>
           )
