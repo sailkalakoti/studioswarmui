@@ -15,7 +15,7 @@ export default function AverageRoutineChart({ averageRoutinePerAgent }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <ResponsiveContainer width="100%" height="100%" >
+          <ResponsiveContainer width="100%" aspect={16/9} >
             <BarChart
               data={data}
               layout="vertical"

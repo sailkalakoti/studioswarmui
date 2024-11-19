@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -15,14 +15,28 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useMutation, useQueryClient } from "react-query";
 import axiosInstance from "@/lib/apiService";
 import toast, { Toaster } from "react-hot-toast";
-import { getChildrenCount, getDifferenceInDaysLabel, useFetchData } from "@/lib/utils";
+import { getChildrenCount, getDifferenceInDaysLabel, useElementOnScreen, useFetchData } from "@/lib/utils";
 import CardSkeleton from "./CardSkeleton";
 import SortDropdown from "./SortDropdown";
+import BreadCrumbs from "./Breadcrumbs";
+import constants from "@/constants";
 
 interface ToBeDeletedItemProps {
   routineid?: string;
   agentid?: string;
   swarmid?: string;
+}
+
+interface PaginationTypes {
+  current_page: number;
+  limit: number;
+  total_count: number;
+  total_pages: number;
+}
+
+interface ListResponse {
+  data: [];
+  pagination: PaginationTypes
 }
 
 const deleteItem = async (payload) => {
@@ -41,51 +55,70 @@ const getSortLabel = (label) => {
   return obj[label] || '';
 }
 
+const PAGE_SIZE = 10;
+
 export function RoutinesList({ page }: { page: string }) {
+  const {
+    PAGE_TITLES,
+    PAGE_TYPE,
+    PAGE_SUBTITLES,
+  } = constants;
   const [toBeDeletedItem, setToBeDeletedItem] = useState<ToBeDeletedItemProps>({});
   const queryClient = useQueryClient();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [dataToShow, setDataToShow] = useState([]);
 
   const [sortBy, setSortBy] = useState('updated_at');
   const [sortOrder, setSortOrder] = useState('asc');
+  const [pageNum, setPageNum] = useState<number>(0);
 
-  const openDeleteDialog = (routine) => {
-    setIsDeleteDialogOpen(true);
-    setToBeDeletedItem(routine);
-  }
-
-  const titleList = {
-    routines: "Routines",
-    agents: "Agents",
-    swarms: "Swarms",
-  };
-
-  const pageType = {
-    routines: "Routine",
-    agents: "Agent",
-    swarms: "Swarm",
-  }
-
-  const { data = [], isLoading }: {
-    data: [];
-    isLoading: boolean;
-  } = useFetchData(`/${page}/?limit=100`, {
+  const { data, isLoading, isFetching }: { data: ListResponse, isLoading: boolean, isFetching: boolean } = useFetchData(`/${page}/`, {
     sort_by: sortBy,
     order: sortOrder,
+    limit: PAGE_SIZE,
+    skip: pageNum * PAGE_SIZE,
   }, 'json', {
     enabled: true
-  }, [`/${page}/?limit=100`, sortBy, sortOrder]);
+  }, [`/${page}/`, sortBy, sortOrder, String(pageNum)]);
   const deleteMutation = useMutation(deleteItem, {
     onSuccess: () => {
       queryClient.invalidateQueries(`/${page}/?limit=100`);
-      toast.success("Deleted " + pageType[page]);
+      toast.success("Deleted " + PAGE_TYPE[page]);
     },
     onError: (error) => {
       toast.error("Something went wrong");
       queryClient.invalidateQueries(`/${page}/?limit=100`);
     }
   })
+
+  const { data: listData = [], pagination } = data || { data: [], pagination: {} };
+
+  const intersectionCb = () => {
+    if ((((pageNum + 1) * PAGE_SIZE) < pagination?.total_count) && !isLoading) {
+      setPageNum(pageNum + 1);
+    }
+  };
+
+  const [containerRef] = useElementOnScreen(
+    {
+      root: null,
+      rootMargin: '0px',
+      threshold: 1,
+    },
+    intersectionCb,
+  );
+
+  useEffect(() => {
+    if (listData?.length) {
+      setDataToShow(prevData => prevData?.concat(listData));
+    }
+  }, [listData])
+
+  const openDeleteDialog = (routine) => {
+    setIsDeleteDialogOpen(true);
+    setToBeDeletedItem(routine);
+  }
 
   const onDeleteClick = () => {
     setIsDeleteDialogOpen(false);
@@ -95,63 +128,47 @@ export function RoutinesList({ page }: { page: string }) {
     })
   }
 
-  console.log({ sortBy, sortOrder });
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 w-full">
-      {/* <Header /> */}
-
       <main className="container mx-auto flex-1 px-4 py-8">
+        <div className="mb-4">
+          <BreadCrumbs
+            path={[
+              {
+                label: "Dashboard",
+                href: "/dashboard",
+              },
+              {
+                label: PAGE_TITLES[page],
+                href: `/${page}`,
+              }
+            ]}
+          />
+        </div>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold product-text-color">
-            {titleList[page]}
+            {PAGE_TITLES[page]}
           </h1>
           <SortDropdown
             onSortChange={(sortBy, sortOrder) => {
               setSortBy(sortBy)
               setSortOrder(sortOrder)
+              setPageNum(0);
+              setDataToShow([]);
             }}
           />
-          {/* <div className="flex items-center space-x-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-[180px]">
-                  <ArrowUpDown className="mr-2 h-4 w-4" />
-                  {getSortLabel(sortBy)}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSortBy("name")}>
-                  Name
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy("created_at")}>
-                  {getSortLabel('created_at')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy("updated_at")}>
-                  {getSortLabel('updated_at')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              variant="outline"
-              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-            >
-              {sortOrder === "asc" ? "Ascending" : "Descending"}
-            </Button>
-          </div> */}
         </div>
         <Toaster toastOptions={{ position: "bottom-right" }} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
           <Card className="flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300">
             <CardContent className="flex flex-col items-center py-8">
               <Plus className="h-12 w-12 text-[#002856] mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Create New {titleList[page]}
+                Create New {PAGE_TITLES[page]}
               </h3>
               <p className="text-sm text-gray-600 text-center mb-4">
-                Design a new automated workflow for your AI agents
+                {PAGE_SUBTITLES[page]}
               </p>
               <Button
                 asChild
@@ -161,10 +178,7 @@ export function RoutinesList({ page }: { page: string }) {
               </Button>
             </CardContent>
           </Card>
-          {isLoading && [...new Array(10)]?.map((item) =>
-            <CardSkeleton key={item} />
-          )}
-          {!isLoading && data?.map((routine: any) => ({
+          {dataToShow?.map((routine: any) => ({
             ...routine,
             id: routine.routineid || routine.agentid || routine.swarmid
           }))
@@ -227,6 +241,9 @@ export function RoutinesList({ page }: { page: string }) {
               )
             }
             )}
+          {(isLoading || isFetching) && [...new Array(10)]?.map((item) =>
+            <CardSkeleton key={item} />
+          )}
           <Dialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
@@ -258,6 +275,7 @@ export function RoutinesList({ page }: { page: string }) {
             </DialogContent>
           </Dialog>
         </div>
+        <div className="h-px" ref={containerRef} />
       </main>
     </div>
   );

@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PlusCircle, Trash2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
+import { useApiMutation, useFetchData } from '@/lib/utils'
+import toast, { Toaster } from 'react-hot-toast'
 
 type PredefinedSetting = {
   key: string
@@ -20,6 +22,8 @@ type DynamicSetting = {
   value: string
 }
 
+type GenericObject = { [key: string]: any };
+
 export default function SettingsPage() {
   const [predefinedSettings, setPredefinedSettings] = useState<PredefinedSetting[]>([
     { key: 'Email Notifications', value: true, type: 'boolean' },
@@ -29,6 +33,35 @@ export default function SettingsPage() {
   const [dynamicSettings, setDynamicSettings] = useState<DynamicSetting[]>([])
   const [newKey, setNewKey] = useState('')
   const [newValue, setNewValue] = useState('')
+
+  const { data, isLoading } = useFetchData("/settings/");
+  const { settings } = data ||  {};
+  const settingsMutate = useApiMutation("/settings/", "PUT", {
+    onSuccess: () => {
+      toast.success("Settings updated")
+    }
+  })
+
+  useEffect(() => {
+    if (Object.keys(settings || {}).length > 0) {
+      const dynamicKeys = Object.keys(settings)
+        ?.filter(item => item !== 'OPENAI_KEY')
+        ?.map(key => ({
+          key,
+          value: settings[key]
+        }));
+      setDynamicSettings(dynamicKeys);
+      setPredefinedSettings(prevSetting => predefinedSettings?.map(item => {
+        if (item.key === 'OpenAI API Key') {
+          return {
+            ...item,
+            value: settings?.OPENAI_KEY || "",
+          }
+        }
+        return item;
+      }))
+    }
+  }, [settings]);
 
   const handlePredefinedSettingChange = (index: number, value: string | boolean) => {
     const updatedSettings = [...predefinedSettings]
@@ -59,11 +92,24 @@ export default function SettingsPage() {
     // Here you would typically send the settings to your backend
     console.log('Predefined Settings:', predefinedSettings)
     console.log('Dynamic Settings:', dynamicSettings)
-    alert('Settings saved successfully!')
+    const payloadSetting = dynamicSettings?.reduce((acc, item) => {
+      return {
+        ...acc,
+        [item.key]: item.value,
+      }
+    }, {});
+    settingsMutate.mutate({
+      settings: {
+        ...payloadSetting,
+        OPENAI_KEY: settings.OPENAI_KEY,
+      },
+      user_id: 1
+    })
   }
 
   return (
     <div className="container mx-auto p-4 space-y-6">
+      <Toaster toastOptions={{ position: "bottom-right" }} />
       <Card>
         <CardHeader>
           <CardTitle className='text-2xl'>Settings</CardTitle>

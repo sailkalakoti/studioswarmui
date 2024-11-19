@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import {
   Select,
   SelectContent,
@@ -19,6 +20,7 @@ import axiosInstance from "@/lib/apiService";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import useDebounce, { useFetchData } from "@/lib/utils";
+import constants from "@/constants";
 
 const createAgent = async (payload) => {
   if (payload.id !== 'create') {
@@ -30,16 +32,22 @@ const createAgent = async (payload) => {
 }
 
 export function CreateAgentComponent({ id }) {
+  const { FORM_VALIDATION_MESSAGES, PAGE_SUBTITLES } = constants;
   const [name, setName] = useState("");
+  const [nameForTitle, setNameForTitle] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionForTitle, setDescriptionForTitle] = useState("");
   const [selectedRoutines, setSelectedRoutines] = useState([]);
+  const [formError, setFormError] = useState('');
 
   const queryClient = useQueryClient();
   const router = useRouter();
   const isCreate = id === 'create';
-  const { data: routineList, error }: { data: [], error: {}} = useFetchData('/routines/?limit=100');
+  const { data, error }: { data: [], error: {} } = useFetchData('/routines/?limit=100');
   const { data: agentData }: { data: any } = useFetchData(!isCreate ? '/agents/' + id : null);
+
+  const { data: routineList }: any = data || {};
 
   const debouncedAgentName = useDebounce(name, 300);
 
@@ -56,10 +64,22 @@ export function CreateAgentComponent({ id }) {
   }, [error]);
 
   useEffect(() => {
+    if (name.includes(" ")) {
+      setFormError(FORM_VALIDATION_MESSAGES.SPACE_NOT_ALLOWED)
+    } else {
+      setFormError("");
+    }
+  }, [name]);
+
+  useEffect(() => {
     if (Object?.keys(agentData || {})?.length > 0) {
       setName(agentData?.name);
       setSystemPrompt(agentData?.prompt);
       setSelectedRoutines(agentData?.routines);
+      setDescription(agentData?.description);
+
+      setNameForTitle(agentData?.name);
+      setDescriptionForTitle(agentData?.description)
     }
   }, [agentData]);
 
@@ -92,12 +112,30 @@ export function CreateAgentComponent({ id }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-black w-full">
-      {/* <Header /> */}
       <Toaster toastOptions={{ position: "bottom-right" }} />
       <main className="flex-grow p-6">
         <div className="max-w-6xl mx-auto mx-auto">
-          <h2 className="text-3xl font-bold mb-6">{isCreate ? "Create New Agent" : "Update Agent"}</h2>
-
+          <div className="mb-4">
+            <Breadcrumbs
+              path={[
+                {
+                  label: "Dashboard",
+                  href: "/dashboard",
+                },
+                {
+                  label: "Agents",
+                  href: "/agents",
+                },
+                {
+                  label: isCreate ? "Create Agent" : nameForTitle,
+                }
+              ]}
+            />
+          </div>
+          <h2 className="text-3xl font-bold">{isCreate ? "Create New Agent" : nameForTitle}</h2>
+          <p className="text-sm font-regular mb-6">
+            {isCreate ? PAGE_SUBTITLES['agents'] : descriptionForTitle}
+          </p>
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
             <form
               onSubmit={(e) => {
@@ -111,7 +149,7 @@ export function CreateAgentComponent({ id }) {
                     htmlFor="agent-name"
                     className="text-sm font-bold text-gray-700"
                   >
-                    Agent Name
+                    Name*
                   </Label>
                   <Input
                     id="agent-name"
@@ -121,12 +159,15 @@ export function CreateAgentComponent({ id }) {
                     placeholder="Enter agent name"
                   />
                   <Label htmlFor="name" className="text-right font-normal absolute pt-1 text-xs">
-                    {isAgentExistLoading ? "Checking" : ""}
-                    {(agentExist !== undefined ? (
+                    {(isAgentExistLoading && !(formError?.length > 0)) ? "Checking" : ""}
+                    {((agentExist !== undefined && !(formError?.length > 0)) ? (
                       (agentExist && !isAgentExistLoading) ?
                         <span className="text-red-700">Agent name already taken</span> :
                         <span className="text-green-800">Agent name is available</span>
                     ) : null)}
+                    {formError?.length > 0 && (
+                      <span className="text-red-700">{formError}</span>
+                    )}
                   </Label>
                 </div>
                 <div>
@@ -134,7 +175,7 @@ export function CreateAgentComponent({ id }) {
                     htmlFor="description"
                     className="text-sm font-bold text-gray-700"
                   >
-                    Description
+                    Description*
                   </Label>
                   <Textarea
                     id="description"
@@ -150,7 +191,7 @@ export function CreateAgentComponent({ id }) {
                     htmlFor="system-prompt"
                     className="text-sm font-bold text-gray-700"
                   >
-                    System Prompt
+                    System Prompt*
                   </Label>
                   <Textarea
                     id="system-prompt"
@@ -170,7 +211,13 @@ export function CreateAgentComponent({ id }) {
                   </Label>
                   <Select
                     onValueChange={(value) =>
-                      setSelectedRoutines((prev) => [...prev, value])
+                      setSelectedRoutines((prev) => {
+                        const numericValue = Number(value);
+                        if (!prev?.includes(numericValue)) {
+                          return [...prev, numericValue];
+                        }
+                        return prev
+                      })
                     }
                   >
                     <SelectTrigger className="w-full mt-1">
@@ -213,23 +260,23 @@ export function CreateAgentComponent({ id }) {
                     })}
                   </div>
                 </div>
-                  <div className="flex justify-end">
+                <div className="flex justify-end">
 
                   <Button
                     type="submit"
-                    // className="w-full"
                     disabled={
                       Boolean(agentExist) ||
                       name?.length === 0 ||
                       isAgentExistLoading ||
                       !systemPrompt?.length ||
-                      !description?.length
+                      !description?.length ||
+                      formError.length > 0
                     }
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     {isCreate ? "Create Agent" : "Update Agent"}
                   </Button>
-                  </div>
+                </div>
               </div>
             </form>
           </div>

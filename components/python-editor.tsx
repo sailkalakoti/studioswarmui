@@ -21,6 +21,8 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import useDebounce, { useApiMutation, useFetchData } from "@/lib/utils";
+import constants from "@/constants";
+import BreadCrumbs from "./Breadcrumbs";
 
 const highlightWithoutPython = (code: string) => {
   return code
@@ -33,7 +35,10 @@ const highlightWithoutPython = (code: string) => {
     .join("\n");
 };
 
+const codeGenerateURL = 'http://178.156.143.254:8001/studioswarm';
+
 export function PythonEditorComponent({ id }) {
+  const { FORM_VALIDATION_MESSAGES, PAGE_SUBTITLES } = constants;
   const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -44,6 +49,7 @@ export function PythonEditorComponent({ id }) {
   const [routineName, setRoutineName] = useState("");
   const [routineDescription, setRoutineDescription] = useState("");
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const debouncedRoutineName = useDebounce(routineName, 300);
   const router = useRouter();
@@ -64,6 +70,14 @@ export function PythonEditorComponent({ id }) {
     }
   }, [routineData]);
 
+  useEffect(() => {
+    if (routineName.includes(" ")) {
+      setFormError(FORM_VALIDATION_MESSAGES.SPACE_NOT_ALLOWED);
+    } else {
+      setFormError("");
+    }
+  }, [routineName]);
+
   const mutation = useApiMutation(isCreate ? '/routines/' : `/routines/${id}`, isCreate ? 'POST' : 'PUT', {
     onSuccess: () => {
       toast.success(isCreate ? "Created new routine" : "Updated routine");
@@ -78,27 +92,56 @@ export function PythonEditorComponent({ id }) {
       setShowOutput(true);
       setLastRun(new Date());
       setSuccessRate(Math.floor(Math.random() * 11) + 90); // Random success rate between 90-100%
+    },
+    onError: () => {
+      toast.error("Error while executing the code");
     }
   });
+
+  const codeGenerateMutation = useApiMutation(codeGenerateURL + '/routines/code/generation/', 'POST', {
+    onSuccess: (data: any) => {
+      setCode(data?.code || "");
+      setRequirements(data?.requirements?.join("\n") || "");
+    },
+  });
+
+  const codeValidationMutation = useApiMutation('/routines/code/generation/validate-syntax', 'POST', {
+    onSuccess: (data: any) => {
+      const { is_valid, error_message } = data || {};
+      if (!is_valid) {
+        setOutput(error_message);
+        setShowOutput(true);
+        return;
+      } else {
+        setOutput("");
+        setShowOutput(false);
+      }
+
+      if (!isCreate) {
+        saveCode();
+      } else {
+        setIsSaveDialogOpen(true);
+      }
+    }
+  })
 
   const runCode = () => {
     codeMutation.mutate({
       code,
-      dependencies: [],
+      dependencies: requirements?.split("\n")?.filter(item => !!item.length),
     })
   };
 
   const generateCode = () => {
+    codeGenerateMutation.mutate({
+      prompt: prompt,
+    })
     setCode(
       `# Generated code based on prompt: ${prompt}\n\nprint("This is a generated response.")`,
     );
   };
 
   const saveCode = () => {
-    console.log("Routine Name:", routineName);
-    console.log("Routine Description:", routineDescription);
-    console.log("Code saved:", code);
-    console.log("Requirements saved:", requirements);
     mutation.mutate({
       name: routineName,
       description: routineDescription,
@@ -109,7 +152,10 @@ export function PythonEditorComponent({ id }) {
     })
   };
 
-  const onSaveClick = (event) => {
+  const onSaveClick = () => {
+    codeValidationMutation?.mutate({
+      code,
+    });
     if (!isCreate) {
       event?.stopPropagation();
       event?.preventDefault();
@@ -122,8 +168,29 @@ export function PythonEditorComponent({ id }) {
       <Toaster toastOptions={{ position: "bottom-right" }} />
       <main className="flex-grow p-6">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold">Craft Your Own Routines</h2>
-          <p className="text-sm font-regular mb-6">Create, run, and save your own routines with ease. Write or generate code, all in one place.</p>
+          <div className="mb-4">
+            <BreadCrumbs
+              path={[
+                {
+                  label: "Dashboard",
+                  href: "/dashboard",
+                },
+                {
+                  label: "Routines",
+                  href: "/routines",
+                },
+                {
+                  label: isCreate ? "Create Routine" : routineName,
+                }
+              ]}
+            />
+          </div>
+          <h2 className="text-3xl font-bold">{
+            isCreate ? "Craft Your Own Routines" : routineName
+          }</h2>
+          <p className="text-sm font-regular mb-6">
+            {isCreate ? PAGE_SUBTITLES['routines'] : routineDescription}
+          </p>
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
             <div className="p-4 border-b border-gray-200">
               <h3 className="text-xl font-semibold mb-2">How can I assist with generating code for your routine?</h3>
@@ -138,6 +205,7 @@ export function PythonEditorComponent({ id }) {
                 <Button
                   onClick={generateCode}
                   variant={"secondary"}
+                  loading={codeGenerateMutation.isLoading}
                 >
                   Generate
                 </Button>
@@ -198,12 +266,15 @@ export function PythonEditorComponent({ id }) {
                 open={isSaveDialogOpen}
                 onOpenChange={setIsSaveDialogOpen}
               >
-                <DialogTrigger asChild>
-                  <Button variant={"primary"} onClick={onSaveClick} disabled={!code?.length}>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save
-                  </Button>
-                </DialogTrigger>
+                <Button
+                  variant={"primary"}
+                  onClick={onSaveClick}
+                  disabled={!code?.length}
+                  loading={codeValidationMutation.isLoading}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save
+                </Button>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
                     <DialogTitle>Save Routine</DialogTitle>
@@ -214,7 +285,7 @@ export function PythonEditorComponent({ id }) {
                   <div className="grid gap-8 py-4">
                     <div>
                       <Label htmlFor="name" className="text-right">
-                        Name
+                        Name*
                       </Label>
                       <div className="col-span-3">
                         <Input
@@ -224,19 +295,22 @@ export function PythonEditorComponent({ id }) {
 
                         />
                         <Label htmlFor="name" className="text-right font-normal absolute pt-1 text-xs">
-                          {isRoutineExistLoading ? "Checking" : ""}
-                          {(routineExists !== undefined ? (
-                            (routineExists && !isRoutineExistLoading) ? 
+                          {(isRoutineExistLoading && !(formError?.length > 0)) ? "Checking" : ""}
+                          {((routineExists !== undefined && !(formError?.length > 0)) ? (
+                            (routineExists && !isRoutineExistLoading) ?
                               <span className="text-red-700">Routine name already taken</span> :
                               <span className="text-green-800">Routine name is available</span>
                           ) : null)}
+                          {formError?.length > 0 && (
+                            <span className="text-red-700">{formError}</span>
+                          )}
                         </Label>
                       </div>
                     </div>
 
                     <div>
                       <Label htmlFor="description" className="text-right">
-                        Description
+                        Description*
                       </Label>
                       <Textarea
                         id="description"
@@ -255,7 +329,8 @@ export function PythonEditorComponent({ id }) {
                         Boolean(routineExists) ||
                         isRoutineExistLoading ||
                         !routineName?.length ||
-                        !routineDescription?.length
+                        !routineDescription?.length ||
+                        formError.length > 0
                       }
                     >
                       Save
@@ -273,8 +348,6 @@ export function PythonEditorComponent({ id }) {
                 <div className="flex items-center text-sm text-gray-600">
                   <Clock className="h-4 w-4 mr-1" />
                   Last run: {lastRun.toLocaleString()}
-                  <CheckCircle className="h-4 w-4 ml-4 mr-1" />
-                  Success: {successRate}%
                 </div>
               </div>
               <pre className="p-4 overflow-auto max-h-64 bg-gray-50">
@@ -284,23 +357,6 @@ export function PythonEditorComponent({ id }) {
           )}
         </div>
       </main>
-
-      {/* <footer className="bg-gray-100 border-t border-gray-200 p-4 text-center text-sm text-gray-600">
-        <p>© 2024 StudioSwarm. All rights reserved.</p>
-        <div className="mt-2">
-          <Link href="#" className="hover:text-black">
-            Terms of Service
-          </Link>
-          <span className="mx-2">|</span>
-          <Link href="#" className="hover:text-black">
-            Privacy Policy
-          </Link>
-          <span className="mx-2">|</span>
-          <Link href="#" className="hover:text-black">
-            Contact Us
-          </Link>
-        </div>
-      </footer> */}
     </div>
   );
 }

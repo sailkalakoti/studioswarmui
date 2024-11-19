@@ -5,6 +5,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const axiosInstance = axios.create({
   baseURL: isProduction ? 'http://178.156.143.254:8001/studioswarm' : 'http://localhost:8001/studioswarm',
+  timeout: 30*1000,
 });
 
 // Request interceptor to add the token to headers
@@ -29,16 +30,5 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-function login() {
-  console.log("Logging in");
-  let x = new FormData();
-  x.append("username", "admin");
-  x.append("password", "admin");
-  axiosInstance.post('/auth/signin', x).then(response => {
-    console.log({ response });
-    localStorage.setItem('swarm_token', response.data.access_token);
-  })
-}
 
 export default axiosInstance;

@@ -12,7 +12,6 @@ export const Sidebar = () => {
     nodeType: string,
   ) => {
 
-    console.log({ nodeType });
     setType(nodeType);
     event.dataTransfer.effectAllowed = "move";
   };

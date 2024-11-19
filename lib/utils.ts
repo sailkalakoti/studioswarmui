@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 
 import { Cog, User, Users, Zap } from "lucide-react"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axiosInstance from "./apiService";
 import { useMutation, useQueryClient, useQuery, UseMutationOptions, UseQueryResult, UseQueryOptions } from 'react-query';
 import { ResponseType } from "axios";
@@ -113,7 +113,7 @@ export const useFetchData = <TData, TVariables>(
 export const useApiMutation = <TData, TVariables>(url: string, method: string, config?: UseMutationOptions<TData, unknown, TVariables>) => {
   const queryClient = useQueryClient();
   return useMutation<TData, unknown, TVariables>(
-    (data: TVariables) => apiRequest<TData, TVariables>({ url, method, data }),
+    (data?: TVariables) => apiRequest<TData, TVariables>({ url, method, data }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(url);
@@ -158,3 +158,26 @@ export async function downloadFile(data, filename) {
       console.error("Error:", error);
   }
 }
+
+export const useElementOnScreen = (options, callback) => {
+  const containerRef = useRef();
+
+  const callbackFunction = (entries) => {
+    const [entry] = entries;
+    if (entry.isIntersecting) {
+      callback?.();
+    }
+  };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(callbackFunction, options);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    return () => {
+      if (containerRef.current) observer.unobserve(containerRef.current);
+    };
+  }, [options]);
+
+  return [containerRef];
+};

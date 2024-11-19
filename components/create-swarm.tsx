@@ -23,7 +23,6 @@ import {
 } from "lucide-react";
 import { FlowchartComponent } from "@/components/workflow/page";
 import { useDnD } from "./DnDContext";
-import { useSidebar } from "./ui/sidebar";
 import ChatContainer from "./ChatContainer";
 import axiosInstance from "@/lib/apiService";
 import { useMutation, useQuery } from "react-query";
@@ -34,16 +33,8 @@ import { Label } from "./ui/label";
 import { Skeleton } from "./ui/skeleton";
 import { NewNode, NodeDetails } from "@/lib/types";
 import { Edge } from "@xyflow/react";
-
-const getAgent = async ({ queryKey }) => {
-  const { data } = await axiosInstance.get(queryKey[0]);
-  return data;
-}
-
-const getSwarmData = async ({ queryKey }) => {
-  const { data } = await axiosInstance.get(queryKey[0]);
-  return data;
-}
+import constants from "@/constants";
+import BreadCrumbs from "./Breadcrumbs";
 
 const createSwarm = async (payload) => {
   if (payload.id !== 'create') {
@@ -55,6 +46,7 @@ const createSwarm = async (payload) => {
 }
 
 export function CreateSwarm({ id }) {
+  const { FORM_VALIDATION_MESSAGES } = constants
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const { setType, setNodeType, setNodeDetails, allNodes, allEdges } = useDnD();
   const [swarmName, setSwarmName] = useState("");
@@ -63,15 +55,17 @@ export function CreateSwarm({ id }) {
     standardNodes: true,
     agents: true,
   });
+  const [formError, setFormError] = useState('');
   const [existingNodes, setExistingNodes] = useState<NewNode[]>([]);
   const [existingEdges, setExistingEdges] = useState<Edge[]>([]);
   const isCreate = id === 'create';
   const router = useRouter();
 
-  const { data: agentData, isLoading: isAgentListLoading }: {
+  const { data, isLoading: isAgentListLoading }: {
     data: [];
     isLoading: boolean;
   } = useFetchData('/agents/?limit=100');
+  const { data: agentData }: any = data || {};
   const { data: swarmData }: { data: any } = useFetchData(!isCreate ? '/swarms/' + id : null);
 
   const [showChatBubble, setShowChatBubble] = useState(false);
@@ -87,6 +81,13 @@ export function CreateSwarm({ id }) {
     isLoading: boolean;
   } = useFetchData(isCreate && debouncedSwarmName?.length > 0 ? '/swarms/exists?name=' + debouncedSwarmName : null);
 
+  useEffect(() => {
+    if (swarmName?.length > 0) {
+      setFormError(FORM_VALIDATION_MESSAGES.SPACE_NOT_ALLOWED)
+    } else {
+      setFormError("");
+    }
+  }, [swarmName]);
 
   const createSwarmMutation = useMutation(createSwarm, {
     onSuccess: () => {
@@ -225,9 +226,7 @@ export function CreateSwarm({ id }) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col w-full">
       <Toaster toastOptions={{ position: "bottom-right" }} />
-      {/* Main content */}
       <div className="flex-1 flex">
-        {/* Sidebar */}
         <aside className="w-64 bg-white shadow-md">
           <nav className="mt-8">
             <div className="px-4 mb-4">
@@ -302,8 +301,29 @@ export function CreateSwarm({ id }) {
 
         {/* Main Content */}
         <main className="flex-1 p-8">
+          <div className="mb-4">
+            <BreadCrumbs
+              path={[
+                {
+                  label: "Dashboard",
+                  href: "/dashboard",
+                },
+                {
+                  label: "Swarms",
+                  href: "/swarms",
+                },
+                {
+                  label: isCreate ? "Create Swarms" : swarmName,
+                }
+              ]}
+            />
+          </div>
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Swarm</h1>
+
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{isCreate ? "Swarm" : swarmName}</h1>
+              {!isCreate && <p className="text-sm font-regular">{swarmDescription}</p>}
+            </div>
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
@@ -347,7 +367,7 @@ export function CreateSwarm({ id }) {
                     htmlFor="swarm-name"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Name
+                    Name*
                   </label>
                   <Input
                     id="swarm-name"
@@ -356,12 +376,15 @@ export function CreateSwarm({ id }) {
                     placeholder="Enter swarm name"
                   />
                   <Label htmlFor="name" className="text-right font-normal absolute pt-1 text-xs">
-                    {isSwarmExistsLoading ? "Checking" : ""}
-                    {(swarmExists !== undefined ? (
+                    {(isSwarmExistsLoading && !(formError?.length > 0)) ? "Checking" : ""}
+                    {((swarmExists !== undefined && !(formError?.length > 0)) ? (
                       (swarmExists && !isSwarmExistsLoading) ?
                         <span className="text-red-700">Swarm name already taken</span> :
                         <span className="text-green-800">Swarm name is available</span>
                     ) : null)}
+                    {formError?.length > 0 && (
+                      <span className="text-red-700">{formError}</span>
+                    )}
                   </Label>
                 </div>
                 <div>
@@ -369,7 +392,7 @@ export function CreateSwarm({ id }) {
                     htmlFor="swarm-description"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Description
+                    Description*
                   </label>
                   <Textarea
                     id="swarm-description"
@@ -393,7 +416,8 @@ export function CreateSwarm({ id }) {
                     swarmExists ||
                     isSwarmExistsLoading ||
                     !swarmName?.length ||
-                    !swarmDescription?.length
+                    !swarmDescription?.length ||
+                    formError.length > 0
                   }
                   variant="primary"
                 >

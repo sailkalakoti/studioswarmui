@@ -13,8 +13,8 @@ import {
 
 const sortOptions = [
   { label: 'Name', value: 'name' },
-  { label: 'Date Created', value: 'created_at' },
-  { label: 'Last Updated', value: 'updated_at' },
+  { label: 'Created Date', value: 'created_at' },
+  { label: 'Updated Date', value: 'updated_at' },
 ]
 
 export default function SortDropdown({ onSortChange }: { onSortChange: (sortBy: string, sortOrder: 'asc' | 'desc') => void }) {
@@ -33,12 +33,15 @@ export default function SortDropdown({ onSortChange }: { onSortChange: (sortBy: 
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="w-[200px] justify-between">
-          <span>{sortOptions.find(option => option.value === sortBy)?.label}</span>
-          <ChevronDown className="ml-2 h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
+      <div className='flex items-center'>
+        <ArrowUpDown className="mr-2 h-4 w-4" />
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="w-[200px] justify-between">
+            <span>{sortOptions.find(option => option.value === sortBy)?.label}</span>
+            <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+      </div>
       <DropdownMenuContent align="end" className="w-[200px]">
         {sortOptions.map((option) => (
           <DropdownMenuItem key={option.value} onSelect={() => handleSortChange(option.value)}>
