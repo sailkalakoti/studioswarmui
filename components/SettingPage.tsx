@@ -35,7 +35,7 @@ export default function SettingsPage() {
   const [newValue, setNewValue] = useState('')
 
   const { data, isLoading } = useFetchData("/settings/");
-  const { settings } = data ||  {};
+  const { settings }: any = data ||  {};
   const settingsMutate = useApiMutation("/settings/", "PUT", {
     onSuccess: () => {
       toast.success("Settings updated")
