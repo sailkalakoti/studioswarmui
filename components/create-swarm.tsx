@@ -72,6 +72,8 @@ export function CreateSwarm({ id }) {
   const [timestampToDownload, setTimestampToDownload] = useState('');
   const debouncedSwarmName = useDebounce(swarmName, 300);
   const [triggerDownload, setTriggerDownload] = useState(false);
+  const [runTriggered, setRunTriggered] = useState(false);
+
 
   const {
     data: swarmExists,
@@ -82,7 +84,7 @@ export function CreateSwarm({ id }) {
   } = useFetchData(isCreate && debouncedSwarmName?.length > 0 ? '/swarms/exists?name=' + debouncedSwarmName : null);
 
   useEffect(() => {
-    if (swarmName?.length > 0) {
+    if (swarmName?.includes(" ")) {
       setFormError(FORM_VALIDATION_MESSAGES.SPACE_NOT_ALLOWED)
     } else {
       setFormError("");
@@ -111,6 +113,8 @@ export function CreateSwarm({ id }) {
     'blob',
     { enabled: triggerDownload }
   );
+
+  const runSwarmMutation = useApiMutation("/swarm_execution/spawn/", "POST");
 
   useEffect(() => {
     if (isDownloadLoading) {
@@ -220,6 +224,11 @@ export function CreateSwarm({ id }) {
   };
 
   const onRunSwarm = () => {
+    setRunTriggered(true);
+
+    // runSwarmMutation.mutate({
+    //   instance_id: timestampToDownload
+    // })
     setShowChatBubble(true);
   }
 

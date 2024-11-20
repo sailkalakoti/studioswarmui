@@ -172,6 +172,10 @@ export function RoutinesList({ page }: { page: string }) {
               </p>
               <Button
                 asChild
+                onClick={(e) => {
+                  // e.preventDefault();
+                  // e.stopPropagation();
+                }}
                 className="bg-[#0000a9] hover:bg-[#0000d3] text-white"
               >
                 <Link href={`/${page}/create`}>Get Started</Link>
