@@ -111,9 +111,13 @@ export function RoutinesList({ page }: { page: string }) {
 
   useEffect(() => {
     if (listData?.length) {
-      setDataToShow(prevData => prevData?.concat(listData));
+      if (pagination.current_page === 1) {
+        setDataToShow(listData);
+      } else {
+        setDataToShow(prevData => prevData?.concat(listData));
+      }
     }
-  }, [listData])
+  }, [listData, pagination])
 
   const openDeleteDialog = (routine) => {
     setIsDeleteDialogOpen(true);

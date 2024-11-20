@@ -9,7 +9,7 @@ export default function AverageRoutineChart({ averageRoutinePerAgent }) {
   ]
 
   return (
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-2xl font-semibold">Average Routines per Agent</CardTitle>
       </CardHeader>

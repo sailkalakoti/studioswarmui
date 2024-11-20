@@ -24,9 +24,9 @@ export default function VerticalBarChart({ graphComplexity }) {
     }))
   }, [graphComplexity]);
   return (
-    <Card className="w-full max-w-3xl">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-2xl">Graph Complexity Distributions</CardTitle>
+        <CardTitle className="text-2xl">Swarm Complexity Distributions</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer className="h-fit">

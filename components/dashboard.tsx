@@ -14,33 +14,30 @@ import axiosInstance from "@/lib/apiService";
 import AverageRoutineChart from "./AverageRoutineChart";
 import VerticalBarChart from "./SwarmComplexityDistribution";
 import { useFetchData } from "@/lib/utils";
+import constants from "@/constants";
 
 const getData = async (url) => {
   const { data } = await axiosInstance.get(url);
   return data;
 }
 export function Dashboard() {
-
+  const { FORM_VALIDATION_MESSAGES, PAGE_SUBTITLES } = constants;
   const options = [
     {
       title: "Create Routine",
-      description:
-        "Design automated workflows and processes for your AI agents.",
+      description: PAGE_SUBTITLES['routines'],
       icon: <Cog className="h-12 w-12 text-[#002856]" />,
       link: "/routines/create",
     },
     {
       title: "Create Agent",
-      description:
-        "Build specialized AI agents tailored to your specific needs.",
+      description: PAGE_SUBTITLES['agents'],
       icon: <Users className="h-12 w-12 text-[#002856]" />,
       link: "/agents/create",
     },
     {
       title: "Create Swarm",
-      description:
-        "Orchestrate multiple AI agents to work together on complex tasks.",
-      icon: <Zap className="h-12 w-12 text-[#002856]" />,
+      description: PAGE_SUBTITLES['swarms'],
       link: "/swarms/create",
     },
   ];

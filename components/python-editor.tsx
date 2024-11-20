@@ -156,11 +156,6 @@ export function PythonEditorComponent({ id }) {
     codeValidationMutation?.mutate({
       code,
     });
-    if (!isCreate) {
-      event?.stopPropagation();
-      event?.preventDefault();
-      saveCode();
-    }
   }
 
   return (

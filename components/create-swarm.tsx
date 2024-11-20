@@ -46,7 +46,7 @@ const createSwarm = async (payload) => {
 }
 
 export function CreateSwarm({ id }) {
-  const { FORM_VALIDATION_MESSAGES } = constants
+  const { FORM_VALIDATION_MESSAGES, PAGE_SUBTITLES } = constants;
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const { setType, setNodeType, setNodeDetails, allNodes, allEdges } = useDnD();
   const [swarmName, setSwarmName] = useState("");
@@ -331,7 +331,9 @@ export function CreateSwarm({ id }) {
 
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{isCreate ? "Swarm" : swarmName}</h1>
-              {!isCreate && <p className="text-sm font-regular">{swarmDescription}</p>}
+              <p className="text-sm font-regular">
+              {isCreate ? PAGE_SUBTITLES['swarms'] : swarmDescription}
+              </p>
             </div>
 
             {/* Action Buttons */}
@@ -344,15 +346,25 @@ export function CreateSwarm({ id }) {
                 <Save className="h-4 w-4 mr-2" />
                 Save
               </Button>
-              <Button disabled={isCreate} variant="secondary" onClick={onPublishSwarm}>
+              <Button
+                disabled={isCreate}
+                variant="secondary"
+                onClick={onPublishSwarm}
+                loading={publishSwarmMutation.isLoading}
+              >
                 Publish
               </Button>
-              <Button disabled={!timestampToDownload?.length} variant="secondary" onClick={onDownloadSwarm}>
+              <Button
+                disabled={!timestampToDownload?.length}
+                variant="secondary"
+                onClick={onDownloadSwarm}
+                loading={isDownloadLoading}
+              >
                 Download
               </Button>
               <Button variant={'secondary'} onClick={onRunSwarm}>
                 <Play className="h-4 w-4 mr-2" />
-                Run
+                Test
               </Button>
             </div>
           </div>

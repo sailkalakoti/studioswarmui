@@ -1,21 +1,16 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef } from "react";
-import { v4 as uuid } from 'uuid';
 import {
   ReactFlow,
   Node,
   Edge,
-  Controls,
   Background,
-  MiniMap,
   NodeTypes,
   addEdge,
   useNodesState,
   useEdgesState,
   useReactFlow,
-  ReactFlowProvider,
-  Panel,
   MarkerType,
 } from "@xyflow/react";
 import {
@@ -26,9 +21,7 @@ import {
   CustomNode,
   AgentNode,
 } from "@/components/CustomNode";
-import { DnDProvider, useDnD } from "@/components/DnDContext";
-import { Sidebar } from "@/components/Sidebar";
-import { Button } from "@/components/ui/button";
+import { useDnD } from "@/components/DnDContext";
 
 import "@xyflow/react/dist/style.css";
 import BidirectionalEdge from "@/components/BidirectionalEdge";
@@ -66,23 +59,6 @@ interface DropEvent extends React.DragEvent {
 const initialNodes: Node[] = [];
 
 const initialEdges: Edge[] = [];
-
-let id = 0;
-const getId = () => `dndnode_${uuid()}`;
-
-const Topbar = () => {
-  return (
-    <div className="w-full bg-stone-100 text-gray-800 py-2 px-4 border-b border-stone-200 shadow-md flex justify-between items-center">
-      <div className="text-lg font-bold">Dashboard</div>
-      <div className="flex gap-4">
-        <Button variant="outline" size="sm">
-          Button 1
-        </Button>
-        <Button size="sm">Button 2</Button>
-      </div>
-    </div>
-  );
-};
 
 const checkIfBothNodeAgent = (sourceId:string, targetId: string, nodes: any): boolean => {
   const sourceType = nodes.filter((nodeItem: any) => nodeItem.id === sourceId)?.[0].nodeType;
@@ -224,18 +200,6 @@ export const FlowchartComponent = ({ nodes: nodesFromProps, edges: edgesFromProp
         attributionPosition="bottom-right"
       >
         <Background />
-        <Controls />
-        <MiniMap zoomable pannable nodeClassName={nodeClassName} />
-        <Panel position="bottom-right">
-          <div className="flex gap-2 mr-56 mb-2">
-            <Button variant="outline" size="icon">
-              🚀
-            </Button>
-            <Button variant="outline" size="icon">
-              🔥
-            </Button>
-          </div>
-        </Panel>
       </ReactFlow>
     </div>
   );
