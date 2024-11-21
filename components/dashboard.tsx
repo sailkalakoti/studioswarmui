@@ -38,6 +38,7 @@ export function Dashboard() {
     {
       title: "Create Swarm",
       description: PAGE_SUBTITLES['swarms'],
+      icon: <Zap className="h-12 w-12 text-[#002856]" />,
       link: "/swarms/create",
     },
   ];

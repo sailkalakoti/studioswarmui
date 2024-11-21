@@ -322,7 +322,7 @@ export function CreateSwarm({ id }) {
                   href: "/swarms",
                 },
                 {
-                  label: isCreate ? "Create Swarms" : swarmName,
+                  label: isCreate ? "Create Swarm" : swarmName,
                 }
               ]}
             />
