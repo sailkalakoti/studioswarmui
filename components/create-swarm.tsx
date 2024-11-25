@@ -15,15 +15,14 @@ import {
 import {
   ChevronDown,
   ChevronRight,
-  Zap,
-  Database,
   User,
   Save,
   Play,
+  Upload,
+  Download,
 } from "lucide-react";
 import { FlowchartComponent } from "@/components/workflow/page";
 import { useDnD } from "./DnDContext";
-import ChatContainer from "./ChatContainer";
 import axiosInstance from "@/lib/apiService";
 import { useMutation, useQuery } from "react-query";
 import { useRouter } from "next/navigation";
@@ -35,6 +34,7 @@ import { NewNode, NodeDetails } from "@/lib/types";
 import { Edge } from "@xyflow/react";
 import constants from "@/constants";
 import BreadCrumbs from "./Breadcrumbs";
+import ResizableDrawer from "./ResizeableDrawer";
 
 const createSwarm = async (payload) => {
   if (payload.id !== 'create') {
@@ -73,6 +73,7 @@ export function CreateSwarm({ id }) {
   const debouncedSwarmName = useDebounce(swarmName, 300);
   const [triggerDownload, setTriggerDownload] = useState(false);
   const [runTriggered, setRunTriggered] = useState(false);
+  const [portToRun, setPortToRun] = useState(0);
 
 
   const {
@@ -114,7 +115,13 @@ export function CreateSwarm({ id }) {
     { enabled: triggerDownload }
   );
 
-  const runSwarmMutation = useApiMutation("/swarm_execution/spawn/", "POST");
+  const runSwarmMutation = useApiMutation("/swarm_execution/spawn/", "POST", {
+    onSuccess: (data: any) => {
+      setPortToRun(data.port);
+      toast.success("Server started on : ", data.port);
+      setRunTriggered(true);
+    }
+  });
 
   useEffect(() => {
     if (isDownloadLoading) {
@@ -148,7 +155,7 @@ export function CreateSwarm({ id }) {
 
   const standardNodes = [
     {
-      label: "Start Node",
+      label: "Start",
       id: 0,
     },
   ];
@@ -224,11 +231,9 @@ export function CreateSwarm({ id }) {
   };
 
   const onRunSwarm = () => {
-    setRunTriggered(true);
-
-    // runSwarmMutation.mutate({
-    //   instance_id: timestampToDownload
-    // })
+    runSwarmMutation.mutate({
+      instance_id: timestampToDownload
+    })
     setShowChatBubble(true);
   }
 
@@ -352,6 +357,7 @@ export function CreateSwarm({ id }) {
                 onClick={onPublishSwarm}
                 loading={publishSwarmMutation.isLoading}
               >
+                <Upload className="h-4 w-4 mr-2" />
                 Publish
               </Button>
               <Button
@@ -360,9 +366,10 @@ export function CreateSwarm({ id }) {
                 onClick={onDownloadSwarm}
                 loading={isDownloadLoading}
               >
+                <Download className="h-4 w-4 mr-2" />
                 Download
               </Button>
-              <Button variant={'secondary'} onClick={onRunSwarm}>
+              <Button variant={'secondary'} onClick={onRunSwarm} loading={runSwarmMutation.isLoading} loadingText=" Deploying">
                 <Play className="h-4 w-4 mr-2" />
                 Test
               </Button>
@@ -375,6 +382,7 @@ export function CreateSwarm({ id }) {
               <FlowchartComponent nodes={existingNodes} edges={existingEdges} />
             </CardContent>
           </Card>
+          {!!portToRun && <ResizableDrawer port={portToRun} />}
 
           {/* Save Dialog */}
           <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
@@ -449,7 +457,6 @@ export function CreateSwarm({ id }) {
           </Dialog>
         </main>
       </div>
-      {showChatBubble && <ChatContainer />}
     </div>
   );
 }

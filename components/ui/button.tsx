@@ -42,10 +42,11 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
+  loadingText?: string;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size, asChild = false, loading = false, onClick, children, ...props }, ref) => {
+  ({ className, variant = "primary", size, asChild = false, loading = false, onClick, loadingText = "", children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
@@ -54,7 +55,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         onClick={loading ? null : onClick}
         {...props}
       >
-        {loading ? <Spinner loading /> : children}
+        {loading ? <><Spinner loading />{loadingText}</> : children}
       </Comp>
     );
   },

@@ -5,6 +5,7 @@ import {
   ReactFlow,
   Node,
   Edge,
+  Controls,
   Background,
   NodeTypes,
   addEdge,
@@ -200,6 +201,7 @@ export const FlowchartComponent = ({ nodes: nodesFromProps, edges: edgesFromProp
         attributionPosition="bottom-right"
       >
         <Background />
+        <Controls />
       </ReactFlow>
     </div>
   );

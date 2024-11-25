@@ -83,12 +83,12 @@ export function RoutinesList({ page }: { page: string }) {
   }, [`/${page}/`, sortBy, sortOrder, String(pageNum)]);
   const deleteMutation = useMutation(deleteItem, {
     onSuccess: () => {
-      queryClient.invalidateQueries(`/${page}/?limit=100`);
+      queryClient.invalidateQueries([`/${page}/`, sortBy, sortOrder, String(pageNum)]);
       toast.success("Deleted " + PAGE_TYPE[page]);
     },
     onError: (error) => {
       toast.error("Something went wrong");
-      queryClient.invalidateQueries(`/${page}/?limit=100`);
+      queryClient.invalidateQueries([`/${page}/`, sortBy, sortOrder, String(pageNum)]);
     }
   })
 
