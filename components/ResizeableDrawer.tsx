@@ -205,23 +205,23 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(({ ch
   return (
     <Tabs defaultValue="chat" className="flex-grow flex flex-col overflow-y-hidden">
       <TabsList className="grid w-full grid-cols-2 p-1 gap-1">
-        <TabsTrigger value="chat" className="rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Chat</TabsTrigger>
-        <TabsTrigger value="debug" className="rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Debug</TabsTrigger>
+        <TabsTrigger value="chat" className="rounded-md data-[state=active]:bg-[#0071B2] data-[state=active]:text-primary-foreground">Chat</TabsTrigger>
+        <TabsTrigger value="debug" className="rounded-md data-[state=active]:bg-[#0071B2] data-[state=active]:text-primary-foreground">Debug</TabsTrigger>
       </TabsList>
       <TabsContent value="chat" className="flex-grow flex flex-col p-4 overflow-y-auto">
         <ScrollArea className="flex-grow mb-4 pr-4 " ref={ref}>
           {chatMessages.map((msg, index) => (
             <div key={index} className={`mb-2 flex ${msg.sender === 'User' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex items-start space-x-2 max-w-[80%] ${msg.sender === 'User' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                <div className={`rounded-full p-2 ${msg.sender === 'User' ? 'bg-primary/90 text-primary-foreground' :
-                    msg.sender === 'System' ? 'bg-secondary/90 text-secondary-foreground' :
-                      'bg-muted/90 text-muted-foreground'
+              <div className={`flex flex-col space-y-2 max-w-[80%] ${msg.sender === 'User' ? 'items-end' : 'items-start'}`}>
+                <div className={`rounded-full p-2 ${msg.sender === 'User' ? 'bg-[#0071B2] text-primary-foreground' :
+                    msg.sender === 'System' ? 'bg-[#f2f2f2] text-secondary-foreground' :
+                      'bg-[#f2f2f2] text-secondary-foreground'
                   }`}>
                   {getSenderIcon(msg.sender)}
                 </div>
-                <div className={`rounded-lg px-3 py-2 ${msg.sender === 'User' ? 'bg-primary/90 text-primary-foreground' :
-                    msg.sender === 'System' ? 'bg-secondary/90 text-secondary-foreground' :
-                      'bg-muted/90 text-muted-foreground'
+                <div className={`rounded-lg px-3 py-2 ${msg.sender === 'User' ? 'bg-[#0071B2] text-primary-foreground' :
+                    msg.sender === 'System' ? 'bg-[#f2f2f2] text-secondary-foreground' :
+                      'bg-[#f2f2f2] text-secondary-foreground'
                   }`}>
                   <p className="text-sm">{msg.message}</p>
                 </div>
@@ -238,7 +238,7 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(({ ch
             onChange={(e) => setInputMessage(e.target.value)}
             className="flex-grow"
           />
-          <Button type="submit" size="icon" className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button type="submit" size="icon" className="bg-[#0071B2] text-primary-foreground">
             <Send className="h-4 w-4" />
             <span className="sr-only">Send message</span>
           </Button>
