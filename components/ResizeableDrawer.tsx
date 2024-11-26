@@ -294,3 +294,5 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(({ ch
     </Tabs>
   )
 })
+
+DrawerContent.displayName = 'DrawerContent';
