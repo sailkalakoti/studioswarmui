@@ -5,7 +5,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const axiosInstance = axios.create({
   baseURL: isProduction ? 'http://178.156.143.254:8001/studioswarm' : 'http://localhost:8001/studioswarm',
-  timeout: 30*1000,
 });
 
 // Request interceptor to add the token to headers

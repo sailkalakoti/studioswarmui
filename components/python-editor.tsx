@@ -67,6 +67,7 @@ export function PythonEditorComponent({ id }) {
       setCode(routineData.code);
       setRoutineName(routineData.name);
       setRoutineDescription(routineData.description);
+      setRequirements(routineData?.requirements);
     }
   }, [routineData]);
 
