@@ -87,6 +87,7 @@ function AnimateText({ str }) {
 import constants from "@/constants";
 import clsx from "clsx";
 import { ShimmerText } from "./ShimmerText";
+import { AnimatedSparkles } from "./AnimatedSparkles";
 
 const createAgent = async (payload) => {
   if (payload.id !== 'create') {
@@ -288,16 +289,17 @@ export function CreateAgentComponent({ id }) {
                       rows={8}
                     />
                     {generateMagicPromptMutation.isLoading && (
-                      <ShimmerText text={systemPrompt}  className="absolute top-[8px] left-[12px] text-sm"/>
+                      <ShimmerText text={systemPrompt}  className="absolute top-[8px] left-[12px] text-sm overflow-hidden h-[90%]"/>
                     )}
                     <Button
                       size="icon"
                       className="absolute right-1 bottom-1 rounded-full"
                       onClick={generateMagicPrompt}
+                      disabled={generateMagicPromptMutation.isLoading}
                       aria-label="Generate magic prompt"
                       title="Enhance prompt"
                     >
-                      <Sparkles className="h-4 w-4" />
+                      {generateMagicPromptMutation.isLoading ? <AnimatedSparkles className="h-4 w-4" />: <Sparkles className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>

@@ -6,7 +6,7 @@ import "prismjs/themes/prism.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, Play, Clock, CheckCircle } from "lucide-react";
+import { Save, Play, Clock, CheckCircle, WandSparkles } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -203,6 +203,7 @@ export function PythonEditorComponent({ id }) {
                   variant={"secondary"}
                   loading={codeGenerateMutation.isLoading}
                 >
+                  <WandSparkles className="mr-2" />
                   Generate
                 </Button>
               </div>
