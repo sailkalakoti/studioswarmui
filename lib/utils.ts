@@ -181,3 +181,7 @@ export const useElementOnScreen = (options, callback) => {
 
   return [containerRef];
 };
+
+export const capitalizeFirstChar = (str = '') => {
+    return str?.charAt(0)?.toUpperCase() + str?.slice(1);
+}

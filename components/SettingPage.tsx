@@ -89,9 +89,6 @@ export default function SettingsPage() {
   }
 
   const handleSaveSettings = () => {
-    // Here you would typically send the settings to your backend
-    console.log('Predefined Settings:', predefinedSettings)
-    console.log('Dynamic Settings:', dynamicSettings)
     const payloadSetting = dynamicSettings?.reduce((acc, item) => {
       return {
         ...acc,

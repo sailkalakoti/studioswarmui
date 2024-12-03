@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { motion } from 'framer-motion';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -13,14 +14,79 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 
 import { useMutation, useQueryClient } from "react-query";
 import axiosInstance from "@/lib/apiService";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
-import useDebounce, { useFetchData } from "@/lib/utils";
+import useDebounce, { useApiMutation, useFetchData } from "@/lib/utils";
+
+const colors = ['#FF008C', '#D309E1', '#9C1AFF', '#7700FF', '#4400FF']
+
+function AnimatedLetter({ letter, index }: { letter: string; index: number }) {
+  if (letter === ' ') {
+    return <span className="inline-block w-[0.3em]">&nbsp;</span>
+  }
+
+  return (
+    <motion.span
+      initial={{ opacity: 0.3 }}
+      animate={{
+        opacity: [0.3, 1, 0.3],
+        color: colors[index % colors.length],
+      }}
+      transition={{
+        duration: 2,
+        repeat: Infinity,
+        repeatType: "loop",
+        ease: "easeInOut",
+        delay: index * 0.1,
+      }}
+      className="inline-block text-sm"
+    >
+      {letter}
+    </motion.span>
+  )
+}
+
+function AnimateText({ str }) {
+  return (
+    (
+      <motion.div 
+        className="whitespace-pre-wrap break-words bg-clip-text text-transparent"
+        style={{
+          backgroundImage: "linear-gradient(90deg, #FF008C, #D309E1, #9C1AFF, #7700FF, #4400FF)",
+          backgroundSize: "200% 100%",
+        }}
+        animate={{
+          backgroundPosition: ["0% 0%", "100% 0%"],
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "linear",
+        }}
+        aria-label={`Animating text: ${str}`}
+      >
+        {str}
+      </motion.div>
+    )
+  )
+  return (
+    <>
+      {Array.from(str).map((letter: string, i) => (
+        <AnimatedLetter key={i} letter={letter} index={i} />
+      ))}
+    </>
+  )
+
+}
+
 import constants from "@/constants";
+import clsx from "clsx";
+import { ShimmerText } from "./ShimmerText";
 
 const createAgent = async (payload) => {
   if (payload.id !== 'create') {
@@ -55,6 +121,12 @@ export function CreateAgentComponent({ id }) {
     data: agentExist,
     isLoading: isAgentExistLoading
   } = useFetchData(isCreate && debouncedAgentName?.length > 0 ? '/agents/exists?name=' + debouncedAgentName : null);
+
+  const generateMagicPromptMutation = useApiMutation('/routines/code/generation/magic-prompt', 'POST', {
+    onSuccess(data: any) {
+      setSystemPrompt(data?.magic_prompt);
+    },
+  })
 
 
   useEffect(() => {
@@ -110,6 +182,15 @@ export function CreateAgentComponent({ id }) {
     })
   };
 
+  const generateMagicPrompt = (event) => {
+    event?.stopPropagation();
+    // event?.stopImmediatePropagation();
+    event?.preventDefault();
+    generateMagicPromptMutation.mutate({
+      'task_or_prompt': systemPrompt,
+    })
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-black w-full">
       <Toaster toastOptions={{ position: "bottom-right" }} />
@@ -140,6 +221,7 @@ export function CreateAgentComponent({ id }) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                console.log("Form submited");
                 handleCreateAgent();
               }}
             >
@@ -193,14 +275,31 @@ export function CreateAgentComponent({ id }) {
                   >
                     System Prompt*
                   </Label>
-                  <Textarea
-                    id="system-prompt"
-                    value={systemPrompt}
-                    onChange={(e) => setSystemPrompt(e.target.value)}
-                    className="mt-1"
-                    placeholder="Enter system prompt"
-                    rows={8}
-                  />
+                  
+                  <div className="relative">
+                    <Textarea
+                      id="system-prompt"
+                      value={systemPrompt}
+                      onChange={(e) => setSystemPrompt(e.target.value)}
+                      className={clsx("mt-1", {
+                        'text-white': generateMagicPromptMutation.isLoading,
+                      })}
+                      placeholder="Enter system prompt"
+                      rows={8}
+                    />
+                    {generateMagicPromptMutation.isLoading && (
+                      <ShimmerText text={systemPrompt}  className="absolute top-[8px] left-[12px] text-sm"/>
+                    )}
+                    <Button
+                      size="icon"
+                      className="absolute right-1 bottom-1 rounded-full"
+                      onClick={generateMagicPrompt}
+                      aria-label="Generate magic prompt"
+                      title="Enhance prompt"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <div>
                   <Label

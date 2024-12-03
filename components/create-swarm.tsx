@@ -118,6 +118,7 @@ export function CreateSwarm({ id }) {
   const runSwarmMutation = useApiMutation("/swarm_execution/spawn/", "POST", {
     onSuccess: (data: any) => {
       setPortToRun(data.port);
+      setShowChatBubble(true);
       toast.success("Server started on : ", data.port);
       setRunTriggered(true);
     }
@@ -231,10 +232,17 @@ export function CreateSwarm({ id }) {
   };
 
   const onRunSwarm = () => {
+    if (portToRun) {
+      setShowChatBubble(true);
+      return;
+    }
     runSwarmMutation.mutate({
       instance_id: timestampToDownload
     })
-    setShowChatBubble(true);
+  }
+
+  const onChatClose = () => {
+    setShowChatBubble(false);
   }
 
   return (
@@ -285,7 +293,7 @@ export function CreateSwarm({ id }) {
               </button>
               {isAgentListLoading && (
                 <div className="pt-2">
-                  {[...Array(5)]?.map((agentLoadingItem) => (
+                  {[...Array(5).keys()]?.map((agentLoadingItem) => (
                     <div className="flex items-center space-x-2 p-2" key={agentLoadingItem} >
                       <Skeleton className="w-6 h-[24px]" />
                       <Skeleton className="w-1/2 h-[24px]" />
@@ -382,7 +390,13 @@ export function CreateSwarm({ id }) {
               <FlowchartComponent nodes={existingNodes} edges={existingEdges} />
             </CardContent>
           </Card>
-          {!!portToRun && <ResizableDrawer port={portToRun} />}
+          {showChatBubble && (
+            <ResizableDrawer
+              port={portToRun}
+              onClose={onChatClose}
+              instanceId={timestampToDownload}
+              />
+            )}
 
           {/* Save Dialog */}
           <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>

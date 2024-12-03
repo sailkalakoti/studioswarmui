@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, Send, AlertCircle, Activity, Globe, User, Bot, Server, Maximize2, Minimize2, X } from 'lucide-react'
 import { useApiMutation } from '@/lib/utils'
 
-export default function ResizableDrawer({ port }: { port: number }) {
+export default function ResizableDrawer({ port, instanceId, onClose }: { port: number, instanceId: string, onClose: Function }) {
   const [isOpen, setIsOpen] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   const [width, setWidth] = useState(420);
@@ -25,18 +25,23 @@ export default function ResizableDrawer({ port }: { port: number }) {
   const drawerRef = useRef<HTMLDivElement>(null)
   const resizeHandleRef = useRef<HTMLDivElement>(null)
 
+  console.log({ port, instanceId })
+
   const toggleDrawer = () => setIsOpen(!isOpen)
   const toggleExpand = () => setIsExpanded(!isExpanded)
 
-  const postChatMutation = useApiMutation('http://178.156.143.254:'+port+'/chat', 'POST', {
+  const postChatMutation = useApiMutation('http://178.156.143.254:' + port + '/chat', 'POST', {
     onSuccess: (data: any) => {
-      setChatMessages(prevMessage => ([
-        ...prevMessage,
-        {
-          sender: 'System',
-          message: data?.response,
-        }
-      ]))
+      if (data?.response?.length > 0) {
+        const newMessage = data?.response
+          ?.filter(item => item?.content?.length && item?.role!== 'tool')
+          ?.map(item => ({
+            sender: item?.role === 'user' ? 'User' : 'Agent',
+            message: item.content,
+            name: item?.role === 'user' ? 'User' : item?.sender,
+          }))
+        setChatMessages(newMessage)
+      }
     }
   })
 
@@ -51,9 +56,10 @@ export default function ResizableDrawer({ port }: { port: number }) {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
     if (inputMessage.trim()) {
-      setChatMessages([...chatMessages, { sender: 'User', message: inputMessage }])
+      setChatMessages([...chatMessages, { sender: 'User', message: inputMessage, name: "User" }])
       postChatMutation.mutate({
         "user_input": inputMessage,
+        session_id: instanceId
       })
       setInputMessage('')
     }
@@ -91,7 +97,7 @@ export default function ResizableDrawer({ port }: { port: number }) {
       case 'System':
         return <Server className="h-4 w-4" />
       case 'Agent':
-        return <Bot className="h-4 w-4" />
+        return <User className="h-4 w-4" />
       case 'User':
         return <User className="h-4 w-4" />
       default:
@@ -102,13 +108,13 @@ export default function ResizableDrawer({ port }: { port: number }) {
   return (
     <>
       <div className="fixed inset-y-0 right-0 flex top-[70px]">
-        <button
+        {/* <button
           onClick={toggleDrawer}
           className="self-center -ml-3 p-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50"
           aria-label={isOpen ? "Close drawer" : "Open drawer"}
         >
           <ChevronLeft className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-        </button>
+        </button> */}
         {isOpen && !isExpanded && (
           <div
             ref={drawerRef}
@@ -129,6 +135,19 @@ export default function ResizableDrawer({ port }: { port: number }) {
                 aria-label="Expand drawer"
               >
                 <Maximize2 className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsExpanded(false);
+                  setIsOpen(false);
+                  onClose();
+                }}
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground ml-2"
+                aria-label="Close drawer"
+              >
+                <X className="h-6 w-6" />
               </Button>
             </div>
             <DrawerContent
@@ -190,6 +209,7 @@ export default function ResizableDrawer({ port }: { port: number }) {
 interface ChatMessageType {
   sender: string;
   message: string;
+  name: string;
 }
 
 interface DrawerContentProps {
@@ -203,7 +223,7 @@ interface DrawerContentProps {
 
 const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(({ chatMessages, getSenderIcon, handleSendMessage, inputMessage, setInputMessage }, ref) => {
   return (
-    <Tabs defaultValue="chat" className="flex-grow flex flex-col overflow-y-hidden">
+    <Tabs defaultValue="chat" className="flex-grow flex flex-col overflow-y-hidden h-full">
       <TabsList className="grid w-full grid-cols-2 p-1 gap-1">
         <TabsTrigger value="chat" className="rounded-md data-[state=active]:bg-[#0071B2] data-[state=active]:text-primary-foreground">Chat</TabsTrigger>
         <TabsTrigger value="debug" className="rounded-md data-[state=active]:bg-[#0071B2] data-[state=active]:text-primary-foreground">Debug</TabsTrigger>
@@ -213,15 +233,18 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(({ ch
           {chatMessages.map((msg, index) => (
             <div key={index} className={`mb-2 flex ${msg.sender === 'User' ? 'justify-end' : 'justify-start'}`}>
               <div className={`flex flex-col space-y-2 max-w-[80%] ${msg.sender === 'User' ? 'items-end' : 'items-start'}`}>
-                <div className={`rounded-full p-2 ${msg.sender === 'User' ? 'bg-[#0071B2] text-primary-foreground' :
+                <div className='flex space-x-2 items-center'>
+                  <div className={`rounded-full p-2 ${msg.sender === 'User' ? 'bg-[#0071B2] text-primary-foreground' :
                     msg.sender === 'System' ? 'bg-[#f2f2f2] text-secondary-foreground' :
                       'bg-[#f2f2f2] text-secondary-foreground'
-                  }`}>
-                  {getSenderIcon(msg.sender)}
+                    }`}>
+                    {getSenderIcon(msg.sender)}
+                  </div>
+                  <div className='font-medium'>{msg.name}</div>
                 </div>
                 <div className={`rounded-lg px-3 py-2 ${msg.sender === 'User' ? 'bg-[#0071B2] text-primary-foreground' :
-                    msg.sender === 'System' ? 'bg-[#f2f2f2] text-secondary-foreground' :
-                      'bg-[#f2f2f2] text-secondary-foreground'
+                  msg.sender === 'System' ? 'bg-[#f2f2f2] text-secondary-foreground' :
+                    'bg-[#f2f2f2] text-secondary-foreground'
                   }`}>
                   <p className="text-sm">{msg.message}</p>
                 </div>

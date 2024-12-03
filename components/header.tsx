@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Logo from "./Logo";
+import { SearchBar } from "./search-bar";
+import { SearchModal } from "./search-modal";
 
 const Header = () => {
   return (
@@ -9,6 +11,7 @@ const Header = () => {
           <Logo color="brand" />
           <span className="font-semibold text-[28px] text-[#002856]">StudioSwarm</span>
         </Link>
+        <SearchModal />
       </div>
     </header>
   );

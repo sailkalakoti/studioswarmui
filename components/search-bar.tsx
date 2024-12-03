@@ -1,9 +1,8 @@
 "use client"
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { 
+import {
   Command,
   CommandEmpty,
   CommandGroup,
@@ -12,6 +11,7 @@ import {
   CommandList
 } from "@/components/ui/command"
 import { useDebounce } from '@/hooks/useDebounce'
+import { useFetchData } from '@/lib/utils'
 
 type SearchResult = {
   id: string
@@ -20,35 +20,27 @@ type SearchResult = {
 
 export function SearchBar() {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [showResults, setShowResults] = useState(false)
-  
-  const debouncedQuery = useDebounce(query, 300)
 
-  useEffect(() => {
-    const searchResults = async () => {
-      if (debouncedQuery.length >= 4) {
-        setIsLoading(true)
-        // Simulating an API call
-        await new Promise(resolve => setTimeout(resolve, 500))
-        // Replace this with your actual search logic
-        const mockResults: SearchResult[] = [
-          { id: '1', title: 'Result 1' },
-          { id: '2', title: 'Result 2' },
-          { id: '3', title: 'Result 3' },
-        ]
-        setResults(mockResults)
-        setIsLoading(false)
-        setShowResults(true)
-      } else {
-        setResults([])
-        setShowResults(false)
-      }
-    }
-
-    searchResults()
-  }, [debouncedQuery])
+  const debouncedQuery = useDebounce(query, 300);
+  const { data: swarmDownloadData, isLoading }: {
+    data: {
+      query: string;
+      results: any;
+      total_results: number;
+    },
+    isLoading: boolean;
+  } = useFetchData(
+    '/search/',
+    {
+      language: 'english',
+      limit: 10,
+      q: debouncedQuery,
+    }, 'json',
+    {
+      enabled: debouncedQuery?.length > 0
+    },
+    [debouncedQuery]
+  );
 
   return (
     <div className="relative w-full max-w-sm">
@@ -61,16 +53,29 @@ export function SearchBar() {
           className="pl-8 pr-4"
         />
       </div>
-      {showResults && (
+      {debouncedQuery?.length > 0 &&
+        !swarmDownloadData?.results?.length &&
+        (
+          <div className="absolute mt-1 w-full rounded-md bg-popover shadow-md">
+            <Command>
+              <CommandList>
+                <CommandEmpty>{isLoading ? 'Searching...' : 'No results found.'}</CommandEmpty>
+              </CommandList>
+            </Command>
+          </div>
+        )}
+      {swarmDownloadData?.results?.length > 0 && (
         <div className="absolute mt-1 w-full rounded-md bg-popover shadow-md">
           <Command>
             <CommandList>
               <CommandEmpty>{isLoading ? 'Searching...' : 'No results found.'}</CommandEmpty>
               <CommandGroup heading="Results">
-                {results.map((result) => (
-                  <CommandItem key={result.id}>
-                    <span>{result.title}</span>
-                  </CommandItem>
+                {swarmDownloadData?.results.map((result) => (
+                  <a href={`/${result.type}s/${result.id}`} key={result.id}>
+                    <CommandItem >
+                      <span>{result.title}</span>
+                    </CommandItem>
+                  </a>
                 ))}
               </CommandGroup>
             </CommandList>

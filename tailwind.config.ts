@@ -70,6 +70,13 @@ const config: Config = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		keyframes: {
+        shimmer: {
+          '0%': { color: '#3B82F6' },    // blue-500
+          '25%': { color: '#10B981' },   // emerald-500
+          '50%': { color: '#8B5CF6' },   // violet-500
+          '75%': { color: '#EC4899' },   // pink-500
+          '100%': { color: '#3B82F6' },  // back to blue-500
+        },
   			'accordion-down': {
   				from: {
   					height: '0'
@@ -89,8 +96,9 @@ const config: Config = {
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+				shimmer: 'shimmer 3s linear infinite',
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],
