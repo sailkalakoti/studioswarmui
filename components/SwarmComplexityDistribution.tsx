@@ -1,9 +1,5 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, XAxis, ResponsiveContainer, Tooltip } from "recharts"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-// import { ChartContainer } from "./ui/chart"
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import { useMemo } from "react"
 
 export default function VerticalBarChart({ graphComplexity }) {
@@ -14,29 +10,61 @@ export default function VerticalBarChart({ graphComplexity }) {
       value: graph_complexity_distribution[item],
     }))
   }, [graphComplexity]);
+
+  // Calculate total for percentages
+  const total = data.reduce((acc, item) => acc + item.value, 0);
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl">Swarm Complexity Distributions</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer className="h-fit">
-          <ResponsiveContainer width="100%" aspect={16/9} >
-            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <XAxis dataKey="category" tickLine={false} />
-              {/* <ChartTooltip /> */}
-              <Tooltip 
-                formatter={(value, name, props) => {
-                  const category = props?.payload?.category;
-                  return [`${value}`, category]
+    <div className="flex flex-col h-full">
+      {data.map((item, index) => {
+        const percentage = total > 0 ? (item.value / total) * 100 : 0;
+        return (
+          <div key={index} className="mb-4 last:mb-0">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium capitalize text-gray-600">
+                {item.category.toLowerCase()}
+              </span>
+              <span className="text-sm font-medium text-[#002856]">
+                {item.value}
+              </span>
+            </div>
+            <div className="relative w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div 
+                className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
+                style={{ 
+                  width: `${percentage}%`,
+                  backgroundColor: getColorForCategory(item.category)
                 }}
-                labelFormatter={() => ''}
               />
-              <Bar dataKey="value" fill="#002856" radius={[4, 4, 0, 0]}  />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  )
+            </div>
+          </div>
+        )
+      })}
+
+      {/* Legend */}
+      <div className="flex justify-center gap-6 mt-4">
+        {data.map((item, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <div 
+              className="w-3 h-3 rounded-full" 
+              style={{ backgroundColor: getColorForCategory(item.category) }}
+            />
+            <span className="text-xs text-[#002856] capitalize">
+              {item.category.toLowerCase()}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Helper function to get colors for different categories
+function getColorForCategory(category: string) {
+  const colors = {
+    SIMPLE: '#002856', // Primary blue
+    MODERATE: '#0071B2', // Secondary blue
+    COMPLEX: '#00A3E0', // Lighter blue
+  };
+  return colors[category.toUpperCase()] || '#002856'; // default to primary blue
 }

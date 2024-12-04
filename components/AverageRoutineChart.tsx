@@ -1,60 +1,47 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useMemo } from "react"
+import { ChartContainer } from "@/components/ui/chart"
 
 export default function AverageRoutineChart({ averageRoutinePerAgent }) {
-  const data = [
-    { name: "Average", value: averageRoutinePerAgent?.average_routines_per_agent || 0 }
-  ]
+  const average = averageRoutinePerAgent?.average_routines_per_agent || 0;
+  const maxValue = 10;
+  const percentage = (average / maxValue) * 100;
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl font-semibold">Average Routines per Agent</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <ResponsiveContainer width="100%" aspect={16/9} >
-            <BarChart
-              data={data}
-              layout="vertical"
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
-              {/* <CartesianGrid strokeDasharray="3 3" horizontal={false} /> */}
-              <XAxis
-                type="number"
-                domain={[0, 10]}
-                ticks={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                tickLine={false}
-              />
-              <YAxis type="category" dataKey="name" hide />
-              <Tooltip 
-                formatter={(value) => [`${value}`, 'Average Routines']}
-                labelFormatter={() => ''}
-              />
-              <Bar
-                dataKey="value"
-                fill="#002856"
-                barSize={120}
-              >
-                {data.map((entry, index) => (
-                  <text
-                    key={`label-${index}`}
-                    x={entry.value * 30 + 10}
-                    y={20}
-                    fill="hsl(var(--foreground))"
-                    textAnchor="start"
-                    // dominantBaseline="middle"
-                  >
-                    {entry.value}
-                  </text>
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+    <div className="flex flex-col items-center justify-center h-full">
+      <div className="relative flex items-center justify-center w-32 h-32">
+        <svg className="w-full h-full transform -rotate-90">
+          <circle
+            className="text-gray-100"
+            strokeWidth="8"
+            stroke="currentColor"
+            fill="transparent"
+            r="56"
+            cx="64"
+            cy="64"
+          />
+          <circle
+            className="text-[#002856]"
+            strokeWidth="8"
+            strokeLinecap="round"
+            stroke="currentColor"
+            fill="transparent"
+            r="56"
+            cx="64"
+            cy="64"
+            strokeDasharray={`${percentage * 3.51} 351`}
+          />
+        </svg>
+        <div className="absolute flex flex-col items-center">
+          <span className="text-3xl font-bold text-[#002856]">{average}</span>
+          <span className="text-sm text-gray-600">routines</span>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      
+      <div className="mt-4 text-center">
+        <div className="text-sm text-gray-600">per agent</div>
+      </div>
+    </div>
   )
 }
