@@ -22,7 +22,7 @@ export default function AverageRoutineChart({ averageRoutinePerAgent }) {
             cy="64"
           />
           <circle
-            className="text-[#002856]"
+            className="text-[#002856] circle-progress"
             strokeWidth="8"
             strokeLinecap="round"
             stroke="currentColor"

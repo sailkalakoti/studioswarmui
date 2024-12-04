@@ -149,7 +149,7 @@ export function Dashboard() {
                         <h3 className="text-sm font-medium text-gray-600">{item.title}</h3>
                         <p className="text-2xl font-bold text-[#002856] mt-1">{counts?.[item.id]}</p>
                       </div>
-                      <div className="bg-white p-3 rounded-full">
+                      <div className="p-3 bg-gray-50 rounded-lg">
                         {item.icon}
                       </div>
                     </div>

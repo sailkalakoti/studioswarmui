@@ -175,3 +175,23 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.8s ease-out forwards;
 }
+
+@keyframes progress-fill {
+  0% {
+    stroke-dasharray: 0 351;
+  }
+}
+
+.circle-progress {
+  animation: progress-fill 1s ease-out forwards;
+}
+
+@keyframes bar-fill {
+  from {
+    width: 0%;
+  }
+}
+
+.bar-progress {
+  animation: bar-fill 1s ease-out forwards;
+}

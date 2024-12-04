@@ -30,7 +30,7 @@ export default function VerticalBarChart({ graphComplexity }) {
             </div>
             <div className="relative w-full h-2 bg-gray-100 rounded-full overflow-hidden">
               <div 
-                className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
+                className="absolute top-0 left-0 h-full rounded-full bar-progress"
                 style={{ 
                   width: `${percentage}%`,
                   backgroundColor: getColorForCategory(item.category)
