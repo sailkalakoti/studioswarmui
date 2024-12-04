@@ -88,7 +88,7 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar className="pt-[40px] bg-white border-r border-gray-200">
+    <Sidebar className="pt-[40px] bg-white border-r border-gray-200 flex flex-col h-full">
       <SidebarContent>
         <SidebarGroup className="bg-white">
           <SidebarGroupContent className="bg-white">
@@ -119,10 +119,11 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <div className="flex-1 bg-white" />
       <SidebarFooter className="bg-white">
         <SidebarGroup className="bg-white">
           <SidebarGroupContent className="bg-white">
-            <SidebarMenu className="gap-4">
+            <SidebarMenu className="gap-2">
               <SidebarMenuItem 
                 className={`rounded-md border transition-all ${
                   path?.includes("/settings")
@@ -131,10 +132,9 @@ export function AppSidebar() {
                 }`}
               >
                 <SidebarMenuButton asChild>
-                  <a href="/settings" className={path?.includes("/settings") ? "text-[#002856] font-medium" : "text-gray-500"}>
-                    <div className="flex flex-col items-center">
-                      <Settings className={path?.includes("/settings") ? "text-[#002856]" : "text-gray-500"} />
-                      <div className="text-sm">Settings</div>
+                  <a href="/settings" className={path?.includes("/settings") ? "text-[#002856]" : "text-gray-500"}>
+                    <div className="flex items-center justify-center p-2">
+                      <Settings className={path?.includes("/settings") ? "text-[#002856] h-6 w-6" : "text-gray-500 h-6 w-6"} />
                     </div>
                   </a>
                 </SidebarMenuButton>
@@ -144,9 +144,8 @@ export function AppSidebar() {
               >
                 <SidebarMenuButton asChild>
                   <a href="#" onClick={(e) => { e.preventDefault(); onLogout(); }} className="text-gray-500">
-                    <div className="flex flex-col items-center">
-                      <LogOut className="text-gray-500" />
-                      <div className="text-sm">Log Out</div>
+                    <div className="flex items-center justify-center p-2">
+                      <LogOut className="text-gray-500 h-6 w-6" />
                     </div>
                   </a>
                 </SidebarMenuButton>
