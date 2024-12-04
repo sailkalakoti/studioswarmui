@@ -15,6 +15,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Sparkles, Cog, X } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useMutation, useQueryClient } from "react-query";
 import axiosInstance from "@/lib/apiService";
@@ -291,16 +297,27 @@ export function CreateAgentComponent({ id }) {
                     {generateMagicPromptMutation.isLoading && (
                       <ShimmerText text={systemPrompt}  className="absolute top-[8px] left-[12px] text-sm overflow-hidden h-[90%]"/>
                     )}
-                    <Button
-                      size="icon"
-                      className="absolute right-1 bottom-1 rounded-full"
-                      onClick={generateMagicPrompt}
-                      disabled={generateMagicPromptMutation.isLoading}
-                      aria-label="Generate magic prompt"
-                      title="Enhance prompt"
-                    >
-                      {generateMagicPromptMutation.isLoading ? <AnimatedSparkles className="h-4 w-4" />: <Sparkles className="h-4 w-4" />}
-                    </Button>
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="icon"
+                            className="absolute right-1 bottom-1 rounded-full bg-blue-50 hover:bg-blue-100"
+                            onClick={generateMagicPrompt}
+                            disabled={generateMagicPromptMutation.isLoading}
+                            aria-label="Improve my Prompt"
+                          >
+                            {generateMagicPromptMutation.isLoading ? <AnimatedSparkles className="h-4 w-4" />: <Sparkles className="h-4 w-4 text-blue-600" />}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent 
+                          className="bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-lg border border-gray-200 rounded-lg"
+                          sideOffset={4}
+                        >
+                          Improve my Prompt
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
                 <div>
