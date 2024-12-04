@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { PlusCircle, Trash2 } from 'lucide-react'
+import { PlusCircle, Trash2, Save } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -139,7 +139,10 @@ export default function SettingsPage() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleSaveSettings} className="ml-auto">Save Settings</Button>
+          <Button onClick={handleSaveSettings} className="ml-auto">
+            <Save className="h-4 w-4 mr-2" />
+            Save
+          </Button>
         </CardFooter>
       </Card>
     </div>
