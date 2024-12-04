@@ -15,7 +15,7 @@ export default function ApplicationLayout({
     <Authorizer>
       <div className="min-h-screen flex flex-col">
         <Header />
-        <div className="flex-1 flex mt-[65px]">
+        <div className="flex-1 flex mt-[40px]">
           <SidebarProvider open={false}>
             <AppSidebar />
             <main className="flex-1 md:ml-[80px]">

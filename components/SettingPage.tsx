@@ -25,17 +25,12 @@ type DynamicSetting = {
 type GenericObject = { [key: string]: any };
 
 export default function SettingsPage() {
-  const [predefinedSettings, setPredefinedSettings] = useState<PredefinedSetting[]>([
-    { key: 'Email Notifications', value: true, type: 'boolean' },
-    { key: 'OpenAI API Key', value: '', type: 'text', placeholder: "sk-**********" },
-  ])
-
   const [dynamicSettings, setDynamicSettings] = useState<DynamicSetting[]>([])
   const [newKey, setNewKey] = useState('')
   const [newValue, setNewValue] = useState('')
 
   const { data, isLoading } = useFetchData("/settings/");
-  const { settings }: any = data ||  {};
+  const { settings }: any = data || {};
   const settingsMutate = useApiMutation("/settings/", "PUT", {
     onSuccess: () => {
       toast.success("Settings updated")
@@ -45,29 +40,13 @@ export default function SettingsPage() {
   useEffect(() => {
     if (Object.keys(settings || {}).length > 0) {
       const dynamicKeys = Object.keys(settings)
-        ?.filter(item => item !== 'OPENAI_KEY')
         ?.map(key => ({
           key,
           value: settings[key]
         }));
       setDynamicSettings(dynamicKeys);
-      setPredefinedSettings(prevSetting => predefinedSettings?.map(item => {
-        if (item.key === 'OpenAI API Key') {
-          return {
-            ...item,
-            value: settings?.OPENAI_KEY || "",
-          }
-        }
-        return item;
-      }))
     }
   }, [settings]);
-
-  const handlePredefinedSettingChange = (index: number, value: string | boolean) => {
-    const updatedSettings = [...predefinedSettings]
-    updatedSettings[index].value = value
-    setPredefinedSettings(updatedSettings)
-  }
 
   const handleDynamicSettingChange = (index: number, key: string, value: string) => {
     const updatedSettings = [...dynamicSettings]
@@ -96,16 +75,13 @@ export default function SettingsPage() {
       }
     }, {});
     settingsMutate.mutate({
-      settings: {
-        ...payloadSetting,
-        OPENAI_KEY: settings.OPENAI_KEY,
-      },
+      settings: payloadSetting,
       user_id: 1
     })
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto p-8">
       <Toaster toastOptions={{ position: "bottom-right" }} />
       <Card>
         <CardHeader>
@@ -114,31 +90,7 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Predefined Settings</h3>
-            {predefinedSettings.map((setting, index) => (
-              <div key={setting.key} className="flex items-center justify-between">
-                <Label htmlFor={setting.key} className="flex-grow">{setting.key}</Label>
-                {setting.type === 'text' ? (
-                  <Input
-                    id={setting.key}
-                    value={setting.value as string}
-                    onChange={(e) => handlePredefinedSettingChange(index, e.target.value)}
-                    className="w-1/2"
-                    placeholder={setting.placeholder}
-                  />
-                ) : (
-                  <Switch
-                    id={setting.key}
-                    checked={setting.value as boolean}
-                    onCheckedChange={(checked) => handlePredefinedSettingChange(index, checked)}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Dynamic Settings</h3>
+           
             {dynamicSettings.map((setting, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <Input
@@ -191,5 +143,5 @@ export default function SettingsPage() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

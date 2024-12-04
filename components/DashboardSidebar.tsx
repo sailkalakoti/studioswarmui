@@ -88,17 +88,24 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar>
+    <Sidebar className="pt-[40px] bg-white border-r border-gray-200">
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
+        <SidebarGroup className="bg-white">
+          <SidebarGroupContent className="bg-white">
             <SidebarMenu className="gap-4">
               {options.map((item) => {
                 const isSelected = path?.includes(item.link);
                 return (
-                  <SidebarMenuItem key={item.title} className={isSelected ? "border-l-2 border-[#002956] bg-[#F4F4F5]" : ""}>
+                  <SidebarMenuItem 
+                    key={item.title} 
+                    className={`rounded-md border transition-all ${
+                      isSelected 
+                        ? "border-[#002956]/10 bg-[#F4F4F5]" 
+                        : "border-transparent hover:border-gray-100 hover:bg-gray-50/60"
+                    }`}
+                  >
                     <SidebarMenuButton asChild>
-                      <a href={item.link} className={isSelected ? "text-[18px] text-[#002856]" : "text-gray-500"}>
+                      <a href={item.link} className={isSelected ? "text-[#002856]" : "text-gray-500"}>
                         <div className="flex flex-col items-center">
                           {<item.icon className={isSelected ? "text-[#002856]" : "text-gray-500"} />}
                           <div>{item.title}</div>
@@ -112,27 +119,41 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem className={path?.includes("/settings") ? "border-l-2 border-[#002956] bg-[#F4F4F5]" : ""}>
-            <SidebarMenuButton asChild>
-              <a href="/settings" className={path?.includes("/settings") ? "text-[18px] text-[#002856]" : "text-gray-500"}>
-                <div className="flex flex-col items-center">
-                  <Settings className={path?.includes("/settings") ? "text-[#002856]" : "text-gray-500"} />
-                  <div>Settings</div>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarMenuButton onClick={onLogout}>
-          <a href="#">
-            <div className="flex flex-col items-center">
-              <LogOut />
-              Log Out
-            </div>
-          </a>
-        </SidebarMenuButton>
+      <SidebarFooter className="bg-white">
+        <SidebarGroup className="bg-white">
+          <SidebarGroupContent className="bg-white">
+            <SidebarMenu className="gap-4">
+              <SidebarMenuItem 
+                className={`rounded-md border transition-all ${
+                  path?.includes("/settings")
+                    ? "border-[#002956]/10 bg-[#F4F4F5]" 
+                    : "border-transparent hover:border-gray-100 hover:bg-gray-50/60"
+                }`}
+              >
+                <SidebarMenuButton asChild>
+                  <a href="/settings" className={path?.includes("/settings") ? "text-[#002856] font-medium" : "text-gray-500"}>
+                    <div className="flex flex-col items-center">
+                      <Settings className={path?.includes("/settings") ? "text-[#002856]" : "text-gray-500"} />
+                      <div className="text-sm">Settings</div>
+                    </div>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem 
+                className="rounded-md border transition-all border-transparent hover:border-gray-100 hover:bg-gray-50/60"
+              >
+                <SidebarMenuButton asChild>
+                  <a href="#" onClick={(e) => { e.preventDefault(); onLogout(); }} className="text-gray-500">
+                    <div className="flex flex-col items-center">
+                      <LogOut className="text-gray-500" />
+                      <div className="text-sm">Log Out</div>
+                    </div>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarFooter>
     </Sidebar>
   )

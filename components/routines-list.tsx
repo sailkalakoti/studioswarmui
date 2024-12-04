@@ -194,58 +194,44 @@ export function RoutinesList({ page }: { page: string }) {
               const services = getChildrenCount(routine, page);
               const ServiceIcon = services.icon || null;
               return (
-                <Card key={routine.routineid || routine.agentid || routine.swarmid} className="flex flex-col" >
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>{routine.name}</span>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <MoreVerticalIcon className="cursor" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem >
-                            <p className="w-full" onClick={() => openDeleteDialog(routine)}>Delete</p>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <p className="text-sm text-gray-600 mb-4">
-                      {routine.description}
-                    </p>
-                    {/* <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span>Last run: {routine.lastRun}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <BarChart className="h-4 w-4 mr-1" />
-                    <span>Success: {routine.successRate}</span>
-                  </div>
-                </div> */}
-                  </CardContent>
-                  <CardFooter>
-                    <div className="w-full space-y-2">
-                      <div className="flex space-x-4 text-sm text-fontc-productText justify-between">
-                        <div className="flex items-center">
-                          <Clock className="h-4 w-4 mr-1" />
-                          <span>{getDifferenceInDaysLabel(routine?.created_at)}</span>
-                        </div>
-                        <div className="flex items-center font-semibold gap-2">
-                          {ServiceIcon && <ServiceIcon className="w-4 h-4" />}
-                          {services.label}
+                <Link key={routine.routineid || routine.agentid || routine.swarmid} href={`/${page}/${routine.id}`}>
+                  <Card className="h-full flex flex-col transform-gpu translate-y-0 transition-all duration-300 ease-out hover:shadow-lg hover:shadow-blue-100/50 hover:-translate-y-1 hover:border-blue-100">
+                    <CardHeader>
+                      <CardTitle className="flex justify-between items-center">
+                        <span>{routine.name}</span>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <MoreVerticalIcon className="cursor" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem >
+                              <p className="w-full" onClick={() => openDeleteDialog(routine)}>Delete</p>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <p className="text-sm text-gray-600 mb-4">
+                        {routine.description}
+                      </p>
+                    </CardContent>
+                    <CardFooter>
+                      <div className="w-full space-y-2">
+                        <div className="flex space-x-4 text-sm text-fontc-productText justify-between">
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-1" />
+                            <span>{getDifferenceInDaysLabel(routine?.created_at)}</span>
+                          </div>
+                          <div className="flex items-center font-semibold gap-2">
+                            {ServiceIcon && <ServiceIcon className="w-4 h-4" />}
+                            {services.label}
+                          </div>
                         </div>
                       </div>
-                      <Button
-                        asChild
-                        className="w-full border-[#0000a9] border-[1px] bg-[#ffffff] hover:border-[#0000d3] hover:bg-[#ffffff] text-[#0000a9] hover:text-[#0000d3]"
-                      >
-                        <Link href={`/${page}/${routine.id}`}>View Details</Link>
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
+                    </CardFooter>
+                  </Card>
+                </Link>
               )
             }
             )}
