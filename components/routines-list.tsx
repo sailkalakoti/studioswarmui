@@ -20,6 +20,8 @@ import CardSkeleton from "./CardSkeleton";
 import SortDropdown from "./SortDropdown";
 import BreadCrumbs from "./Breadcrumbs";
 import constants from "@/constants";
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 
 interface ToBeDeletedItemProps {
   routineid?: string;
@@ -131,6 +133,22 @@ export function RoutinesList({ page }: { page: string }) {
       id: toBeDeletedItem.routineid || toBeDeletedItem.agentid || toBeDeletedItem.swarmid
     })
   }
+
+  useEffect(() => {
+    NProgress.configure({ 
+      showSpinner: false,
+      trickleSpeed: 100,
+      minimum: 0.3
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isLoading || isFetching) {
+      NProgress.start();
+    } else {
+      NProgress.done();
+    }
+  }, [isLoading, isFetching]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 w-full">
