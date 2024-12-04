@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus, Sparkles, Cog, X } from "lucide-react";
 
 import { useMutation, useQueryClient } from "react-query";
 import axiosInstance from "@/lib/apiService";
@@ -335,7 +335,7 @@ export function CreateAgentComponent({ id }) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-2 flex flex-wrap gap-3">
                     {selectedRoutines?.map((routineId) => {
                       const routine: any = routineList?.find(
                         (r: any) => r.routineid.toString() === routineId.toString(),
@@ -343,18 +343,23 @@ export function CreateAgentComponent({ id }) {
                       return (
                         <div
                           key={routineId}
-                          className="bg-gray-100 text-gray-800 px-2 py-1 rounded-md text-sm flex items-center"
+                          className="group relative flex flex-col items-center w-[120px] p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all"
                         >
-                          {routine.name}
+                          <div className="flex items-center justify-center w-10 h-10 bg-gray-50 rounded-lg mb-2">
+                            <Cog className="h-5 w-5 text-gray-600" />
+                          </div>
+                          <span className="text-sm font-medium text-gray-700 text-center line-clamp-2">
+                            {routine.name}
+                          </span>
                           <button
                             onClick={() =>
                               setSelectedRoutines((prev) =>
                                 prev.filter((id) => id !== routineId),
                               )
                             }
-                            className="ml-2 text-gray-500 hover:text-gray-700"
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 rounded-full transition-all"
                           >
-                            ×
+                            <X className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600" />
                           </button>
                         </div>
                       );
