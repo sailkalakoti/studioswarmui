@@ -1,5 +1,5 @@
 "use client"
-import { Calendar, Cog, Home, Inbox, LogOut, Search, Settings, Users, Zap } from "lucide-react"
+import { Calendar, Cog, Home, Inbox, LogOut, Search, Settings, Users, Zap, LayoutGrid } from "lucide-react"
 
 import {
   Sidebar,
@@ -19,6 +19,12 @@ import { useApiMutation } from "@/lib/utils";
 // Menu items.
 
 const options = [
+  {
+    title: "Home",
+    description: "View your analytics and overview.",
+    icon: LayoutGrid,
+    link: "/dashboard",
+  },
   {
     title: "Routines",
     description:
@@ -92,7 +98,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup className="bg-white">
           <SidebarGroupContent className="bg-white">
-            <SidebarMenu className="gap-4">
+            <SidebarMenu className="gap-3">
               {options.map((item) => {
                 const isSelected = path?.includes(item.link);
                 return (
@@ -106,9 +112,9 @@ export function AppSidebar() {
                   >
                     <SidebarMenuButton asChild>
                       <a href={item.link} className={isSelected ? "text-[#002856]" : "text-gray-500"}>
-                        <div className="flex flex-col items-center">
-                          {<item.icon className={isSelected ? "text-[#002856]" : "text-gray-500"} />}
-                          <div>{item.title}</div>
+                        <div className="flex flex-col items-center py-1.5">
+                          {<item.icon className={`${isSelected ? "text-[#002856]" : "text-gray-500"} h-5 w-5`} />}
+                          <div className="text-sm mt-0.5">{item.title}</div>
                         </div>
                       </a>
                     </SidebarMenuButton>
