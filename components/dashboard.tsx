@@ -125,13 +125,42 @@ export function Dashboard() {
     // Add more templates as needed
   ];
 
+  // Update the explore links data with Swarm examples and docs
+  const exploreLinks = [
+    {
+      title: "Swarm Framework",
+      description: "Educational framework exploring ergonomic, lightweight multi-agent orchestration",
+      link: "https://github.com/openai/swarm"
+    },
+    {
+      title: "Orchestrating Agents",
+      description: "Learn about routines and handoffs patterns in the OpenAI Cookbook",
+      link: "https://cookbook.openai.com/examples/orchestrating_agents"
+    },
+    {
+      title: "Triage Agent Example",
+      description: "Learn how to build a triage agent that routes requests to specialized agents",
+      link: "https://github.com/openai/swarm/tree/main/examples/triage_agent"
+    },
+    {
+      title: "Airline Service Example",
+      description: "Multi-agent setup for handling different customer service requests",
+      link: "https://github.com/openai/swarm/tree/main/examples/airline"
+    },
+    {
+      title: "Weather Agent Example",
+      description: "Simple example demonstrating function calling with a single agent",
+      link: "https://github.com/openai/swarm/tree/main/examples/weather_agent"
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex-1 flex">
         <main className="container mx-auto px-4 py-8">
           <Accordion 
             type="multiple" 
-            defaultValue={["dashboard", "create"]} 
+            defaultValue={["dashboard", "create", "explore"]} 
             className="w-full space-y-5"
           >
             {/* Dashboard Section */}
@@ -285,6 +314,57 @@ export function Dashboard() {
                       </div>
                     </div>
                   </Link>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Explore Section */}
+            <AccordionItem value="explore" className="border-none bg-white rounded-lg shadow">
+              <AccordionTrigger className="hover:no-underline flex items-center gap-2 px-6">
+                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 data-[state=open]:rotate-180" />
+                <h2 className="text-xl font-bold text-gray-900">Explore</h2>
+              </AccordionTrigger>
+              <AccordionContent className="px-6">
+                {/* First row - Main framework links */}
+                <div className="mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {exploreLinks.slice(0, 2).map((item, index) => (
+                      <Link 
+                        href={item.link} 
+                        key={index}
+                        className="group p-4 rounded-lg hover:bg-gray-50 transition-all duration-200"
+                      >
+                        <div className="space-y-1">
+                          <h3 className="text-[#002856] font-medium group-hover:text-[#0071B2] transition-colors">
+                            {item.title}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {item.description}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Second row - Example links */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {exploreLinks.slice(2).map((item, index) => (
+                    <Link 
+                      href={item.link} 
+                      key={index}
+                      className="group p-4 rounded-lg hover:bg-gray-50 transition-all duration-200"
+                    >
+                      <div className="space-y-1">
+                        <h3 className="text-[#002856] font-medium group-hover:text-[#0071B2] transition-colors">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {item.description}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </AccordionContent>
             </AccordionItem>
