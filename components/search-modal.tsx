@@ -28,8 +28,22 @@ const getItemIcon = (item) => {
 
 export function SearchModal() {
   const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
   const debouncedQuery = useDebounce(query, 300);
   const [results, setResults] = useState([]);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        setOpen((open) => !open)
+      }
+    }
+
+    document.addEventListener('keydown', down)
+    return () => document.removeEventListener('keydown', down)
+  }, [])
+
   const { data: swarmDownloadData, isLoading }: {
     data: {
       query: string;
@@ -50,6 +64,12 @@ export function SearchModal() {
     [debouncedQuery]
   );
 
+  useEffect(() => {
+    if (swarmDownloadData?.results) {
+      setResults(transformData(swarmDownloadData?.results));
+    }
+  }, [swarmDownloadData]);
+
   function transformData(data) {
     const groupedData = {};
 
@@ -65,31 +85,26 @@ export function SearchModal() {
     return Object.values(groupedData);
   }
 
-  useEffect(() => {
-    if (swarmDownloadData?.results) {
-      setResults(transformData(swarmDownloadData?.results));
-    }
-  }, [swarmDownloadData]);
-
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
-        <div className="flex items-center space-x-2 relative">
-          {/* <FileText className="h-5 w-5" />
-          <span>Search</span> */}
-
-          <Search className="absolute left-4 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search..."
+        <div className="flex items-center w-[400px] h-10 rounded-lg border shadow-sm bg-white">
+          <Search className="ml-3 h-4 w-4 text-muted-foreground shrink-0" />
+          <input
+            className="flex-1 px-3 py-2 text-sm bg-transparent border-0 outline-none placeholder:text-muted-foreground"
+            placeholder="Search or ask..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="pl-8 pr-4"
+            readOnly
           />
+          <kbd className="mr-3 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+            <span className="text-xs">⌘</span>K
+          </kbd>
         </div>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader className='font-semibold'>
-            Search from Routines, Agents and Swarms.
+          Search from Routines, Agents and Swarms.
         </DialogHeader>
         <Command>
           <Input
@@ -126,4 +141,3 @@ export function SearchModal() {
     </Dialog>
   )
 }
-

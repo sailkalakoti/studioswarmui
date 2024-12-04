@@ -11,7 +11,9 @@ const Header = () => {
           <Logo color="brand" />
           <span className="font-semibold text-[28px] text-[#002856]">StudioSwarm</span>
         </Link>
-        <SearchModal />
+        <div className="flex-1 flex justify-center">
+          <SearchModal />
+        </div>
       </div>
     </header>
   );
