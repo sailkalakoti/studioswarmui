@@ -54,6 +54,7 @@ export function PythonEditorComponent({ id }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamingCode, setStreamingCode] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [streamInterval, setStreamInterval] = useState<NodeJS.Timeout | null>(null);
 
   const debouncedRoutineName = useDebounce(routineName, 300);
   const router = useRouter();
@@ -104,28 +105,26 @@ export function PythonEditorComponent({ id }) {
   });
 
   const codeGenerateMutation = useApiMutation(codeGenerateURL + '/routines/code/generation/', 'POST', {
-    onSuccess: (data: any) => {
+    onSuccess: (data: any, variables: any, context: unknown): void => {
       setIsGenerating(false);
       const finalCode = data?.code || "";
       setIsStreaming(true);
       let currentIndex = 0;
       
-      // Stream the code character by character
-      const streamInterval = setInterval(() => {
+      const interval = setInterval(() => {
         if (currentIndex <= finalCode.length) {
           setStreamingCode(finalCode.slice(0, currentIndex));
           currentIndex++;
         } else {
-          clearInterval(streamInterval);
+          clearInterval(interval);
           setIsStreaming(false);
-          setCode(finalCode); // Set the final code
+          setCode(finalCode);
           setRequirements(data?.requirements?.join("\n") || "");
         }
-      }, 10); // Adjust speed by changing this value (milliseconds)
+      }, 10);
 
-      // Cleanup interval if component unmounts during streaming
-      return () => clearInterval(streamInterval);
-    },
+      setStreamInterval(interval);
+    }
   });
 
   const codeValidationMutation = useApiMutation('/routines/code/generation/validate-syntax', 'POST', {
@@ -179,6 +178,12 @@ export function PythonEditorComponent({ id }) {
       code,
     });
   }
+
+  useEffect(() => {
+    return () => {
+      if (streamInterval) clearInterval(streamInterval);
+    };
+  }, [streamInterval]);
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-black w-full">

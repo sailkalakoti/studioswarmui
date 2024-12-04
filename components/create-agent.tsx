@@ -130,10 +130,11 @@ export function CreateAgentComponent({ id }) {
   } = useFetchData(isCreate && debouncedAgentName?.length > 0 ? '/agents/exists?name=' + debouncedAgentName : null);
 
   const generateMagicPromptMutation = useApiMutation('/routines/code/generation/magic-prompt', 'POST', {
-    onSuccess(data: any) {
+    onSuccess: (data: any, variables: any, context: unknown) => {
       setSystemPrompt(data?.magic_prompt);
+      return Promise.resolve();
     },
-  })
+  });
 
 
   useEffect(() => {
