@@ -343,10 +343,10 @@ export function CreateAgentComponent({ id }) {
                       return (
                         <div
                           key={routineId}
-                          className="group relative flex flex-col items-center w-[120px] p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all"
+                          className="group relative flex flex-col items-center w-[120px] p-4 bg-white rounded-xl border border-[#0000a9]/10 shadow-sm hover:shadow-md hover:border-[#0000a9]/20 transition-all"
                         >
-                          <div className="flex items-center justify-center w-10 h-10 bg-gray-50 rounded-lg mb-2">
-                            <Cog className="h-5 w-5 text-gray-600" />
+                          <div className="flex items-center justify-center w-10 h-10 bg-[#0000a9]/5 rounded-lg mb-2">
+                            <Cog className="h-5 w-5 text-[#0000a9]" />
                           </div>
                           <span className="text-sm font-medium text-gray-700 text-center line-clamp-2">
                             {routine.name}
@@ -357,9 +357,9 @@ export function CreateAgentComponent({ id }) {
                                 prev.filter((id) => id !== routineId),
                               )
                             }
-                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 rounded-full transition-all"
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-[#0000a9]/5 rounded-full transition-all"
                           >
-                            <X className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600" />
+                            <X className="h-3.5 w-3.5 text-[#0000a9]/60 hover:text-[#0000a9]" />
                           </button>
                         </div>
                       );
