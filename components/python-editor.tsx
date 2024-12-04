@@ -52,6 +52,8 @@ export function PythonEditorComponent({ id }) {
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [formError, setFormError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [streamingCode, setStreamingCode] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
 
   const debouncedRoutineName = useDebounce(routineName, 300);
   const router = useRouter();
@@ -103,8 +105,26 @@ export function PythonEditorComponent({ id }) {
 
   const codeGenerateMutation = useApiMutation(codeGenerateURL + '/routines/code/generation/', 'POST', {
     onSuccess: (data: any) => {
-      setCode(data?.code || "");
-      setRequirements(data?.requirements?.join("\n") || "");
+      setIsGenerating(false);
+      const finalCode = data?.code || "";
+      setIsStreaming(true);
+      let currentIndex = 0;
+      
+      // Stream the code character by character
+      const streamInterval = setInterval(() => {
+        if (currentIndex <= finalCode.length) {
+          setStreamingCode(finalCode.slice(0, currentIndex));
+          currentIndex++;
+        } else {
+          clearInterval(streamInterval);
+          setIsStreaming(false);
+          setCode(finalCode); // Set the final code
+          setRequirements(data?.requirements?.join("\n") || "");
+        }
+      }, 10); // Adjust speed by changing this value (milliseconds)
+
+      // Cleanup interval if component unmounts during streaming
+      return () => clearInterval(streamInterval);
     },
   });
 
@@ -137,12 +157,9 @@ export function PythonEditorComponent({ id }) {
 
   const generateCode = () => {
     setIsGenerating(true);
+    setStreamingCode(""); // Reset streaming code
     codeGenerateMutation.mutate({
       prompt: prompt,
-    }, {
-      onSettled: () => {
-        setIsGenerating(false);
-      }
     });
   };
 
@@ -236,8 +253,8 @@ export function PythonEditorComponent({ id }) {
                   </div>
                 ) : (
                   <Editor
-                    value={code}
-                    onValueChange={(code) => setCode(code)}
+                    value={isStreaming ? streamingCode : code}
+                    onValueChange={(code) => !isStreaming && setCode(code)}
                     highlight={(code) => highlightWithoutPython(code)}
                     padding={10}
                     style={{
@@ -249,6 +266,7 @@ export function PythonEditorComponent({ id }) {
                       minHeight: "300px",
                     }}
                     textareaClassName="focus:outline-none"
+                    readOnly={isStreaming} // Prevent editing while streaming
                   />
                 )}
               </TabsContent>
