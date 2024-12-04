@@ -165,27 +165,24 @@ export function RoutinesList({ page }: { page: string }) {
         <Toaster toastOptions={{ position: "bottom-right" }} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300">
-            <CardContent className="flex flex-col items-center py-8">
-              <Plus className="h-12 w-12 text-[#002856] mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Create New {PAGE_TITLES[page]}
-              </h3>
-              <p className="text-sm text-gray-600 text-center mb-4">
-                {PAGE_SUBTITLES[page]}
-              </p>
-              <Button
-                asChild
-                onClick={(e) => {
-                  // e.preventDefault();
-                  // e.stopPropagation();
-                }}
-                className="bg-[#0000a9] hover:bg-[#0000d3] text-white"
-              >
-                <Link href={`/${page}/create`}>Get Started</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <Link href={`/${page}/create`}>
+            <Card className="flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 transform-gpu translate-y-0 transition-all duration-300 ease-out hover:shadow-lg hover:shadow-blue-100/50 hover:-translate-y-1 hover:border-blue-100">
+              <CardContent className="flex flex-col items-center py-8">
+                <Plus className="h-12 w-12 text-[#002856] mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Create New {PAGE_TITLES[page]}
+                </h3>
+                <p className="text-sm text-gray-600 text-center mb-4">
+                  {PAGE_SUBTITLES[page]}
+                </p>
+                <Button
+                  className="bg-[#0000a9] hover:bg-[#0000d3] text-white"
+                >
+                  Get Started
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
           {dataToShow?.map((routine: any) => ({
             ...routine,
             id: routine.routineid || routine.agentid || routine.swarmid
