@@ -23,6 +23,7 @@ import toast, { Toaster } from "react-hot-toast";
 import useDebounce, { useApiMutation, useFetchData } from "@/lib/utils";
 import constants from "@/constants";
 import BreadCrumbs from "./Breadcrumbs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const highlightWithoutPython = (code: string) => {
   return code
@@ -50,6 +51,7 @@ export function PythonEditorComponent({ id }) {
   const [routineDescription, setRoutineDescription] = useState("");
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [formError, setFormError] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const debouncedRoutineName = useDebounce(routineName, 300);
   const router = useRouter();
@@ -134,12 +136,14 @@ export function PythonEditorComponent({ id }) {
   };
 
   const generateCode = () => {
+    setIsGenerating(true);
     codeGenerateMutation.mutate({
       prompt: prompt,
-    })
-    setCode(
-      `# Generated code based on prompt: ${prompt}\n\nprint("This is a generated response.")`,
-    );
+    }, {
+      onSettled: () => {
+        setIsGenerating(false);
+      }
+    });
   };
 
   const saveCode = () => {
@@ -222,21 +226,31 @@ export function PythonEditorComponent({ id }) {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="code">
-                <Editor
-                  value={code}
-                  onValueChange={(code) => setCode(code)}
-                  highlight={(code) => highlightWithoutPython(code)}
-                  padding={10}
-                  style={{
-                    fontFamily: '"Fira code", "Fira Mono", monospace',
-                    fontSize: 14,
-                    backgroundColor: "white",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "0.375rem",
-                    minHeight: "300px",
-                  }}
-                  textareaClassName="focus:outline-none"
-                />
+                {isGenerating ? (
+                  <div className="space-y-2 p-2 min-h-[300px]">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-4 w-3/5" />
+                  </div>
+                ) : (
+                  <Editor
+                    value={code}
+                    onValueChange={(code) => setCode(code)}
+                    highlight={(code) => highlightWithoutPython(code)}
+                    padding={10}
+                    style={{
+                      fontFamily: '"Fira code", "Fira Mono", monospace',
+                      fontSize: 14,
+                      backgroundColor: "white",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "0.375rem",
+                      minHeight: "300px",
+                    }}
+                    textareaClassName="focus:outline-none"
+                  />
+                )}
               </TabsContent>
               <TabsContent value="requirements">
                 <Textarea
