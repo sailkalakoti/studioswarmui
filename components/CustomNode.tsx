@@ -38,7 +38,7 @@ export const CustomNode = ({ data }: { data: { label: string } }) => {
       <Handle type="source" position={Position.Left} id='custom-source-top' />
       <div className="rounded-md p-0.5 bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
         <div className="h-full w-full p-3 rounded-md bg-white flex items-center gap-2">
-          <Play className="h-4 w-4 text-green-500" />
+          <Play className="h-4 w-4 text-[#002856]" />
           <label htmlFor="text">{data.label}</label>
         </div>
       </div>
@@ -60,11 +60,10 @@ export const AgentNode = ({ data }) => {
       <div className="rounded-md p-0.5 bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
         <div className="rounded-md bg-white p-3">
           <div className="h-full w-full bg-white flex items-center gap-2">
-            <User className="h-4 w-4 text-green-500" />
+            <User className="h-4 w-4 text-[#002856]" />
             <label htmlFor="text">{data.label}</label>
           </div>
           <div className="pt-2 h-full w-full bg-white max-w-[300px] min-w-[300px]">
-            {/* <div className="text-xs text-gray-400">Model Name</div> */}
             <div className="text-sm">{data.description}</div>
           </div>
         </div>
@@ -347,7 +346,7 @@ export function DialogComp({ children }: { children: React.ReactNode }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="rounded-md p-0.5 bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
+        <div className="rounded-md p-0.5 bg-gradient-to-tr from-[#002856] via-[#002856]/80 to-[#002856]/70">
           <div className="h-full w-full p-3 rounded-md bg-white">
             {children}
           </div>
