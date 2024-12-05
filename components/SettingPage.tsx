@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { PlusCircle, Trash2, Save } from 'lucide-react'
+import { PlusCircle, Trash2, Save, InfoIcon } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -98,6 +98,10 @@ export default function SettingsPage() {
               <p className="text-sm text-muted-foreground mb-4">
                 Configure your application environment variables and API keys.
               </p>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+                <InfoIcon className="h-4 w-4" />
+                <p>These environment variables will be automatically configured when testing your swarm.</p>
+              </div>
             </div>
             
             <Separator className="my-4" />
