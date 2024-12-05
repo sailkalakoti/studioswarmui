@@ -1,28 +1,24 @@
 "use client";
-import Link from 'next/link';
-// import { Form } from 'app/form';
-// import { signIn } from 'app/auth';
-import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import axiosInstance from '@/lib/apiService';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/navigation';
 import { Toaster } from "react-hot-toast";
-import Logo from '@/components/Logo';
 
 const login = async (payload) => {
   let x = new FormData();
-  x.append("username", payload.userName);
+  x.append("username", payload.email);
   x.append("password", payload.password);
   const { data } = await axiosInstance.post('/auth/signin', x)
   return data;
 }
 
 export default function Login() {
-  const [userName, setUserName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState('');
-
   const router = useRouter();
 
   const loginMutation = useMutation(login, {
@@ -31,86 +27,97 @@ export default function Login() {
       router.push('/dashboard');
     },
     onError: () => {
-      setError("Something went wrong. Please try again");
+      setError("Invalid email or password");
     },
   });
-  const onSignIn = () => {
+
+  const onSignIn = (e) => {
+    e.preventDefault();
     setError("");
     loginMutation.mutate({
-      userName,
+      email,
       password,
     })
   }
+
   return (
-    <div className="flex flex-col gap-8 h-screen w-screen items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex">
       <Toaster toastOptions={{ position: "bottom-right" }} />
-      <div className='h-8 flex items-center gap-2'>
-        <Logo />
-        <span className="font-semibold text-[28px] text-[#002856]">StudioSwarm</span>
-      </div>
-      <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl">
-        <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 py-6 pt-8 text-center sm:px-16">
-          <h3 className="text-xl font-semibold">Sign In</h3>
-          <p className="text-sm text-gray-500">
-            Use your email and password to sign in
-          </p>
+      {/* Left side - Login Form */}
+      <div className="w-full lg:w-[480px] p-8 flex flex-col bg-[#1B112A]">
+        <div className="flex items-center mb-12">
+          <h1 className="text-2xl font-bold text-white">Sign in</h1>
         </div>
-        <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-          className="flex flex-col space-y-4 bg-gray-50 px-4 py-8 sm:px-16"
-        >
+
+        <form onSubmit={onSignIn} className="space-y-6 flex-1">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-xs text-gray-600 uppercase"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
               Email
             </label>
             <input
-              id="email"
-              name="email"
               type="text"
-              placeholder="user@acme.com"
-              autoComplete="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500"
+              placeholder="Enter your email"
               required
-              onChange={(e) => setUserName(e.target.value)}
-              className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-xs text-gray-600 uppercase"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
             />
           </div>
 
-          <center>
-            <Button onClick={onSignIn}>Sign in</Button>
-          </center>
-          <center>
-            <p className='text-red-700'>{error}</p>
-          </center>
-          <p className="text-center text-sm text-gray-600">
-            {"Don't have an account? "}
-            <Link href="/register" className="font-semibold text-gray-800">
-              Sign up
-            </Link>
-            {' for free.'}
-          </p>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500"
+                placeholder="Enter your password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3 px-4 bg-white/90 text-[#1B112A] rounded-lg font-semibold hover:bg-white/80 backdrop-blur-sm transition-colors"
+          >
+            Sign in
+          </button>
+
+          <div className="text-center">
+            <a href="/register" className="text-purple-400 hover:text-purple-300">
+              CREATE AN ACCOUNT
+            </a>
+          </div>
         </form>
-        {/* </Form> */}
+      </div>
+
+      {/* Right side - Hero/Branding */}
+      <div className="hidden lg:block flex-1 bg-gradient-to-br from-[#2D1576] to-[#1B112A] p-12">
+        <div className="h-full flex flex-col justify-center max-w-2xl mx-auto">
+          <h1 className="text-6xl font-bold text-white mb-6">
+            Bring ideas to life
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">
+              #withStudioSwarm
+            </span>
+          </h1>
+          <p className="text-xl text-white/80 mb-8">
+            From tasks and workflows to apps and systems, build and automate anything in one powerful visual platform.
+          </p>
+        </div>
       </div>
     </div>
   );
