@@ -186,7 +186,7 @@ export function Dashboard() {
                 </div>
 
                 {/* Charts - improved layout */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h3 className="text-sm font-medium text-gray-600 mb-2">Swarm Complexity Distribution</h3>
                     <div className="h-[200px]">

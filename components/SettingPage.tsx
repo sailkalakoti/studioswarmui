@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Switch } from "@/components/ui/switch"
 import { useApiMutation, useFetchData } from '@/lib/utils'
 import toast, { Toaster } from 'react-hot-toast'
+import { Separator } from "@/components/ui/separator"
 
 type PredefinedSetting = {
   key: string
@@ -83,65 +84,79 @@ export default function SettingsPage() {
   return (
     <div className="container mx-auto p-8">
       <Toaster toastOptions={{ position: "bottom-right" }} />
-      <Card>
+      <Card className="max-w-4xl mx-auto">
         <CardHeader>
-          <CardTitle className='text-2xl'>Settings</CardTitle>
-          <CardDescription>Manage your application settings here.</CardDescription>
+          <CardTitle className='text-2xl font-bold'>Settings</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Manage your application settings here.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
+        <CardContent className="space-y-8">
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold">Environment Variables</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Configure your application environment variables and API keys.
+              </p>
+            </div>
+            
+            <Separator className="my-4" />
            
             {dynamicSettings.map((setting, index) => (
-              <div key={index} className="flex items-center space-x-2">
+              <div key={index} className="flex items-center space-x-3 group">
                 <Input
                   value={setting.key}
                   onChange={(e) => handleDynamicSettingChange(index, e.target.value, setting.value)}
                   placeholder="Key"
-                  className="w-1/3"
+                  className="w-1/3 font-mono text-sm"
                 />
                 <Input
                   value={setting.value}
                   onChange={(e) => handleDynamicSettingChange(index, setting.key, e.target.value)}
                   placeholder="Value"
-                  className="w-1/3"
+                  className="w-1/2 font-mono text-sm"
+                  type="password"
                 />
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => handleRemoveDynamicSetting(index)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                 </Button>
               </div>
             ))}
           </div>
 
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Add New Setting</h4>
-            <div className="flex items-center space-x-2">
-              <Input
-                value={newKey}
-                onChange={(e) => setNewKey(e.target.value)}
-                placeholder="New Key"
-                className="w-1/3"
-              />
-              <Input
-                value={newValue}
-                onChange={(e) => setNewValue(e.target.value)}
-                placeholder="New Value"
-                className="w-1/3"
-              />
-              <Button onClick={handleAddDynamicSetting} variant='secondary'>
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Add
-              </Button>
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-semibold mb-2">Add New Variable</h4>
+              <div className="flex items-center space-x-3">
+                <Input
+                  value={newKey}
+                  onChange={(e) => setNewKey(e.target.value)}
+                  placeholder="New Key"
+                  className="w-1/3 font-mono text-sm"
+                />
+                <Input
+                  value={newValue}
+                  onChange={(e) => setNewValue(e.target.value)}
+                  placeholder="New Value"
+                  className="w-1/2 font-mono text-sm"
+                />
+                <Button onClick={handleAddDynamicSetting} variant='secondary' className="px-4">
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Add
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="border-t pt-6">
           <Button onClick={handleSaveSettings} className="ml-auto">
             <Save className="h-4 w-4 mr-2" />
-            Save
+            Save Changes
           </Button>
         </CardFooter>
       </Card>

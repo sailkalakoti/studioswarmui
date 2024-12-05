@@ -19,7 +19,10 @@ export default function VerticalBarChart({ graphComplexity }) {
       {data.map((item, index) => {
         const percentage = total > 0 ? (item.value / total) * 100 : 0;
         return (
-          <div key={index} className="mb-4 last:mb-0">
+          <div 
+            key={index} 
+            className={`mb-4 last:mb-0 ${index === 0 ? 'mt-4' : ''}`}
+          >
             <div className="flex justify-between items-center mb-1">
               <span className="text-sm font-medium capitalize text-gray-600">
                 {item.category.toLowerCase()}
