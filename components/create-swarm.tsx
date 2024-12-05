@@ -289,7 +289,7 @@ export function CreateSwarm({ id }) {
           </div>
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{isCreate ? "Swarm" : swarmName}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{isCreate ? "Assemble Your Swarm" : swarmName}</h1>
               <p className="text-sm text-gray-600 mb-4">
                 {isCreate ? PAGE_SUBTITLES['swarms'] : swarmDescription}
               </p>
