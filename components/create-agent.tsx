@@ -303,12 +303,21 @@ export function CreateAgentComponent({ id }) {
                         <TooltipTrigger asChild>
                           <Button
                             size="icon"
-                            className="absolute right-1 bottom-1 rounded-full bg-blue-50 hover:bg-blue-100"
+                            className={clsx(
+                              "absolute right-1 bottom-1 rounded-full",
+                              generateMagicPromptMutation.isLoading 
+                                ? "bg-blue-200 hover:bg-blue-300" 
+                                : "bg-blue-50 hover:bg-blue-100"
+                            )}
                             onClick={generateMagicPrompt}
                             disabled={generateMagicPromptMutation.isLoading}
                             aria-label="Improve my Prompt"
                           >
-                            {generateMagicPromptMutation.isLoading ? <AnimatedSparkles className="h-4 w-4" />: <Sparkles className="h-4 w-4 text-blue-600" />}
+                            {generateMagicPromptMutation.isLoading ? (
+                              <AnimatedSparkles className="h-4 w-4 text-blue-600" />
+                            ) : (
+                              <Sparkles className="h-4 w-4 text-blue-600" />
+                            )}
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent 
