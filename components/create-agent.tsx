@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Sparkles, Cog, X } from "lucide-react";
+import { Plus, Sparkles, Cog, X, Save } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -406,8 +406,8 @@ export function CreateAgentComponent({ id }) {
                       formError.length > 0
                     }
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    {isCreate ? "Create Agent" : "Update Agent"}
+                    <Save className="w-4 h-4 mr-2" />
+                    Save
                   </Button>
                 </div>
               </div>
