@@ -249,98 +249,10 @@ export function CreateSwarm({ id }) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col w-full">
       <Toaster toastOptions={{ position: "bottom-right" }} />
-      <div className="flex-1 flex">
-        <aside className="w-64 bg-white shadow-md">
-          <nav className="mt-8">
-            <div className="px-4 mb-4">
-              <button
-                onClick={() => toggleSection("standardNodes")}
-                className="flex items-center justify-between w-full text-left mb-3"
-              >
-                <span className="font-semibold text-gray-800">Standard Nodes</span>
-                {expandedSections.standardNodes ? (
-                  <ChevronDown className="h-4 w-4 text-gray-600" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 text-gray-600" />
-                )}
-              </button>
-              {expandedSections.standardNodes && (
-                <div className="space-y-1.5">
-                  {standardNodes?.map(nodeItem => (
-                    <div
-                      key={nodeItem.id}
-                      className="group flex items-center gap-3 p-2.5 rounded-lg border border-transparent 
-                        bg-white hover:border-blue-100 hover:bg-blue-50/50 
-                        active:bg-blue-100 cursor-move transition-all duration-200
-                        hover:shadow-sm"
-                      draggable
-                      onDragStart={(event) => onDragStart(event, "start", nodeItem)}
-                    >
-                      <div className="p-1.5 rounded-md bg-blue-50 text-blue-600 group-hover:bg-blue-100">
-                        <Play className="h-4 w-4" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">
-                        {nodeItem.label}
-                      </span>
-                      <GripVertical className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="px-4 mb-4">
-              <button
-                onClick={() => toggleSection("agents")}
-                className="flex items-center justify-between w-full text-left mb-3"
-              >
-                <span className="font-semibold text-gray-800">Agents</span>
-                {expandedSections.agents ? (
-                  <ChevronDown className="h-4 w-4 text-gray-600" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 text-gray-600" />
-                )}
-              </button>
-              {isAgentListLoading && (
-                <div className="pt-2 space-y-2">
-                  {[...Array(5).keys()]?.map((agentLoadingItem) => (
-                    <div className="flex items-center space-x-2 p-2" key={agentLoadingItem} >
-                      <Skeleton className="w-6 h-[24px]" />
-                      <Skeleton className="w-1/2 h-[24px]" />
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div className="space-y-1.5">
-                {!isAgentListLoading && agentData?.map((agentItem: any) => (
-                  <div
-                    key={agentItem.agentid}
-                    draggable
-                    onDragStart={(event) => onDragStart(event, "agent", {
-                      label: agentItem?.name,
-                      id: agentItem?.agentid,
-                      ...agentItem,
-                    })}
-                    className="group flex items-center gap-3 p-2.5 rounded-lg border border-transparent 
-                      bg-white hover:border-blue-100 hover:bg-blue-50/50 
-                      active:bg-blue-100 cursor-move transition-all duration-200
-                      hover:shadow-sm"
-                  >
-                    <div className="p-1.5 rounded-md bg-[#002856]/5 text-[#002856] group-hover:bg-[#002856]/10">
-                      <User className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">
-                      {agentItem?.name}
-                    </span>
-                    <GripVertical className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </nav>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-8">
+      
+      {/* Header section - added top padding */}
+      <div className="bg-gray-50">
+        <div className="px-8 py-4 pt-6">
           <div className="mb-4">
             <BreadCrumbs
               path={[
@@ -358,12 +270,11 @@ export function CreateSwarm({ id }) {
               ]}
             />
           </div>
-          <div className="flex justify-between items-center mb-8">
-
+          <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{isCreate ? "Swarm" : swarmName}</h1>
-              <p className="text-sm font-regular">
-              {isCreate ? PAGE_SUBTITLES['swarms'] : swarmDescription}
+              <h1 className="text-2xl font-bold text-gray-900">{isCreate ? "Swarm" : swarmName}</h1>
+              <p className="text-sm text-gray-600">
+                {isCreate ? PAGE_SUBTITLES['swarms'] : swarmDescription}
               </p>
             </div>
 
@@ -401,94 +312,215 @@ export function CreateSwarm({ id }) {
               </Button>
             </div>
           </div>
-
-          {/* Canvas */}
-          <Card className="mb-8">
-            <CardContent className="h-[80vh] pt-6 bg-transparent rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-              <FlowchartComponent nodes={existingNodes} edges={existingEdges} />
-            </CardContent>
-          </Card>
-          {showChatBubble && (
-            <ResizableDrawer
-              port={portToRun}
-              onClose={onChatClose}
-              instanceId={timestampToDownload}
-              />
-            )}
-
-          {/* Save Dialog */}
-          <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Save Swarm</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-8">
-                <div>
-                  <label
-                    htmlFor="swarm-name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Name*
-                  </label>
-                  <Input
-                    id="swarm-name"
-                    value={swarmName}
-                    onChange={(e) => setSwarmName(e.target.value)}
-                    placeholder="Enter swarm name"
-                  />
-                  <Label htmlFor="name" className="text-right font-normal absolute pt-1 text-xs">
-                    {(isSwarmExistsLoading && !(formError?.length > 0)) ? "Checking" : ""}
-                    {((swarmExists !== undefined && !(formError?.length > 0)) ? (
-                      (swarmExists && !isSwarmExistsLoading) ?
-                        <span className="text-red-700">Swarm name already taken</span> :
-                        <span className="text-green-800">Swarm name is available</span>
-                    ) : null)}
-                    {formError?.length > 0 && (
-                      <span className="text-red-700">{formError}</span>
-                    )}
-                  </Label>
-                </div>
-                <div>
-                  <label
-                    htmlFor="swarm-description"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Description*
-                  </label>
-                  <Textarea
-                    id="swarm-description"
-                    value={swarmDescription}
-                    onChange={(e) => setSwarmDescription(e.target.value)}
-                    placeholder="Enter swarm description"
-                    rows={3}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={() => setIsSaveDialogOpen(false)}
-                  variant="ghost"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={
-                    swarmExists ||
-                    isSwarmExistsLoading ||
-                    !swarmName?.length ||
-                    !swarmDescription?.length ||
-                    formError.length > 0
-                  }
-                  variant="primary"
-                >
-                  Save
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </main>
+        </div>
       </div>
+
+      {/* Main content area - reduced top padding */}
+      <div className="flex-1 flex flex-col p-8 pt-4">
+        {/* Instructions text - softer styling and tone */}
+        <div className="mb-4 text-sm text-gray-500 flex items-center gap-2">
+          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>
+            Design your swarm by dragging components onto the canvas. Connect them together to create your workflow.
+          </span>
+        </div>
+        
+        {/* Content container */}
+        <div className="flex gap-8">
+          {/* Sidebar - Components */}
+          <aside className="w-64 bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <div className="bg-gradient-to-r from-gray-50 to-white px-4 py-3 border-b border-gray-200">
+              <h3 className="text-sm font-medium text-gray-600 uppercase tracking-wider">Components</h3>
+            </div>
+            <nav className="divide-y divide-gray-100">
+              {/* Standard Nodes section */}
+              <div className="px-3 py-2">
+                <button
+                  onClick={() => toggleSection("standardNodes")}
+                  className="flex items-center justify-between w-full text-left p-2 rounded-md 
+                    hover:bg-gray-50 transition-colors group"
+                >
+                  <span className="font-medium text-gray-700 group-hover:text-gray-900">Standard Nodes</span>
+                  {expandedSections.standardNodes ? (
+                    <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                  )}
+                </button>
+                {expandedSections.standardNodes && (
+                  <div className="space-y-1.5 mt-1 pl-1">
+                    {standardNodes?.map(nodeItem => (
+                      <div
+                        key={nodeItem.id}
+                        className="group flex items-center gap-3 p-2 rounded-md border border-gray-100
+                          bg-gray-50/50 hover:bg-blue-50/50 hover:border-blue-100
+                          active:bg-blue-100 cursor-move transition-all duration-200
+                          hover:shadow-sm"
+                        draggable
+                        onDragStart={(event) => onDragStart(event, "start", nodeItem)}
+                      >
+                        <div className="p-1.5 rounded-md bg-[#002856]/5 text-[#002856] group-hover:bg-[#002856]/10">
+                          <Play className="h-3.5 w-3.5" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900 flex-1">
+                          {nodeItem.label}
+                        </span>
+                        <GripVertical className="h-3.5 w-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Agents section */}
+              <div className="px-3 py-2">
+                <button
+                  onClick={() => toggleSection("agents")}
+                  className="flex items-center justify-between w-full text-left p-2 rounded-md 
+                    hover:bg-gray-50 transition-colors group"
+                >
+                  <span className="font-medium text-gray-700 group-hover:text-gray-900">Agents</span>
+                  {expandedSections.agents ? (
+                    <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                  )}
+                </button>
+                {expandedSections.agents && (
+                  <>
+                    {isAgentListLoading && (
+                      <div className="space-y-1.5 mt-1 pl-1">
+                        {[...Array(5).keys()]?.map((agentLoadingItem) => (
+                          <div className="flex items-center space-x-2 p-2" key={agentLoadingItem} >
+                            <Skeleton className="w-6 h-[20px]" />
+                            <Skeleton className="w-1/2 h-[20px]" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="space-y-1.5 mt-1 pl-1">
+                      {!isAgentListLoading && agentData?.map((agentItem: any) => (
+                        <div
+                          key={agentItem.agentid}
+                          draggable
+                          onDragStart={(event) => onDragStart(event, "agent", {
+                            label: agentItem?.name,
+                            id: agentItem?.agentid,
+                            ...agentItem,
+                          })}
+                          className="group flex items-center gap-3 p-2 rounded-md border border-gray-100
+                            bg-gray-50/50 hover:bg-blue-50/50 hover:border-blue-100
+                            active:bg-blue-100 cursor-move transition-all duration-200
+                            hover:shadow-sm"
+                        >
+                          <div className="p-1.5 rounded-md bg-[#002856]/5 text-[#002856] group-hover:bg-[#002856]/10">
+                            <User className="h-3.5 w-3.5" />
+                          </div>
+                          <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900 flex-1">
+                            {agentItem?.name}
+                          </span>
+                          <GripVertical className="h-3.5 w-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </nav>
+          </aside>
+
+          {/* Main Content - Canvas */}
+          <main className="flex-1">
+            <Card>
+              <CardContent className="h-[80vh] pt-6 bg-transparent rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                <FlowchartComponent nodes={existingNodes} edges={existingEdges} />
+              </CardContent>
+            </Card>
+          </main>
+        </div>
+      </div>
+
+      {showChatBubble && (
+        <ResizableDrawer
+          port={portToRun}
+          onClose={onChatClose}
+          instanceId={timestampToDownload}
+          />
+        )}
+
+      {/* Save Dialog */}
+      <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Swarm</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-8">
+            <div>
+              <label
+                htmlFor="swarm-name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Name*
+              </label>
+              <Input
+                id="swarm-name"
+                value={swarmName}
+                onChange={(e) => setSwarmName(e.target.value)}
+                placeholder="Enter swarm name"
+              />
+              <Label htmlFor="name" className="text-right font-normal absolute pt-1 text-xs">
+                {(isSwarmExistsLoading && !(formError?.length > 0)) ? "Checking" : ""}
+                {((swarmExists !== undefined && !(formError?.length > 0)) ? (
+                  (swarmExists && !isSwarmExistsLoading) ?
+                    <span className="text-red-700">Swarm name already taken</span> :
+                    <span className="text-green-800">Swarm name is available</span>
+                ) : null)}
+                {formError?.length > 0 && (
+                  <span className="text-red-700">{formError}</span>
+                )}
+              </Label>
+            </div>
+            <div>
+              <label
+                htmlFor="swarm-description"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Description*
+              </label>
+              <Textarea
+                id="swarm-description"
+                value={swarmDescription}
+                onChange={(e) => setSwarmDescription(e.target.value)}
+                placeholder="Enter swarm description"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => setIsSaveDialogOpen(false)}
+              variant="ghost"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={
+                swarmExists ||
+                isSwarmExistsLoading ||
+                !swarmName?.length ||
+                !swarmDescription?.length ||
+                formError.length > 0
+              }
+              variant="primary"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
