@@ -154,7 +154,7 @@ export function CreateAgentComponent({ id }) {
     } else {
       setFormError("");
     }
-  }, [name]);
+  }, [name, FORM_VALIDATION_MESSAGES.SPACE_NOT_ALLOWED]);
 
   useEffect(() => {
     if (Object?.keys(agentData || {})?.length > 0) {
@@ -505,7 +505,7 @@ export function CreateAgentComponent({ id }) {
                         No Swarms Yet
                       </h3>
                       <p className="text-sm text-gray-500 max-w-[200px] mx-auto">
-                        This agent isn't part of any swarms yet. Add it to a swarm to see it here.
+                        This agent isn&apos;t part of any swarms yet. Add it to a swarm to see it here.
                       </p>
                     </div>
                   )}

@@ -85,7 +85,7 @@ export function PythonEditorComponent({ id }) {
     } else {
       setFormError("");
     }
-  }, [routineName]);
+  }, [routineName, FORM_VALIDATION_MESSAGES.SPACE_NOT_ALLOWED]);
 
   const mutation = useApiMutation(isCreate ? '/routines/' : `/routines/${id}`, isCreate ? 'POST' : 'PUT', {
     onSuccess: () => {
@@ -486,7 +486,7 @@ export function PythonEditorComponent({ id }) {
                         No Agents Connected
                       </h3>
                       <p className="text-sm text-gray-500 max-w-[200px] mx-auto">
-                        This routine isn't used by any agents yet. Add it to an agent to see it here.
+                        This routine isn&apos;t part of any swarms yet. Add it to a swarm to see it here.
                       </p>
                     </div>
                   )}

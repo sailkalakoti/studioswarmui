@@ -118,7 +118,7 @@ export function CreateRoutineComponent({ id }) {
                         No Swarms Yet
                       </h3>
                       <p className="text-sm text-gray-500 max-w-[200px] mx-auto">
-                        This routine isn't part of any swarms yet. Add it to a swarm to see it here.
+                        This routine isn&apos;t part of any swarms yet. Add it to a swarm to see it here.
                       </p>
                     </div>
                   )}
