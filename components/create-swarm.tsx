@@ -21,6 +21,7 @@ import {
   Upload,
   Download,
   GripVertical,
+  X,
 } from "lucide-react";
 import { FlowchartComponent } from "@/components/workflow/page";
 import { useDnD } from "./DnDContext";
@@ -76,6 +77,11 @@ export function CreateSwarm({ id }) {
   const [runTriggered, setRunTriggered] = useState(false);
   const [portToRun, setPortToRun] = useState(0);
 
+  const [swarmTags, setSwarmTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    console.log('Tags updated:', swarmTags);
+  }, [swarmTags]);
 
   const {
     data: swarmExists,
@@ -136,11 +142,12 @@ export function CreateSwarm({ id }) {
   }, [swarmDownloadData, isDownloadLoading]);
 
   useEffect(() => {
-    if (!isSaveDialogOpen) {
+    if (!isSaveDialogOpen && isCreate) {
       setSwarmName('');
       setSwarmDescription('');
+      setSwarmTags([]);
     }
-  }, [isSaveDialogOpen]);
+  }, [isSaveDialogOpen, isCreate]);
 
   useEffect(() => {
     if (Object?.keys(swarmData || {})?.length > 0) {
@@ -152,6 +159,9 @@ export function CreateSwarm({ id }) {
       setExistingNodes(nodes);
       setSwarmName(swarmData?.name);
       setSwarmDescription(swarmData?.description);
+      if (swarmData?.tags) {
+        setSwarmTags(swarmData.tags);
+      }
     }
   }, [swarmData]);
 
@@ -178,11 +188,17 @@ export function CreateSwarm({ id }) {
   };
 
   const onSaveTrigger = (event) => {
+    console.log('Save dialog triggered', { isCreate, isSaveDialogOpen });
     if (!isCreate) {
       event?.stopPropagation();
       event?.preventDefault();
       handleSave();
       return;
+    }
+    if (isCreate) {
+      setSwarmName('');
+      setSwarmDescription('');
+      setSwarmTags([]);
     }
     setIsSaveDialogOpen(true);
   }
@@ -203,6 +219,7 @@ export function CreateSwarm({ id }) {
       data: {
         name: swarmName,
         description: swarmDescription,
+        tags: swarmTags,
         graph: {
           nodes: allNodes?.map((nodeItem: any) => ({
             id: Number(nodeItem.id),
@@ -250,7 +267,7 @@ export function CreateSwarm({ id }) {
     <div className="min-h-screen bg-gray-50 flex flex-col w-full">
       <Toaster toastOptions={{ position: "bottom-right" }} />
       
-      {/* Header section - added top padding */}
+      {/* Header section */}
       <div className="bg-gray-50">
         <div className="px-8 py-4 pt-6">
           <div className="mb-4">
@@ -270,61 +287,106 @@ export function CreateSwarm({ id }) {
               ]}
             />
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-start">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{isCreate ? "Swarm" : swarmName}</h1>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 mb-4">
                 {isCreate ? PAGE_SUBTITLES['swarms'] : swarmDescription}
               </p>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex space-x-4">
-              <Button
-                onClick={onSaveTrigger}
-                variant={"primary"}
-                disabled={!allNodes?.length}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save
-              </Button>
-              <Button
-                disabled={isCreate}
-                variant="secondary"
-                onClick={onPublishSwarm}
-                loading={publishSwarmMutation.isLoading}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Publish
-              </Button>
-              <Button
-                disabled={!timestampToDownload?.length}
-                variant="secondary"
-                onClick={onDownloadSwarm}
-                loading={isDownloadLoading}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-              <Button variant={'secondary'} onClick={onRunSwarm} loading={runSwarmMutation.isLoading} loadingText=" Deploying">
-                <Play className="h-4 w-4 mr-2" />
-                Test
-              </Button>
+            {/* Right side content */}
+            <div className="flex flex-col items-end gap-4">
+              {/* Action Buttons */}
+              <div className="flex space-x-4">
+                <Button
+                  onClick={onSaveTrigger}
+                  variant={"primary"}
+                  disabled={!allNodes?.length}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save
+                </Button>
+                <Button
+                  disabled={isCreate}
+                  variant="secondary"
+                  onClick={onPublishSwarm}
+                  loading={publishSwarmMutation.isLoading}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Publish
+                </Button>
+                <Button
+                  disabled={!timestampToDownload?.length}
+                  variant="secondary"
+                  onClick={onDownloadSwarm}
+                  loading={isDownloadLoading}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+                <Button 
+                  variant={'secondary'} 
+                  onClick={onRunSwarm} 
+                  loading={runSwarmMutation.isLoading} 
+                  loadingText=" Deploying"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Test
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main content area - reduced top padding */}
-      <div className="flex-1 flex flex-col p-8 pt-4">
-        {/* Instructions text - softer styling and tone */}
-        <div className="mb-4 text-sm text-gray-500 flex items-center gap-2">
-          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>
-            Design your swarm by dragging components onto the canvas. Connect them together to create your workflow.
-          </span>
+      {/* Main content area - reduced padding */}
+      <div className="flex-1 flex flex-col px-8">
+        {/* Instructions and tags in one line */}
+        <div className="mb-4 flex justify-between items-center">
+          {/* Instructions text */}
+          <div className="text-sm text-gray-500 flex items-center gap-2">
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>
+              Design your swarm by dragging components onto the canvas. Connect them together to create your workflow.
+            </span>
+          </div>
+
+          {/* Tags section */}
+          <div className="flex flex-wrap gap-2 justify-end">
+            {swarmTags?.map((tag, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-1 px-2 py-1 bg-[#002856]/5 text-[#002856] rounded-md text-sm"
+              >
+                <span>{tag}</span>
+                <button
+                  type="button"
+                  onClick={() => setSwarmTags(tags => tags.filter((_, i) => i !== index))}
+                  className="hover:text-[#002856]"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+            <input
+              type="text"
+              className="text-sm px-2 py-1 border border-gray-200 rounded-md outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 w-32"
+              placeholder="Add tag"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                  e.preventDefault();
+                  const newTag = e.currentTarget.value.trim();
+                  if (!swarmTags.includes(newTag)) {
+                    setSwarmTags(prev => [...prev, newTag]);
+                  }
+                  e.currentTarget.value = '';
+                }
+              }}
+            />
+          </div>
         </div>
         
         {/* Content container */}
@@ -451,13 +513,17 @@ export function CreateSwarm({ id }) {
         )}
 
       {/* Save Dialog */}
-      <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
-        <DialogContent>
+      <Dialog 
+        open={isSaveDialogOpen} 
+        onOpenChange={setIsSaveDialogOpen}
+      >
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Save Swarm</DialogTitle>
           </DialogHeader>
-          <div className="space-y-8">
-            <div>
+          <div className="space-y-6 py-4">
+            {/* Name field */}
+            <div className="space-y-2">
               <label
                 htmlFor="swarm-name"
                 className="block text-sm font-medium text-gray-700"
@@ -470,7 +536,7 @@ export function CreateSwarm({ id }) {
                 onChange={(e) => setSwarmName(e.target.value)}
                 placeholder="Enter swarm name"
               />
-              <Label htmlFor="name" className="text-right font-normal absolute pt-1 text-xs">
+              <Label htmlFor="name" className="text-right font-normal text-xs">
                 {(isSwarmExistsLoading && !(formError?.length > 0)) ? "Checking" : ""}
                 {((swarmExists !== undefined && !(formError?.length > 0)) ? (
                   (swarmExists && !isSwarmExistsLoading) ?
@@ -482,7 +548,9 @@ export function CreateSwarm({ id }) {
                 )}
               </Label>
             </div>
-            <div>
+
+            {/* Description field */}
+            <div className="space-y-2">
               <label
                 htmlFor="swarm-description"
                 className="block text-sm font-medium text-gray-700"
