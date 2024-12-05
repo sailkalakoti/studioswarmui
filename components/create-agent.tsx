@@ -306,17 +306,17 @@ export function CreateAgentComponent({ id }) {
                             className={clsx(
                               "absolute right-1 bottom-1 rounded-full",
                               generateMagicPromptMutation.isLoading 
-                                ? "bg-blue-200 hover:bg-blue-300" 
-                                : "bg-blue-50 hover:bg-blue-100"
+                                ? "bg-gradient-to-r from-[#002856] to-[#1a4c8b] text-white" 
+                                : "bg-gradient-to-r from-[#002856] to-[#1a4c8b] text-white hover:from-[#002856]/90 hover:to-[#1a4c8b]/90"
                             )}
                             onClick={generateMagicPrompt}
                             disabled={generateMagicPromptMutation.isLoading}
                             aria-label="Improve my Prompt"
                           >
                             {generateMagicPromptMutation.isLoading ? (
-                              <AnimatedSparkles className="h-4 w-4 text-blue-600" />
+                              <AnimatedSparkles className="h-4 w-4 text-white" />
                             ) : (
-                              <Sparkles className="h-4 w-4 text-blue-600" />
+                              <Sparkles className="h-4 w-4 text-white" />
                             )}
                           </Button>
                         </TooltipTrigger>
