@@ -20,6 +20,7 @@ import {
   Play,
   Upload,
   Download,
+  GripVertical,
 } from "lucide-react";
 import { FlowchartComponent } from "@/components/workflow/page";
 import { useDnD } from "./DnDContext";
@@ -254,26 +255,34 @@ export function CreateSwarm({ id }) {
             <div className="px-4 mb-4">
               <button
                 onClick={() => toggleSection("standardNodes")}
-                className="flex items-center justify-between w-full text-left"
+                className="flex items-center justify-between w-full text-left mb-3"
               >
-                <span className="font-semibold">Standard Nodes</span>
+                <span className="font-semibold text-gray-800">Standard Nodes</span>
                 {expandedSections.standardNodes ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 text-gray-600" />
                 ) : (
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4 text-gray-600" />
                 )}
               </button>
               {expandedSections.standardNodes && (
-                <div className="mt-2 space-y-2">
+                <div className="space-y-1.5">
                   {standardNodes?.map(nodeItem => (
                     <div
                       key={nodeItem.id}
-                      className="flex items-center space-x-2 cursor-move p-2 cursor-move p-2"
+                      className="group flex items-center gap-3 p-2.5 rounded-lg border border-transparent 
+                        bg-white hover:border-blue-100 hover:bg-blue-50/50 
+                        active:bg-blue-100 cursor-move transition-all duration-200
+                        hover:shadow-sm"
                       draggable
                       onDragStart={(event) => onDragStart(event, "start", nodeItem)}
                     >
-                      <Play className="h-4 w-4 text-green-500" />
-                      <span>{nodeItem.label}</span>
+                      <div className="p-1.5 rounded-md bg-blue-50 text-blue-600 group-hover:bg-blue-100">
+                        <Play className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">
+                        {nodeItem.label}
+                      </span>
+                      <GripVertical className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   ))}
                 </div>
@@ -282,17 +291,17 @@ export function CreateSwarm({ id }) {
             <div className="px-4 mb-4">
               <button
                 onClick={() => toggleSection("agents")}
-                className="flex items-center justify-between w-full text-left"
+                className="flex items-center justify-between w-full text-left mb-3"
               >
-                <span className="font-semibold">Agents</span>
+                <span className="font-semibold text-gray-800">Agents</span>
                 {expandedSections.agents ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 text-gray-600" />
                 ) : (
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4 text-gray-600" />
                 )}
               </button>
               {isAgentListLoading && (
-                <div className="pt-2">
+                <div className="pt-2 space-y-2">
                   {[...Array(5).keys()]?.map((agentLoadingItem) => (
                     <div className="flex items-center space-x-2 p-2" key={agentLoadingItem} >
                       <Skeleton className="w-6 h-[24px]" />
@@ -301,22 +310,31 @@ export function CreateSwarm({ id }) {
                   ))}
                 </div>
               )}
-              {!isAgentListLoading && agentData?.map((agentItem: any) => (
-                <div
-                  className="flex items-center space-x-2 cursor-move p-2 cursor-move"
-                  draggable
-                  key={agentItem.agentid}
-                  onDragStart={(event) => onDragStart(event, "agent", {
-                    label: agentItem?.name,
-                    id: agentItem?.agentid,
-                    ...agentItem,
-                  })}
-                >
-                  <User className="h-4 w-4 text-green-500" />
-                  <span>{agentItem?.name}</span>
-                </div>
-              ))}
-
+              <div className="space-y-1.5">
+                {!isAgentListLoading && agentData?.map((agentItem: any) => (
+                  <div
+                    key={agentItem.agentid}
+                    draggable
+                    onDragStart={(event) => onDragStart(event, "agent", {
+                      label: agentItem?.name,
+                      id: agentItem?.agentid,
+                      ...agentItem,
+                    })}
+                    className="group flex items-center gap-3 p-2.5 rounded-lg border border-transparent 
+                      bg-white hover:border-blue-100 hover:bg-blue-50/50 
+                      active:bg-blue-100 cursor-move transition-all duration-200
+                      hover:shadow-sm"
+                  >
+                    <div className="p-1.5 rounded-md bg-[#002856]/5 text-[#002856] group-hover:bg-[#002856]/10">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">
+                      {agentItem?.name}
+                    </span>
+                    <GripVertical className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                ))}
+              </div>
             </div>
           </nav>
         </aside>

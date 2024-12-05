@@ -1,5 +1,5 @@
 "use client"
-import { Calendar, Cog, Home, Inbox, LogOut, Search, Settings, Users, Zap, LayoutGrid } from "lucide-react"
+import { Calendar, Cog, Home, LayoutDashboard, Inbox, LogOut, Search, Settings, Users, Zap } from "lucide-react"
 
 import {
   Sidebar,
@@ -22,7 +22,7 @@ const options = [
   {
     title: "Home",
     description: "View your analytics and overview.",
-    icon: LayoutGrid,
+    icon: Home,
     link: "/dashboard",
   },
   {
@@ -50,33 +50,6 @@ const options = [
     link: "/swarms",
   },
 ];
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-]
 
 export function AppSidebar() {
 
