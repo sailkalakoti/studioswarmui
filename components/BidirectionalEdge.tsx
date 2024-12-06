@@ -71,7 +71,7 @@ export default function BidirectionalEdge({
   );
 
   // Determine label based on source node's label
-  const label = sourceNode?.data?.label === "Start" ? "Begin" : "Handoff";
+  const label = sourceNode?.data?.label === "Start" ? "Trigger" : "Handoff";
 
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
