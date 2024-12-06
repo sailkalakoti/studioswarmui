@@ -78,12 +78,12 @@ export const CustomNode = ({ id, data, selected }: CustomNodeProps) => {
       <Handle type="target" position={Position.Left} id='custom-target-top' />
       <Handle type="source" position={Position.Left} id='custom-source-top' />
       <div className={`relative group ${isStartNode ? 'w-[150px]' : 'w-[300px]'}`}>
-        <div className="absolute -right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            className="p-1 rounded-full bg-white shadow-lg hover:bg-red-50"
+            className="p-1.5 rounded-full bg-white shadow-lg hover:bg-red-50 border border-gray-100"
             onClick={handleDelete}
           >
-            <Trash className="h-4 w-4 text-red-500" />
+            <Trash className="h-3.5 w-3.5 text-red-500" />
           </button>
         </div>
         
@@ -125,12 +125,12 @@ export const AgentNode = ({ id, data, selected }: CustomNodeProps) => {
       <Handle type="target" position={Position.Left} id='custom-target-top' />
       <Handle type="source" position={Position.Left} id='custom-source-top' />
       <div className="relative group w-[300px]">
-        <div className="absolute -right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            className="p-1 rounded-full bg-white shadow-lg hover:bg-red-50"
+            className="p-1.5 rounded-full bg-white shadow-lg hover:bg-red-50 border border-gray-100"
             onClick={handleDelete}
           >
-            <Trash className="h-4 w-4 text-red-500" />
+            <Trash className="h-3.5 w-3.5 text-red-500" />
           </button>
         </div>
         
