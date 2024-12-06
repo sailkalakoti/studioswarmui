@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,8 @@ import { Edge } from "@xyflow/react";
 import constants from "@/constants";
 import BreadCrumbs from "./Breadcrumbs";
 import ResizableDrawer from "./ResizeableDrawer";
+import { useKeyPress } from '@xyflow/react';
+import { useReactFlow, useOnSelectionChange } from '@xyflow/react';
 
 const createSwarm = async (payload) => {
   if (payload.id !== 'create') {
@@ -78,6 +80,47 @@ export function CreateSwarm({ id }) {
   const [portToRun, setPortToRun] = useState(0);
 
   const [swarmTags, setSwarmTags] = useState<string[]>([]);
+
+  // Add state for selected elements
+  const [selectedElements, setSelectedElements] = useState<{ nodes: string[], edges: string[] }>({ 
+    nodes: [], 
+    edges: [] 
+  });
+
+  // Get the React Flow instance
+  const { setNodes, setEdges } = useReactFlow();
+
+  // Track selected elements
+  useOnSelectionChange({
+    onChange: ({ nodes, edges }) => {
+      setSelectedElements({
+        nodes: nodes.map(node => node.id),
+        edges: edges.map(edge => edge.id)
+      });
+    },
+  });
+
+  // Move this up, before the useEffect that uses it
+  const deleteKeyPressed = useKeyPress(['Backspace', 'Delete']);
+
+  // Handle deletion
+  useEffect(() => {
+    if (deleteKeyPressed && (selectedElements.nodes.length > 0 || selectedElements.edges.length > 0)) {
+      setNodes((nodes) => nodes.filter((node) => !selectedElements.nodes.includes(node.id)));
+      setEdges((edges) => edges.filter((edge) => !selectedElements.edges.includes(edge.id)));
+    }
+  }, [deleteKeyPressed, selectedElements, setNodes, setEdges]);
+
+  // Handle node deletion and cleanup connected edges
+  const onNodesDelete = useCallback((nodesToDelete) => {
+    setEdges((edges) => 
+      edges.filter((edge) => 
+        !nodesToDelete.some(
+          (node) => node.id === edge.source || node.id === edge.target
+        )
+      )
+    );
+  }, [setEdges]);
 
   useEffect(() => {
     console.log('Tags updated:', swarmTags);
@@ -497,7 +540,11 @@ export function CreateSwarm({ id }) {
           <main className="flex-1">
             <Card>
               <CardContent className="h-[80vh] pt-6 bg-transparent rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-                <FlowchartComponent nodes={existingNodes} edges={existingEdges} />
+                <FlowchartComponent 
+                  nodes={existingNodes} 
+                  edges={existingEdges} 
+                  onNodesDelete={onNodesDelete}
+                />
               </CardContent>
             </Card>
           </main>

@@ -13,6 +13,9 @@ import {
   useEdgesState,
   useReactFlow,
   MarkerType,
+  NodeProps,
+  Handle,
+  Position,
 } from "@xyflow/react";
 import {
   ChatInputNode,
@@ -69,7 +72,17 @@ const checkIfBothNodeAgent = (sourceId:string, targetId: string, nodes: any): bo
   return false;
 }
 
-export const FlowchartComponent = ({ nodes: nodesFromProps, edges: edgesFromProps} : { nodes: NewNode[]; edges: Edge[] }) => {
+interface FlowchartComponentProps {
+  nodes: NewNode[];
+  edges: Edge[];
+  onNodesDelete?: (nodes: any) => void;
+}
+
+export const FlowchartComponent = ({ 
+  nodes: nodesFromProps, 
+  edges: edgesFromProps, 
+  onNodesDelete 
+}: FlowchartComponentProps) => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);

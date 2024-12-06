@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   getBezierPath,
   useStore,
@@ -6,9 +6,12 @@ import {
   EdgeLabelRenderer,
   type EdgeProps,
   type ReactFlowState,
+  useReactFlow,
 } from "@xyflow/react";
+import { Trash } from "lucide-react";
 
 export default function BidirectionalEdge({
+  id,
   source,
   target,
   sourceX,
@@ -20,6 +23,9 @@ export default function BidirectionalEdge({
   data,
   ...rest
 }: EdgeProps) {
+  const { deleteElements } = useReactFlow();
+  const [isHovered, setIsHovered] = useState(false);
+
   const isBiDirectionEdge = useStore((s: ReactFlowState) => {
     const edgeExists = s.edges.some(
       (e) =>
@@ -40,7 +46,8 @@ export default function BidirectionalEdge({
 
   let path = "";
   let labelX = (sourceX + targetX) / 2;
-  let labelY = (sourceY + targetY) / 2 - 10;
+  let labelY = (sourceY + targetY) / 2;
+  let deleteButtonY = labelY - 35;
 
   if (isBiDirectionEdge) {
     const offset = sourceX < targetX ? 75 : -75;
@@ -48,8 +55,9 @@ export default function BidirectionalEdge({
     const centerY = (sourceY + targetY) / 2;
     path = `M ${sourceX} ${sourceY} Q ${centerX} ${centerY + offset} ${targetX} ${targetY}`;
     
-    // Adjust label position for curved edges
-    labelY = centerY + (offset / 2); // Position label at curve peak
+    // Adjust positions for curved edges
+    labelY = centerY + (offset / 2);
+    deleteButtonY = labelY - 35;
   } else {
     [path] = getBezierPath({
       ...edgePathParams,
@@ -64,6 +72,11 @@ export default function BidirectionalEdge({
 
   // Determine label based on source node's label
   const label = sourceNode?.data?.label === "Start" ? "Begin" : "Handoff";
+
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    deleteElements({ edges: [{ id }] });
+  };
 
   return (
     <>
@@ -108,12 +121,66 @@ export default function BidirectionalEdge({
             position: 'absolute',
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             pointerEvents: 'none',
+            zIndex: 1,
           }}
           className="px-2 py-1 bg-white rounded-md text-xs font-medium text-[#002856] shadow-sm border border-[#002856]/10"
         >
           {label}
         </div>
       </EdgeLabelRenderer>
+
+      {isHovered && (
+        <foreignObject
+          width={30}
+          height={30}
+          x={(sourceX + targetX) / 2 - 15}
+          y={deleteButtonY}
+          className="edge-delete-button"
+          style={{ 
+            zIndex: 9999,
+            pointerEvents: 'all'
+          }}
+        >
+          <div 
+            className="w-full h-full flex items-center justify-center"
+            onMouseEnter={(e) => {
+              e.stopPropagation();
+              setIsHovered(true);
+            }}
+            onMouseLeave={(e) => {
+              e.stopPropagation();
+              setIsHovered(false);
+            }}
+          >
+            <button
+              className="w-6 h-6 rounded-full bg-white shadow-lg hover:bg-red-50 flex items-center justify-center border border-gray-200 absolute"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDelete(e);
+              }}
+              style={{ 
+                pointerEvents: 'all',
+                transform: 'translate(-50%, -50%)',
+                left: '50%',
+                top: '50%'
+              }}
+            >
+              <Trash className="h-4 w-4 text-red-500" />
+            </button>
+          </div>
+        </foreignObject>
+      )}
+
+      <path
+        className="react-flow__edge-interaction"
+        d={path}
+        strokeWidth={20}
+        stroke="transparent"
+        fill="none"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      />
     </>
   );
 }

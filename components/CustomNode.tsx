@@ -1,6 +1,6 @@
 "use client";
-import { Handle, Position } from "@xyflow/react";
-import { ComputerIcon, EditIcon, MessageSquareQuote, Play, User } from "lucide-react";
+import { Handle, Position, useReactFlow, NodeProps, Node } from "@xyflow/react";
+import { ComputerIcon, EditIcon, MessageSquareQuote, Play, User, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -53,14 +53,40 @@ const nodeStyles = {
   }
 };
 
-export const CustomNode = ({ data }: { data: { label: string; description?: string } }) => {
+interface NodeData {
+  label: string;
+  description?: string;
+}
+
+type CustomNodeProps = {
+  id: string;
+  data: NodeData;
+  selected?: boolean;
+}
+
+export const CustomNode = ({ id, data, selected }: CustomNodeProps) => {
+  const { deleteElements } = useReactFlow();
   const isStartNode = data.label === "Start";
   
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    deleteElements({ nodes: [{ id }] });
+  };
+
   return (
     <>
       <Handle type="target" position={Position.Left} id='custom-target-top' />
       <Handle type="source" position={Position.Left} id='custom-source-top' />
-      <div className={`relative group ${isStartNode ? 'w-[150px]' : 'w-[300px]'} transition-transform duration-200 hover:-translate-y-0.5`}>
+      <div className={`relative group ${isStartNode ? 'w-[150px]' : 'w-[300px]'}`}>
+        <div className="absolute -right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            className="p-1 rounded-full bg-white shadow-lg hover:bg-red-50"
+            onClick={handleDelete}
+          >
+            <Trash className="h-4 w-4 text-red-500" />
+          </button>
+        </div>
+        
         <div className="p-4 bg-white rounded-[14px] border border-gray-100 shadow-lg">
           <div className="flex items-center gap-4">
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#002856] to-[#1a4c8b] shadow-lg flex-shrink-0">
@@ -86,12 +112,28 @@ export const CustomNode = ({ data }: { data: { label: string; description?: stri
   );
 }
 
-export const AgentNode = ({ data }: { data: { label: string; description?: string } }) => {
+export const AgentNode = ({ id, data, selected }: CustomNodeProps) => {
+  const { deleteElements } = useReactFlow();
+
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    deleteElements({ nodes: [{ id }] });
+  };
+
   return (
     <>
       <Handle type="target" position={Position.Left} id='custom-target-top' />
       <Handle type="source" position={Position.Left} id='custom-source-top' />
       <div className="relative group w-[300px]">
+        <div className="absolute -right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            className="p-1 rounded-full bg-white shadow-lg hover:bg-red-50"
+            onClick={handleDelete}
+          >
+            <Trash className="h-4 w-4 text-red-500" />
+          </button>
+        </div>
+        
         <div className="p-4 bg-white rounded-[14px] border border-gray-100 shadow-lg">
           <div className="flex items-start gap-4">
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#002856] to-[#1a4c8b] shadow-lg flex-shrink-0">
