@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, Send, AlertCircle, Activity, Globe, User, Bot, Server, Maximize2, Minimize2, X } from 'lucide-react'
 import { useApiMutation } from '@/lib/utils'
 
+const BRAND_BLUE = '#0071B2';
+
 export default function ResizableDrawer({ port, instanceId, onClose }: { port: number, instanceId: string, onClose: Function }) {
   const [isOpen, setIsOpen] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -106,33 +108,28 @@ export default function ResizableDrawer({ port, instanceId, onClose }: { port: n
   }
 
   return (
-    <>
-      <div className="fixed inset-y-0 right-0 flex top-[70px]">
-        {/* <button
-          onClick={toggleDrawer}
-          className="self-center -ml-3 p-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50"
-          aria-label={isOpen ? "Close drawer" : "Open drawer"}
+    <div className="fixed inset-y-0 right-0 flex top-[70px]">
+      {isOpen && !isExpanded ? (
+        <div
+          ref={drawerRef}
+          className="h-full bg-white dark:bg-gray-900 border-l shadow-lg flex flex-col relative"
+          style={{ width: `${width}px` }}
         >
-          <ChevronLeft className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-        </button> */}
-        {isOpen && !isExpanded && (
           <div
-            ref={drawerRef}
-            className="h-full bg-background/90 backdrop-blur-sm border-l border-border shadow-lg flex flex-col relative"
-            style={{ width: `${width}px` }}
-          >
-            <div
-              ref={resizeHandleRef}
-              className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize bg-border hover:bg-primary/50 transition-colors"
-              onMouseDown={startResizing}
-            />
-            <div className="flex justify-end p-2">
+            ref={resizeHandleRef}
+            className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-500/50 transition-colors"
+            onMouseDown={startResizing}
+          />
+          
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="font-semibold text-lg">Chat</h2>
+            <div className="flex gap-2">
               <Button
                 onClick={toggleExpand}
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:text-foreground"
-                aria-label="Expand drawer"
+                className="hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <Maximize2 className="h-4 w-4" />
               </Button>
@@ -144,11 +141,49 @@ export default function ResizableDrawer({ port, instanceId, onClose }: { port: n
                 }}
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:text-foreground ml-2"
-                aria-label="Close drawer"
+                className="hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                <X className="h-6 w-6" />
+                <X className="h-4 w-4" />
               </Button>
+            </div>
+          </div>
+
+          <DrawerContent
+            ref={messagesContainerRef}
+            inputMessage={inputMessage}
+            setInputMessage={setInputMessage}
+            getSenderIcon={getSenderIcon}
+            chatMessages={chatMessages}
+            handleSendMessage={handleSendMessage}
+          />
+        </div>
+      ) : isExpanded ? (
+        <div className="fixed inset-0 z-50 bg-black/20">
+          <div className="fixed inset-x-[12.5%] inset-y-[12.5%] bg-white dark:bg-gray-900 rounded-lg shadow-lg flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="font-semibold text-lg">Chat</h2>
+              <div className="flex gap-2">
+                <Button
+                  onClick={toggleExpand}
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  <Minimize2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsExpanded(false);
+                    setIsOpen(false);
+                    onClose();
+                  }}
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <DrawerContent
               ref={messagesContainerRef}
@@ -159,51 +194,10 @@ export default function ResizableDrawer({ port, instanceId, onClose }: { port: n
               handleSendMessage={handleSendMessage}
             />
           </div>
-        )}
-      </div>
-      {isExpanded && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="w-[80%] h-[80%] bg-background/90 backdrop-blur-sm shadow-lg rounded-lg flex flex-col">
-            <div className="flex justify-end p-2">
-              <Button
-                onClick={toggleExpand}
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-foreground"
-                aria-label="Minimize drawer"
-              >
-                <Minimize2 className="h-6 w-6" />
-              </Button>
-              <Button
-                onClick={() => {
-                  setIsExpanded(false);
-                  setIsOpen(false);
-                }}
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-foreground ml-2"
-                aria-label="Close drawer"
-              >
-                <X className="h-6 w-6" />
-              </Button>
-            </div>
-            <div className="flex-grow overflow-hidden">
-              <DrawerContent
-                inputMessage={inputMessage}
-                ref={messagesContainerRef}
-                setInputMessage={setInputMessage}
-                getSenderIcon={getSenderIcon}
-                chatMessages={chatMessages}
-                handleSendMessage={handleSendMessage}
-              />
-            </div>
-          </div>
         </div>
-      )}
-    </>
+      ) : null}
+    </div>
   )
-
-
 }
 
 interface ChatMessageType {
@@ -221,101 +215,145 @@ interface DrawerContentProps {
 }
 
 
-const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(({ chatMessages, getSenderIcon, handleSendMessage, inputMessage, setInputMessage }, ref) => {
-  return (
-    <Tabs defaultValue="chat" className="flex-grow flex flex-col overflow-y-hidden h-full">
-      <TabsList className="grid w-full grid-cols-2 p-1 gap-1">
-        <TabsTrigger value="chat" className="rounded-md data-[state=active]:bg-[#0071B2] data-[state=active]:text-primary-foreground">Chat</TabsTrigger>
-        <TabsTrigger value="debug" className="rounded-md data-[state=active]:bg-[#0071B2] data-[state=active]:text-primary-foreground">Debug</TabsTrigger>
-      </TabsList>
-      <TabsContent value="chat" className="flex-grow flex flex-col p-4 overflow-y-auto">
-        <ScrollArea className="flex-grow mb-4 pr-4 " ref={ref}>
-          {chatMessages.map((msg, index) => (
-            <div key={index} className={`mb-2 flex ${msg.sender === 'User' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex flex-col space-y-2 max-w-[80%] ${msg.sender === 'User' ? 'items-end' : 'items-start'}`}>
-                <div className='flex space-x-2 items-center'>
-                  <div className={`rounded-full p-2 ${msg.sender === 'User' ? 'bg-[#0071B2] text-primary-foreground' :
-                    msg.sender === 'System' ? 'bg-[#f2f2f2] text-secondary-foreground' :
-                      'bg-[#f2f2f2] text-secondary-foreground'
-                    }`}>
-                    {getSenderIcon(msg.sender)}
-                  </div>
-                  <div className='font-medium'>{msg.name}</div>
-                </div>
-                <div className={`rounded-lg px-3 py-2 ${msg.sender === 'User' ? 'bg-[#0071B2] text-primary-foreground' :
-                  msg.sender === 'System' ? 'bg-[#f2f2f2] text-secondary-foreground' :
-                    'bg-[#f2f2f2] text-secondary-foreground'
+const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
+  ({ chatMessages, getSenderIcon, handleSendMessage, inputMessage, setInputMessage }, ref) => {
+    return (
+      <Tabs defaultValue="chat" className="flex-grow flex flex-col overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <TabsList className="px-4 py-2 border-b backdrop-blur-sm bg-white/30 dark:bg-black/30">
+          <TabsTrigger 
+            value="chat"
+            className="px-6 py-2.5 rounded-full data-[state=active]:bg-[#0071B2] data-[state=active]:text-white 
+            data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 transition-all duration-200"
+          >
+            Chat
+          </TabsTrigger>
+          <TabsTrigger 
+            value="debug"
+            className="px-6 py-2.5 rounded-full data-[state=active]:bg-[#0071B2] data-[state=active]:text-white 
+            data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 transition-all duration-200"
+          >
+            Debug
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="chat" className="flex-grow flex flex-col p-6 overflow-hidden">
+          <ScrollArea className="flex-grow pr-4" ref={ref}>
+            <div className="space-y-6">
+              {chatMessages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`flex ${msg.sender === 'User' ? 'justify-end' : 'justify-start'} 
+                    animate-in slide-in-from-${msg.sender === 'User' ? 'right' : 'left'}`}
+                >
+                  <div className={`flex flex-col space-y-2 max-w-[80%] ${
+                    msg.sender === 'User' ? 'items-end' : 'items-start'
                   }`}>
-                  <p className="text-sm">{msg.message}</p>
+                    <div className="flex items-center space-x-2">
+                      <div className={`rounded-xl p-2 ${
+                        msg.sender === 'User' 
+                          ? 'bg-gradient-to-r from-[#0071B2] to-[#0091E2] text-white shadow-lg shadow-blue-500/25' 
+                          : 'bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 shadow-lg shadow-gray-500/10'
+                      }`}>
+                        {getSenderIcon(msg.sender)}
+                      </div>
+                      <span className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r 
+                        from-gray-700 to-gray-500 dark:from-gray-300 dark:to-gray-400">
+                        {msg.name}
+                      </span>
+                    </div>
+                    <div className={`rounded-2xl px-5 py-3 ${
+                      msg.sender === 'User'
+                        ? 'bg-gradient-to-r from-[#0071B2] to-[#0091E2] text-white shadow-lg shadow-blue-500/25'
+                        : 'bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 text-gray-900 dark:text-gray-100 shadow-lg shadow-gray-500/10'
+                    }`}>
+                      <p className="text-sm leading-relaxed">{msg.message}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </ScrollArea>
-        <form onSubmit={handleSendMessage} className="flex gap-2">
-          <Input
-            id="chat"
-            type="text"
-            placeholder="Type a message..."
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            className="flex-grow"
-          />
-          <Button type="submit" size="icon" className="bg-[#0071B2] text-primary-foreground">
-            <Send className="h-4 w-4" />
-            <span className="sr-only">Send message</span>
-          </Button>
-        </form>
-      </TabsContent>
-      <TabsContent value="debug" className="flex-grow overflow-auto p-4">
-        <div className="grid grid-cols-1 gap-4">
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-              <AccordionTrigger className="hover:bg-muted/60 px-4 py-3 rounded-md bg-muted/40">
-                <div className="flex items-center">
-                  <AlertCircle className="h-5 w-5 mr-2 text-destructive" />
-                  Error Logs
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-2 mt-2">
-                No errors to display.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-2">
-              <AccordionTrigger className="hover:bg-muted/60 px-4 py-3 rounded-md bg-muted/40">
-                <div className="flex items-center">
-                  <Activity className="h-5 w-5 mr-2 text-primary" />
-                  Performance Metrics
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-2 mt-2">
-                <p>CPU Usage: <span className="font-semibold text-primary">5%</span></p>
-                <p>Memory Usage: <span className="font-semibold text-primary">256MB</span></p>
-                <p>Network Latency: <span className="font-semibold text-primary">50ms</span></p>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-3">
-              <AccordionTrigger className="hover:bg-muted/60 px-4 py-3 rounded-md bg-muted/40">
-                <div className="flex items-center">
-                  <Globe className="h-5 w-5 mr-2 text-secondary" />
-                  API Requests
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-2 mt-2">
-                <p className="text-success">GET /api/users - 200 OK</p>
-                <p className="text-success">POST /api/messages - 201 Created</p>
-                <p className="text-destructive">GET /api/products - 404 Not Found</p>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      </TabsContent>
-    </Tabs>
-  )
-})
+          </ScrollArea>
+
+          <div className="relative mt-6">
+            <form onSubmit={handleSendMessage} 
+              className="flex gap-3 p-1 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 
+                rounded-2xl shadow-lg backdrop-blur-sm">
+              <Input
+                type="text"
+                placeholder="Type your message..."
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                className="flex-grow rounded-xl border-0 bg-transparent px-4 py-3 focus:ring-0 
+                  placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              />
+              <Button 
+                type="submit"
+                size="icon"
+                className="rounded-xl bg-gradient-to-r from-[#0071B2] to-[#0091E2] hover:from-[#0091E2] hover:to-[#0071B2] 
+                  text-white shadow-lg shadow-blue-500/25 transition-all duration-300"
+              >
+                <Send className="h-4 w-4" />
+                <span className="sr-only">Send message</span>
+              </Button>
+            </form>
+            <div className="absolute inset-x-0 -bottom-2 h-6 bg-gradient-to-t from-white to-transparent 
+              dark:from-gray-900 pointer-events-none"></div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="debug" className="flex-grow overflow-auto p-6 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+          <div className="grid grid-cols-1 gap-6">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger className="hover:bg-white/60 dark:hover:bg-black/40 px-6 py-4 rounded-xl 
+                  bg-white/40 dark:bg-black/20 backdrop-blur-sm transition-all duration-200">
+                  <div className="flex items-center">
+                    <AlertCircle className="h-5 w-5 mr-3 text-red-500" />
+                    Error Logs
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 py-4 mt-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-sm">
+                  No errors to display.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-2">
+                <AccordionTrigger className="hover:bg-white/60 dark:hover:bg-black/40 px-6 py-4 rounded-xl 
+                  bg-white/40 dark:bg-black/20 backdrop-blur-sm transition-all duration-200">
+                  <div className="flex items-center">
+                    <Activity className="h-5 w-5 mr-3 text-green-500" />
+                    Performance Metrics
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 py-4 mt-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-sm">
+                  <p>CPU Usage: <span className="font-semibold text-green-500">5%</span></p>
+                  <p>Memory Usage: <span className="font-semibold text-green-500">256MB</span></p>
+                  <p>Network Latency: <span className="font-semibold text-green-500">50ms</span></p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-3">
+                <AccordionTrigger className="hover:bg-white/60 dark:hover:bg-black/40 px-6 py-4 rounded-xl 
+                  bg-white/40 dark:bg-black/20 backdrop-blur-sm transition-all duration-200">
+                  <div className="flex items-center">
+                    <Globe className="h-5 w-5 mr-3 text-blue-500" />
+                    API Requests
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 py-4 mt-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-sm">
+                  <p className="text-success">GET /api/users - 200 OK</p>
+                  <p className="text-success">POST /api/messages - 201 Created</p>
+                  <p className="text-destructive">GET /api/products - 404 Not Found</p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </TabsContent>
+      </Tabs>
+    )
+  }
+)
 
 DrawerContent.displayName = 'DrawerContent';
