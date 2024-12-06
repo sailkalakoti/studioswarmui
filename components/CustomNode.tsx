@@ -31,48 +31,88 @@ import {
 import { useState } from "react";
 import { Textarea } from "./ui/textarea";
 
-export const CustomNode = ({ data }: { data: { label: string } }) => {
+// Update the nodeStyles object
+const nodeStyles = {
+  backgroundColor: '#ffffff',
+  borderRadius: '16px',
+  padding: '2px',
+  boxShadow: '0 8px 32px rgba(0, 40, 86, 0.08)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  position: 'relative' as const,
+  width: '300px',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    inset: '-2px',
+    borderRadius: '18px',
+    padding: '2px',
+    background: 'linear-gradient(135deg, #002856, #1a4c8b, #0071B2)',
+    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+    WebkitMaskComposite: 'xor',
+    maskComposite: 'exclude'
+  }
+};
+
+export const CustomNode = ({ data }: { data: { label: string; description?: string } }) => {
+  // Determine if this is a Start node
+  const isStartNode = data.label === "Start";
+  
   return (
     <>
       <Handle type="target" position={Position.Left} id='custom-target-top' />
       <Handle type="source" position={Position.Left} id='custom-source-top' />
-      <div className="rounded-md p-0.5 bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
-        <div className="h-full w-full p-3 rounded-md bg-white flex items-center gap-2">
-          <Play className="h-4 w-4 text-[#002856]" />
-          <label htmlFor="text">{data.label}</label>
+      <div className={`relative group ${isStartNode ? 'w-[150px]' : 'w-[300px]'}`}>
+        <div className="p-4 bg-white rounded-[14px] border border-gray-100 shadow-lg">
+          <div className="flex items-center gap-4">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#002856] to-[#1a4c8b] shadow-lg flex-shrink-0">
+              <Play className="h-5 w-5 text-white" />
+            </div>
+            
+            <div className="min-w-0 flex-1">
+              <label className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#002856] to-[#1a4c8b] block truncate">
+                {data.label}
+              </label>
+              {data.description && (
+                <p className="text-sm text-gray-500 mt-1 break-words">
+                  {data.description}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
       <Handle type="target" position={Position.Right} id="custom-target-bottom" />
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="custom-source-bottom"
-      />
+      <Handle type="source" position={Position.Right} id="custom-source-bottom" />
     </>
   );
 }
 
-export const AgentNode = ({ data }) => {
+export const AgentNode = ({ data }: { data: { label: string; description?: string } }) => {
   return (
     <>
       <Handle type="target" position={Position.Left} id='custom-target-top' />
       <Handle type="source" position={Position.Left} id='custom-source-top' />
-      <div className="rounded-md p-0.5 bg-gradient-to-tr from-indigo-600 via-pink-600 to-purple-600">
-        <div className="rounded-md bg-white p-3">
-          <div className="h-full w-full bg-white flex items-center gap-2">
-            <User className="h-4 w-4 text-[#002856]" />
-            <label htmlFor="text">{data.label}</label>
-          </div>
-          <div className="pt-2 h-full w-full bg-white max-w-[300px] min-w-[300px]">
-            <div className="text-sm">{data.description}</div>
+      <div className="relative group w-[300px]">
+        <div className="p-4 bg-white rounded-[14px] border border-gray-100 shadow-lg">
+          <div className="flex items-start gap-4">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#002856] to-[#1a4c8b] shadow-lg flex-shrink-0">
+              <User className="h-5 w-5 text-white" />
+            </div>
+            
+            <div className="min-w-0 flex-1">
+              <label className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#002856] to-[#1a4c8b] block truncate">
+                {data.label}
+              </label>
+              {data.description && (
+                <p className="text-sm text-gray-500 mt-1 break-words">
+                  {data.description}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
-      <Handle
-        type="target"
-        position={Position.Right}
-        id="custom-target-bottom"
-      />
+      <Handle type="target" position={Position.Right} id="custom-target-bottom" />
       <Handle type="source" position={Position.Right} id="custom-source-bottom" />
     </>
   );
@@ -346,8 +386,11 @@ export function DialogComp({ children }: { children: React.ReactNode }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="rounded-md p-0.5 bg-gradient-to-tr from-[#002856] via-[#002856]/80 to-[#002856]/70">
-          <div className="h-full w-full p-3 rounded-md bg-white">
+        <div className="relative group cursor-pointer">
+          {/* Animated gradient border */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#002856] via-[#1a4c8b] to-[#0071B2] rounded-xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-gradient-xy"></div>
+          
+          <div className="relative px-6 py-4 bg-white rounded-lg leading-none flex items-center">
             {children}
           </div>
         </div>

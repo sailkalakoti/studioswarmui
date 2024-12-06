@@ -7,25 +7,6 @@ import {
   type ReactFlowState,
 } from "@xyflow/react";
 
-export type GetSpecialPathParams = {
-  sourceX: number;
-  sourceY: number;
-  targetX: number;
-  targetY: number;
-};
-
-export const getSpecialPath = (
-  { sourceX, sourceY, targetX, targetY }: GetSpecialPathParams,
-  offset: number,
-) => {
-  const centerX = (sourceX + targetX) / 2;
-  const centerY = (sourceY + targetY) / 2;
-
-  return `M ${sourceX} ${sourceY} Q ${centerX} ${
-    centerY + offset
-  } ${targetX} ${targetY}`;
-};
-
 export default function BidirectionalEdge({
   source,
   target,
@@ -35,7 +16,6 @@ export default function BidirectionalEdge({
   targetY,
   sourcePosition,
   targetPosition,
-  markerEnd,
   ...rest
 }: EdgeProps) {
   const isBiDirectionEdge = useStore((s: ReactFlowState) => {
@@ -44,7 +24,6 @@ export default function BidirectionalEdge({
         (e.source === target && e.target === source) ||
         (e.target === source && e.source === target),
     );
-
     return edgeExists;
   });
 
@@ -60,10 +39,52 @@ export default function BidirectionalEdge({
   let path = "";
 
   if (isBiDirectionEdge) {
-    path = getSpecialPath(edgePathParams, sourceX < targetX ? 25 : -25);
+    const offset = sourceX < targetX ? 50 : -50;
+    const centerX = (sourceX + targetX) / 2;
+    const centerY = (sourceY + targetY) / 2;
+    path = `M ${sourceX} ${sourceY} Q ${centerX} ${centerY + offset} ${targetX} ${targetY}`;
   } else {
-    [path] = getBezierPath(edgePathParams);
+    [path] = getBezierPath({
+      ...edgePathParams,
+      curvature: 0.2
+    });
   }
 
-  return <BaseEdge path={path} markerEnd={markerEnd} {...rest} />;
+  return (
+    <>
+      <defs>
+        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#002856" />
+          <stop offset="50%" stopColor="#1a4c8b" />
+          <stop offset="100%" stopColor="#0071B2" />
+        </linearGradient>
+        
+        <marker
+          id="custom-arrow"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path
+            d="M 0 0 L 10 5 L 0 10 z"
+            fill="#1a4c8b"
+            className="transition-all duration-300"
+          />
+        </marker>
+      </defs>
+
+      <BaseEdge 
+        path={path} 
+        {...rest}
+        style={{
+          strokeWidth: 2,
+          stroke: 'url(#gradient)',
+        }}
+        markerEnd="url(#custom-arrow)"
+      />
+    </>
+  );
 }
