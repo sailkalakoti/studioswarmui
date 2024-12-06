@@ -2,16 +2,24 @@ import React from "react";
 
 interface LogoProps {
   color?: string;
+  className?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ color }) => (
-  <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-    width="30" height="30" viewBox="0 0 512.000000 512.000000"
-    preserveAspectRatio="xMidYMid meet">
-
-    <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
-      fill="#002856" stroke="none">
-      <path d="M1588 4825 c-218 -55 -378 -234 -428 -477 -11 -56 -12 -58 -53 -68
+const Logo = ({ color = "brand", className = "w-6 h-6" }: LogoProps) => {
+  return (
+    <svg 
+      version="1.0" 
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      viewBox="0 0 512 512"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <g 
+        transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+        fill={color === "white" ? "#FFFFFF" : "#002856"} 
+        stroke="none"
+      >
+        <path d="M1588 4825 c-218 -55 -378 -234 -428 -477 -11 -56 -12 -58 -53 -68
 -317 -80 -531 -266 -624 -545 -24 -73 -27 -95 -27 -235 -1 -136 2 -164 22
 -230 27 -85 38 -66 -83 -154 -87 -63 -166 -160 -221 -271 -53 -108 -74 -197
 -74 -326 0 -196 67 -356 212 -503 l88 -89 -17 -61 c-21 -76 -23 -259 -4 -336
@@ -62,9 +70,10 @@ l0 -283 -106 0 -106 0 -34 -34 c-29 -29 -34 -41 -34 -79 0 -56 34 -102 88
 79 7 97 -3z m-2950 -351 c72 -47 121 -66 194 -75 98 -13 137 -48 137 -125 0
 -59 -37 -104 -94 -115 -53 -9 -182 18 -261 55 -168 78 -225 154 -180 241 38
 73 110 80 204 19z m1964 -551 c34 -18 46 -39 47 -81 0 -71 -63 -106 -129 -72
--52 26 -57 91 -12 136 31 31 59 36 94 17z"/>
-    </g>
-  </svg>
-);
+-52 26 -57 91 -12 136 31 31 59 36 94 17z" />
+      </g>
+    </svg>
+  );
+};
 
 export default Logo;

@@ -5,6 +5,7 @@ import { useMutation } from 'react-query';
 import { useRouter } from 'next/navigation';
 import axiosInstance from '@/lib/apiService';
 import toast, { Toaster } from "react-hot-toast";
+import Logo from '@/components/Logo';
 
 const login = async (payload) => {
   const { data } = await axiosInstance.post('/auth/signup', {
@@ -141,7 +142,13 @@ export default function SignUp() {
       </div>
 
       {/* Right side - Hero/Branding */}
-      <div className="hidden lg:block flex-1 bg-gradient-to-br from-[#2D1576] to-[#1B112A] p-12">
+      <div className="hidden lg:block flex-1 bg-gradient-to-br from-[#2D1576] to-[#1B112A] p-12 relative">
+        {/* Add StudioSwarm logo in top-right corner */}
+        <div className="absolute top-8 right-8 flex items-center gap-2">
+          <Logo color="white" className="w-8 h-8" />
+          <span className="font-semibold text-[22px] text-white">StudioSwarm</span>
+        </div>
+
         <div className="h-full flex flex-col justify-center max-w-2xl mx-auto">
           <h1 className="text-6xl font-bold text-white mb-6">
             Join the community
