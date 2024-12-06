@@ -3,6 +3,7 @@ import {
   getBezierPath,
   useStore,
   BaseEdge,
+  EdgeLabelRenderer,
   type EdgeProps,
   type ReactFlowState,
 } from "@xyflow/react";
@@ -16,6 +17,7 @@ export default function BidirectionalEdge({
   targetY,
   sourcePosition,
   targetPosition,
+  data,
   ...rest
 }: EdgeProps) {
   const isBiDirectionEdge = useStore((s: ReactFlowState) => {
@@ -37,18 +39,31 @@ export default function BidirectionalEdge({
   };
 
   let path = "";
+  let labelX = (sourceX + targetX) / 2;
+  let labelY = (sourceY + targetY) / 2 - 10;
 
   if (isBiDirectionEdge) {
-    const offset = sourceX < targetX ? 50 : -50;
+    const offset = sourceX < targetX ? 75 : -75;
     const centerX = (sourceX + targetX) / 2;
     const centerY = (sourceY + targetY) / 2;
     path = `M ${sourceX} ${sourceY} Q ${centerX} ${centerY + offset} ${targetX} ${targetY}`;
+    
+    // Adjust label position for curved edges
+    labelY = centerY + (offset / 2); // Position label at curve peak
   } else {
     [path] = getBezierPath({
       ...edgePathParams,
-      curvature: 0.2
+      curvature: 0.3
     });
   }
+
+  // Get the source node from the store to check its label
+  const sourceNode = useStore((s: ReactFlowState) => 
+    s.nodes.find(n => n.id === source)
+  );
+
+  // Determine label based on source node's label
+  const label = sourceNode?.data?.label === "Start" ? "Begin" : "Handoff";
 
   return (
     <>
@@ -79,12 +94,26 @@ export default function BidirectionalEdge({
       <BaseEdge 
         path={path} 
         {...rest}
+        className="animated-edge-path"
         style={{
           strokeWidth: 2,
           stroke: 'url(#gradient)',
         }}
         markerEnd="url(#custom-arrow)"
       />
+
+      <EdgeLabelRenderer>
+        <div
+          style={{
+            position: 'absolute',
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            pointerEvents: 'none',
+          }}
+          className="px-2 py-1 bg-white rounded-md text-xs font-medium text-[#002856] shadow-sm border border-[#002856]/10"
+        >
+          {label}
+        </div>
+      </EdgeLabelRenderer>
     </>
   );
 }

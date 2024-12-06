@@ -225,6 +225,7 @@ body {
 
 .react-flow__edge-path {
   stroke-width: 2px;
+  stroke-dasharray: 5 5;  /* Creates dotted line pattern */
   transition: opacity 0.2s ease;
 }
 
@@ -270,4 +271,19 @@ body {
 .react-flow__handle-left {
   transform: translate(-50%, -50%);
   left: 0;
+}
+
+/* Update the edge animation */
+@keyframes flow {
+  from {
+    stroke-dashoffset: 20;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animated-edge-path {
+  stroke-dasharray: 5 5;  /* Keep dotted pattern */
+  animation: flow 1s linear infinite;  /* Continuous flowing animation */
 }
