@@ -218,19 +218,22 @@ interface DrawerContentProps {
 const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
   ({ chatMessages, getSenderIcon, handleSendMessage, inputMessage, setInputMessage }, ref) => {
     return (
-      <Tabs defaultValue="chat" className="flex-grow flex flex-col overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <TabsList className="px-4 py-2 border-b backdrop-blur-sm bg-white/30 dark:bg-black/30">
+      <Tabs defaultValue="chat" className="flex-grow flex flex-col overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-50/50 
+        dark:from-gray-900 dark:via-gray-900 dark:to-blue-900/10">
+        <TabsList className="px-4 py-2 border-b border-blue-100/50 dark:border-blue-900/20 backdrop-blur-sm bg-white/30 dark:bg-black/30">
           <TabsTrigger 
             value="chat"
             className="px-6 py-2.5 rounded-full data-[state=active]:bg-[#0071B2] data-[state=active]:text-white 
-            data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 transition-all duration-200"
+            data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 transition-all duration-200
+            hover:bg-blue-50 dark:hover:bg-blue-900/20"
           >
             Chat
           </TabsTrigger>
           <TabsTrigger 
             value="debug"
             className="px-6 py-2.5 rounded-full data-[state=active]:bg-[#0071B2] data-[state=active]:text-white 
-            data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 transition-all duration-200"
+            data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 transition-all duration-200
+            hover:bg-blue-50 dark:hover:bg-blue-900/20"
           >
             Debug
           </TabsTrigger>
@@ -252,19 +255,19 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
                       <div className={`rounded-xl p-2 ${
                         msg.sender === 'User' 
                           ? 'bg-gradient-to-r from-[#0071B2] to-[#0091E2] text-white shadow-lg shadow-blue-500/25' 
-                          : 'bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 shadow-lg shadow-gray-500/10'
+                          : 'bg-gradient-to-r from-blue-100 to-white dark:from-blue-900 dark:to-gray-800 shadow-lg shadow-blue-500/10'
                       }`}>
                         {getSenderIcon(msg.sender)}
                       </div>
                       <span className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r 
-                        from-gray-700 to-gray-500 dark:from-gray-300 dark:to-gray-400">
+                        from-blue-900 to-blue-700 dark:from-blue-200 dark:to-blue-400">
                         {msg.name}
                       </span>
                     </div>
                     <div className={`rounded-2xl px-5 py-3 ${
                       msg.sender === 'User'
                         ? 'bg-gradient-to-r from-[#0071B2] to-[#0091E2] text-white shadow-lg shadow-blue-500/25'
-                        : 'bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 text-gray-900 dark:text-gray-100 shadow-lg shadow-gray-500/10'
+                        : 'bg-gradient-to-r from-blue-100/80 to-white dark:from-blue-900/50 dark:to-gray-800/50 text-gray-900 dark:text-gray-100 shadow-lg shadow-blue-500/10 backdrop-blur-sm'
                     }`}>
                       <p className="text-sm leading-relaxed">{msg.message}</p>
                     </div>
@@ -276,15 +279,15 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
 
           <div className="relative mt-6">
             <form onSubmit={handleSendMessage} 
-              className="flex gap-3 p-1 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 
-                rounded-2xl shadow-lg backdrop-blur-sm">
+              className="flex gap-3 p-1 bg-gradient-to-r from-blue-100/50 to-white dark:from-blue-900/30 dark:to-gray-800/30 
+                rounded-2xl shadow-lg backdrop-blur-sm border border-blue-100/50 dark:border-blue-800/50">
               <Input
                 type="text"
                 placeholder="Type your message..."
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 className="flex-grow rounded-xl border-0 bg-transparent px-4 py-3 focus:ring-0 
-                  placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  placeholder:text-blue-400 dark:placeholder:text-blue-300/50"
               />
               <Button 
                 type="submit"
@@ -296,37 +299,40 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
                 <span className="sr-only">Send message</span>
               </Button>
             </form>
-            <div className="absolute inset-x-0 -bottom-2 h-6 bg-gradient-to-t from-white to-transparent 
+            <div className="absolute inset-x-0 -bottom-2 h-6 bg-gradient-to-t from-blue-50 to-transparent 
               dark:from-gray-900 pointer-events-none"></div>
           </div>
         </TabsContent>
 
-        <TabsContent value="debug" className="flex-grow overflow-auto p-6 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <TabsContent value="debug" className="flex-grow overflow-auto p-6 bg-gradient-to-br from-blue-50 via-white to-blue-50/50 
+          dark:from-gray-900 dark:via-gray-900 dark:to-blue-900/10">
           <div className="grid grid-cols-1 gap-6">
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
-                <AccordionTrigger className="hover:bg-white/60 dark:hover:bg-black/40 px-6 py-4 rounded-xl 
-                  bg-white/40 dark:bg-black/20 backdrop-blur-sm transition-all duration-200">
+                <AccordionTrigger className="hover:bg-blue-50/80 dark:hover:bg-blue-900/20 px-6 py-4 rounded-xl 
+                  bg-white/60 dark:bg-blue-900/20 backdrop-blur-sm transition-all duration-200 border border-blue-100/50 dark:border-blue-800/50">
                   <div className="flex items-center">
                     <AlertCircle className="h-5 w-5 mr-3 text-red-500" />
                     Error Logs
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-6 py-4 mt-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-sm">
+                <AccordionContent className="px-6 py-4 mt-2 rounded-xl bg-white/60 dark:bg-blue-900/20 backdrop-blur-sm 
+                  border border-blue-100/50 dark:border-blue-800/50">
                   No errors to display.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-2">
-                <AccordionTrigger className="hover:bg-white/60 dark:hover:bg-black/40 px-6 py-4 rounded-xl 
-                  bg-white/40 dark:bg-black/20 backdrop-blur-sm transition-all duration-200">
+                <AccordionTrigger className="hover:bg-blue-50/80 dark:hover:bg-blue-900/20 px-6 py-4 rounded-xl 
+                  bg-white/60 dark:bg-blue-900/20 backdrop-blur-sm transition-all duration-200 border border-blue-100/50 dark:border-blue-800/50">
                   <div className="flex items-center">
                     <Activity className="h-5 w-5 mr-3 text-green-500" />
                     Performance Metrics
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-6 py-4 mt-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-sm">
+                <AccordionContent className="px-6 py-4 mt-2 rounded-xl bg-white/60 dark:bg-blue-900/20 backdrop-blur-sm 
+                  border border-blue-100/50 dark:border-blue-800/50">
                   <p>CPU Usage: <span className="font-semibold text-green-500">5%</span></p>
                   <p>Memory Usage: <span className="font-semibold text-green-500">256MB</span></p>
                   <p>Network Latency: <span className="font-semibold text-green-500">50ms</span></p>
@@ -335,14 +341,15 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
             </Accordion>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-3">
-                <AccordionTrigger className="hover:bg-white/60 dark:hover:bg-black/40 px-6 py-4 rounded-xl 
-                  bg-white/40 dark:bg-black/20 backdrop-blur-sm transition-all duration-200">
+                <AccordionTrigger className="hover:bg-blue-50/80 dark:hover:bg-blue-900/20 px-6 py-4 rounded-xl 
+                  bg-white/60 dark:bg-blue-900/20 backdrop-blur-sm transition-all duration-200 border border-blue-100/50 dark:border-blue-800/50">
                   <div className="flex items-center">
                     <Globe className="h-5 w-5 mr-3 text-blue-500" />
                     API Requests
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-6 py-4 mt-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-sm">
+                <AccordionContent className="px-6 py-4 mt-2 rounded-xl bg-white/60 dark:bg-blue-900/20 backdrop-blur-sm 
+                  border border-blue-100/50 dark:border-blue-800/50">
                   <p className="text-success">GET /api/users - 200 OK</p>
                   <p className="text-success">POST /api/messages - 201 Created</p>
                   <p className="text-destructive">GET /api/products - 404 Not Found</p>
