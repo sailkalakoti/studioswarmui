@@ -239,3 +239,35 @@ body {
 .react-flow__edge:hover path {
   opacity: 0.8;
 }
+
+/* Refined handle styles */
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border: 2px solid #002856;
+  box-shadow: 0 0 0 2px rgba(0, 40, 86, 0.1);
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.react-flow__handle:hover {
+  background: #002856;
+  border-color: #1a4c8b;
+  box-shadow: 0 0 0 4px rgba(0, 40, 86, 0.2);
+  cursor: crosshair;
+}
+
+/* Style for when handle is being connected */
+.react-flow__handle.connecting {
+  background: #1a4c8b;
+  border-color: #002856;
+  box-shadow: 0 0 0 4px rgba(0, 40, 86, 0.3);
+}
+
+/* Specific style for left handles to match right ones */
+.react-flow__handle-left {
+  transform: translate(-50%, -50%);
+  left: 0;
+}

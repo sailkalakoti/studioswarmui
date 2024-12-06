@@ -54,14 +54,13 @@ const nodeStyles = {
 };
 
 export const CustomNode = ({ data }: { data: { label: string; description?: string } }) => {
-  // Determine if this is a Start node
   const isStartNode = data.label === "Start";
   
   return (
     <>
       <Handle type="target" position={Position.Left} id='custom-target-top' />
       <Handle type="source" position={Position.Left} id='custom-source-top' />
-      <div className={`relative group ${isStartNode ? 'w-[150px]' : 'w-[300px]'}`}>
+      <div className={`relative group ${isStartNode ? 'w-[150px]' : 'w-[300px]'} transition-transform duration-200 hover:-translate-y-0.5`}>
         <div className="p-4 bg-white rounded-[14px] border border-gray-100 shadow-lg">
           <div className="flex items-center gap-4">
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#002856] to-[#1a4c8b] shadow-lg flex-shrink-0">
