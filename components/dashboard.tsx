@@ -203,11 +203,11 @@ export function Dashboard() {
               </AccordionContent>
             </AccordionItem>
 
-            {/* Create New Section - also update this for consistency */}
+            {/* Create New Section */}
             <AccordionItem value="create" className="border-none bg-white rounded-lg shadow">
               <AccordionTrigger className="hover:no-underline flex items-center gap-2 px-6">
                 <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 data-[state=open]:rotate-180" />
-                <h2 className="text-xl font-bold text-gray-900">Start Building</h2>
+                <h2 className="text-xl font-bold text-gray-900">Build</h2>
               </AccordionTrigger>
               <AccordionContent className="px-6">
                 <div className="flex flex-col space-y-4">
