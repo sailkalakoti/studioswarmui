@@ -47,9 +47,9 @@ export default function SignUp() {
     <div className="min-h-screen flex">
       <Toaster toastOptions={{ position: "bottom-right" }} />
       {/* Left side - Sign Up Form */}
-      <div className="w-full lg:w-[480px] p-8 flex flex-col bg-[#1B112A]">
+      <div className="w-full lg:w-[480px] p-8 flex flex-col bg-[#001429]">
         <div className="flex items-center mb-12">
-          <h1 className="text-2xl font-bold text-white">Create account</h1>
+          <h1 className="text-2xl font-bold text-white">Create an Account</h1>
         </div>
 
         <form onSubmit={onSignUp} className="space-y-6 flex-1">
@@ -63,7 +63,7 @@ export default function SignUp() {
                 id="firstName"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-3 bg-[#002856]/10 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-[#0071B2] focus:ring-1 focus:ring-[#0071B2]"
                 placeholder="First name"
                 required
               />
@@ -77,7 +77,7 @@ export default function SignUp() {
                 id="lastName"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-3 bg-[#002856]/10 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-[#0071B2] focus:ring-1 focus:ring-[#0071B2]"
                 placeholder="Last name"
                 required
               />
@@ -93,7 +93,7 @@ export default function SignUp() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500"
+              className="w-full px-4 py-3 bg-[#002856]/5 border border-[#0071B2]/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-[#0071B2] focus:ring-1 focus:ring-[#0071B2]"
               placeholder="Enter your email"
               required
             />
@@ -109,7 +109,7 @@ export default function SignUp() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-3 bg-[#002856]/10 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-[#0071B2] focus:ring-1 focus:ring-[#0071B2]"
                 placeholder="Create a password"
                 required
               />
@@ -128,13 +128,13 @@ export default function SignUp() {
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-white/90 text-[#1B112A] rounded-lg font-semibold hover:bg-white/80 backdrop-blur-sm transition-colors"
+            className="w-full py-3 px-4 bg-[#0071B2] text-white rounded-lg font-semibold hover:bg-[#0071B2]/90 transition-colors"
           >
             Create account
           </button>
 
           <div className="text-center">
-            <a href="/login" className="text-purple-400 hover:text-purple-300">
+            <a href="/login" className="text-[#0071B2] hover:text-[#0071B2]/80 text-sm font-medium">
               Already have an account? Sign in
             </a>
           </div>
@@ -142,7 +142,12 @@ export default function SignUp() {
       </div>
 
       {/* Right side - Hero/Branding */}
-      <div className="hidden lg:block flex-1 bg-gradient-to-br from-[#2D1576] to-[#1B112A] p-12 relative">
+      <div 
+        className="hidden lg:block flex-1 bg-gradient-to-br from-[#001429] via-[#002856] to-[#004299] p-12 relative"
+        style={{
+          backgroundImage: 'radial-gradient(circle at top right, #004299, #002856 50%, #001429)'
+        }}
+      >
         {/* Add StudioSwarm logo in top-right corner */}
         <div className="absolute top-8 right-8 flex items-center gap-2">
           <Logo color="white" className="w-8 h-8" />
@@ -152,7 +157,7 @@ export default function SignUp() {
         <div className="h-full flex flex-col justify-center max-w-2xl mx-auto">
           <h1 className="text-6xl font-bold text-white mb-6">
             Join the community
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">
+            <span className="block text-[#0071B2]">
               #withStudioSwarm
             </span>
           </h1>

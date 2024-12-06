@@ -45,7 +45,7 @@ export default function Login() {
     <div className="min-h-screen flex">
       <Toaster toastOptions={{ position: "bottom-right" }} />
       {/* Left side - Login Form */}
-      <div className="w-full lg:w-[480px] p-8 flex flex-col bg-[#1B112A]">
+      <div className="w-full lg:w-[480px] p-8 flex flex-col bg-[#001429]">
         <div className="flex items-center mb-12">
           <h1 className="text-2xl font-bold text-white">Sign in</h1>
         </div>
@@ -60,7 +60,7 @@ export default function Login() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500"
+              className="w-full px-4 py-3 bg-[#002856]/5 border border-[#0071B2]/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-[#0071B2] focus:ring-1 focus:ring-[#0071B2]"
               placeholder="Enter your email"
               required
             />
@@ -76,7 +76,7 @@ export default function Login() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-3 bg-[#002856]/5 border border-[#0071B2]/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-[#0071B2] focus:ring-1 focus:ring-[#0071B2]"
                 placeholder="Enter your password"
                 required
               />
@@ -93,21 +93,26 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-white/90 text-[#1B112A] rounded-lg font-semibold hover:bg-white/80 backdrop-blur-sm transition-colors"
+            className="w-full py-3 px-4 bg-[#0071B2] text-white rounded-lg font-semibold hover:bg-[#0071B2]/90 transition-colors"
           >
             Sign in
           </button>
 
           <div className="text-center">
-            <a href="/register" className="text-purple-400 hover:text-purple-300">
-              CREATE AN ACCOUNT
+            <a href="/register" className="text-[#0071B2] hover:text-[#0071B2]/80 text-sm font-medium">
+              New to StudioSwarm? Sign up
             </a>
           </div>
         </form>
       </div>
 
       {/* Right side - Hero/Branding */}
-      <div className="hidden lg:block flex-1 bg-gradient-to-br from-[#2D1576] to-[#1B112A] p-12 relative">
+      <div 
+        className="hidden lg:block flex-1 bg-gradient-to-br from-[#001429] via-[#002856] to-[#004299] p-12 relative"
+        style={{
+          backgroundImage: 'radial-gradient(circle at top right, #004299, #002856 50%, #001429)'
+        }}
+      >
         {/* Add StudioSwarm logo in top-right corner */}
         <div className="absolute top-8 right-8 flex items-center gap-2">
           <Logo color="white" className="w-8 h-8" />
@@ -117,7 +122,7 @@ export default function Login() {
         <div className="h-full flex flex-col justify-center max-w-2xl mx-auto">
           <h1 className="text-6xl font-bold text-white mb-6">
             Bring ideas to life
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">
+            <span className="block text-[#0071B2]">
               #withStudioSwarm
             </span>
           </h1>
