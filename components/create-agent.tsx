@@ -106,6 +106,12 @@ const createAgent = async (payload) => {
   return data;
 }
 
+// Add a function to check if the prompt has at least 3 words
+const hasMinimumWords = (text: string) => {
+  const words = text.trim().split(/\s+/);
+  return words.length >= 3;
+};
+
 export function CreateAgentComponent({ id }) {
   const { FORM_VALIDATION_MESSAGES, PAGE_SUBTITLES } = constants;
   const [name, setName] = useState("");
@@ -323,7 +329,7 @@ export function CreateAgentComponent({ id }) {
                                     : "bg-gradient-to-r from-[#002856] to-[#1a4c8b] text-white hover:from-[#002856]/90 hover:to-[#1a4c8b]/90"
                                 )}
                                 onClick={generateMagicPrompt}
-                                disabled={generateMagicPromptMutation.isLoading}
+                                disabled={generateMagicPromptMutation.isLoading || !hasMinimumWords(systemPrompt)}
                                 aria-label="Improve my Prompt"
                               >
                                 {generateMagicPromptMutation.isLoading ? (
