@@ -149,12 +149,15 @@ export function CreateSwarm({ id }) {
     }
   });
 
+  const [isPublished, setIsPublished] = useState(false);
+
   const publishSwarmMutation = useApiMutation('/swarm_execution/generate', 'POST', {
     onSuccess: (data: any) => {
       toast.success("Swarm published");
       const downloadLink = data?.codebase_zip_path || "";
       let match = downloadLink.match(/\d+/);
       setTimestampToDownload(match[0]);
+      setIsPublished(true);
     },
   });
 
@@ -348,7 +351,7 @@ export function CreateSwarm({ id }) {
                   disabled={!allNodes?.length}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  Save
+                  Save as Draft
                 </Button>
                 <Button
                   disabled={isCreate}
@@ -373,6 +376,7 @@ export function CreateSwarm({ id }) {
                   onClick={onRunSwarm} 
                   loading={runSwarmMutation.isLoading} 
                   loadingText=" Deploying"
+                  disabled={!isPublished || isCreate}
                 >
                   <Play className="h-4 w-4 mr-2" />
                   Test
