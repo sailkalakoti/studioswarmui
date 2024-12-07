@@ -151,20 +151,24 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
     setIsChatEnabled(true);
   };
 
+  // Common button style for both modes
+  const startChatButtonStyle = "px-8 bg-[#002856] hover:bg-[#002856]/90 text-white shadow-lg shadow-[#002856]/25 transition-all duration-300 gap-2"
+
   return (
     <div className="fixed inset-y-0 right-0 flex top-[70px]">
       {isOpen && !isExpanded ? (
         <div
           ref={drawerRef}
           className="h-[calc(100vh-90px)] mx-6 my-4 border shadow-2xl flex flex-col relative
-            backdrop-blur-xl bg-white/95 dark:bg-gray-900/95
-            border-gray-200/40 dark:border-gray-700/40
+            backdrop-blur-xl 
+            bg-white/95 dark:bg-[#002856]/95
+            border-[#002856]/10 dark:border-[#002856]/20
             rounded-2xl
-            shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1),0_0_20px_-12px_rgba(0,0,0,0.1),0_0_2px_0_rgba(0,0,0,0.05)]
-            dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.3),0_0_20px_-12px_rgba(0,0,0,0.2),0_0_2px_0_rgba(255,255,255,0.05)]
+            shadow-[0_8px_40px_-12px_rgba(0,40,86,0.1),0_0_20px_-12px_rgba(0,40,86,0.15)]
+            dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.3),0_0_20px_-12px_rgba(0,40,86,0.2)]
             transition-all duration-500 ease-in-out
-            hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.12),0_0_30px_-12px_rgba(0,0,0,0.12),0_0_3px_0_rgba(0,0,0,0.06)]
-            dark:hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.4),0_0_30px_-12px_rgba(0,0,0,0.3),0_0_3px_0_rgba(255,255,255,0.06)]
+            hover:shadow-[0_20px_60px_-12px_rgba(0,40,86,0.15),0_0_30px_-12px_rgba(0,40,86,0.2)]
+            dark:hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.4),0_0_30px_-12px_rgba(0,40,86,0.25)]
             hover:translate-y-[-2px]
             transform"
           style={{ width: `${width}px` }}
@@ -179,32 +183,30 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
           />
           
           {/* Header */}
-          <div className="flex items-center justify-between p-4 
-            border-b border-gray-200/40 dark:border-gray-700/40
-            bg-gradient-to-r from-white/50 via-white/80 to-white/50 
-            dark:from-gray-800/50 dark:via-gray-800/80 dark:to-gray-800/50
+          <div className="flex items-center justify-between p-3 
+            border-b border-[#002856]/10
+            bg-[#002856]/5 dark:bg-[#002856]/20
             backdrop-blur-xl
-            rounded-tl-2xl rounded-tr-2xl
-            shadow-sm"
+            rounded-tl-2xl rounded-tr-2xl"
           >
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500/50 animate-pulse delay-75" />
-                <div className="w-1 h-1 rounded-full bg-green-500/30 animate-pulse delay-150" />
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-[3px]">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#002856] animate-pulse" />
+                <div className="w-1 h-1 rounded-full bg-[#002856]/50 animate-pulse delay-75" />
+                <div className="w-[3px] h-[3px] rounded-full bg-[#002856]/30 animate-pulse delay-150" />
               </div>
-              <h2 className="font-semibold text-lg bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 animate-gradient">
+              <h2 className="font-medium text-[15px] text-[#002856] dark:text-white/90">
                 Chat
               </h2>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               <Button
                 onClick={toggleExpand}
                 variant="ghost"
                 size="icon"
-                className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="h-7 w-7 hover:bg-[#002856]/5 dark:hover:bg-white/5 text-[#002856] dark:text-white/80"
               >
-                <Maximize2 className="h-4 w-4" />
+                <Maximize2 className="h-3.5 w-3.5" />
               </Button>
               <Button
                 onClick={() => {
@@ -214,16 +216,15 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                 }}
                 variant="ghost"
                 size="icon"
-                className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="h-7 w-7 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
 
           <div className="flex-grow flex flex-col overflow-hidden 
-            bg-gradient-to-br from-gray-50/50 via-white/80 to-gray-50/50 
-            dark:from-gray-800/50 dark:via-gray-900/80 dark:to-gray-800/50
+            bg-white/50 dark:bg-[#002856]/10
             rounded-bl-2xl"
           >
             {mode === 'context' && !isChatEnabled ? (
@@ -247,14 +248,18 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                   
                   <div className="space-y-3">
                     {contextVars.length === 0 ? (
-                      <div className="text-center py-8 bg-blue-50/50 rounded-lg border border-blue-100 text-gray-500">
+                      <div className="text-center py-8 bg-[#002856]/5 rounded-lg 
+                        border border-[#002856]/10 text-[#002856] dark:text-white/80">
                         Click &quot;Add Variable&quot; to get started
                       </div>
                     ) : (
                       contextVars.map((contextVar, index) => (
                         <div 
                           key={index} 
-                          className="flex gap-2 p-2 bg-white rounded-lg border border-gray-100 shadow-sm"
+                          className="flex gap-2 p-2 bg-white/80 dark:bg-blue-950/50 rounded-lg 
+                            border border-blue-100 dark:border-blue-800 
+                            shadow-sm hover:shadow-md transition-all duration-300
+                            hover:border-blue-200 dark:hover:border-blue-700"
                         >
                           <Input
                             placeholder="Variable name"
@@ -264,7 +269,9 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                               newVars[index].key = e.target.value;
                               setContextVars(newVars);
                             }}
-                            className="border-gray-100 focus:border-blue-200 focus:ring-blue-100"
+                            className="border-blue-100 focus:border-blue-300 focus:ring-blue-200 
+                              dark:border-blue-800 dark:focus:border-blue-600 dark:focus:ring-blue-700
+                              bg-white/80 dark:bg-blue-900/50"
                           />
                           <Input
                             placeholder="Value"
@@ -274,7 +281,9 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                               newVars[index].value = e.target.value;
                               setContextVars(newVars);
                             }}
-                            className="border-gray-100 focus:border-blue-200 focus:ring-blue-100"
+                            className="border-blue-100 focus:border-blue-300 focus:ring-blue-200 
+                              dark:border-blue-800 dark:focus:border-blue-600 dark:focus:ring-blue-700
+                              bg-white/80 dark:bg-blue-900/50"
                           />
                           <Button
                             variant="ghost"
@@ -293,10 +302,8 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                     <div className="flex justify-center pt-2">
                       <Button
                         variant="primary"
-                        size="default"
+                        className={startChatButtonStyle}
                         onClick={handleContextVarSubmit}
-                        className="px-8 bg-gradient-to-r from-[#0071B2] to-[#0091E2] hover:from-[#0091E2] hover:to-[#0071B2] 
-                          text-white shadow-lg shadow-blue-500/25 transition-all duration-300 gap-2"
                       >
                         <MessageCircle className="h-4 w-4" />
                         Start Chat
@@ -376,11 +383,11 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                     type="submit"
                     size="icon"
                     disabled={mode === 'context' && !isChatEnabled}
-                    className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white
-                      transform transition-all duration-300 
-                      hover:scale-105 hover:rotate-6
-                      shadow-lg shadow-blue-500/25
-                      border border-white/20"
+                    className={`rounded-xl transition-all duration-200 ${
+                      mode === 'context' && !isChatEnabled
+                        ? 'bg-amber-100 text-amber-400 cursor-not-allowed'
+                        : 'bg-blue-500 hover:bg-blue-600 text-white hover:scale-105 hover:rotate-12 shadow-lg shadow-blue-500/25'
+                    }`}
                   >
                     <Send className="h-4 w-4" />
                   </Button>
@@ -395,22 +402,36 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
       ) : isExpanded ? (
         <div className="fixed inset-0 z-50 bg-black/40">
           <div className="fixed inset-x-[12.5%] inset-y-[12.5%] 
-            bg-gray-50/95 dark:bg-gray-900/95 
+            bg-white/95 dark:bg-[#002856]/95
             rounded-2xl shadow-2xl 
-            border border-white/20 dark:border-white/10
+            border border-[#002856]/10 dark:border-[#002856]/20
             backdrop-blur-2xl
             flex flex-col"
           >
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="font-semibold text-lg">Chat</h2>
-              <div className="flex gap-2">
+            <div className="flex items-center justify-between p-3 
+              border-b border-[#002856]/10
+              bg-[#002856]/5 dark:bg-[#002856]/20
+              backdrop-blur-xl
+              rounded-t-2xl"
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-[3px]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#002856] animate-pulse" />
+                  <div className="w-1 h-1 rounded-full bg-[#002856]/50 animate-pulse delay-75" />
+                  <div className="w-[3px] h-[3px] rounded-full bg-[#002856]/30 animate-pulse delay-150" />
+                </div>
+                <h2 className="font-medium text-[15px] text-[#002856] dark:text-white/90">
+                  Chat
+                </h2>
+              </div>
+              <div className="flex gap-1">
                 <Button
                   onClick={toggleExpand}
                   variant="ghost"
                   size="icon"
-                  className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="h-7 w-7 hover:bg-[#002856]/5 dark:hover:bg-white/5 text-[#002856] dark:text-white/80"
                 >
-                  <Minimize2 className="h-4 w-4" />
+                  <Minimize2 className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   onClick={() => {
@@ -420,14 +441,17 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                   }}
                   variant="ghost"
                   size="icon"
-                  className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="h-7 w-7 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
 
-            <div className="flex-grow flex flex-col overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-50/50">
+            <div className="flex-grow flex flex-col overflow-hidden 
+              bg-white/50 dark:bg-[#002856]/10
+              rounded-b-2xl"
+            >
               {mode === 'context' && !isChatEnabled ? (
                 <div className="p-6 border-b">
                   <div className="space-y-6">
@@ -449,14 +473,18 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                     
                     <div className="space-y-3">
                       {contextVars.length === 0 ? (
-                        <div className="text-center py-8 bg-blue-50/50 rounded-lg border border-blue-100 text-gray-500">
+                        <div className="text-center py-8 bg-blue-50/70 rounded-lg 
+                          border border-blue-200/50 text-blue-600/80">
                           Click &quot;Add Variable&quot; to get started
                         </div>
                       ) : (
                         contextVars.map((contextVar, index) => (
                           <div 
                             key={index} 
-                            className="flex gap-2 p-2 bg-white rounded-lg border border-gray-100 shadow-sm"
+                            className="flex gap-2 p-2 bg-white/80 dark:bg-blue-950/50 rounded-lg 
+                              border border-blue-100 dark:border-blue-800 
+                              shadow-sm hover:shadow-md transition-all duration-300
+                              hover:border-blue-200 dark:hover:border-blue-700"
                           >
                             <Input
                               placeholder="Variable name"
@@ -466,7 +494,9 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                                 newVars[index].key = e.target.value;
                                 setContextVars(newVars);
                               }}
-                              className="border-gray-100 focus:border-blue-200 focus:ring-blue-100"
+                              className="border-blue-100 focus:border-blue-300 focus:ring-blue-200 
+                                dark:border-blue-800 dark:focus:border-blue-600 dark:focus:ring-blue-700
+                                bg-white/80 dark:bg-blue-900/50"
                             />
                             <Input
                               placeholder="Value"
@@ -476,7 +506,9 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                                 newVars[index].value = e.target.value;
                                 setContextVars(newVars);
                               }}
-                              className="border-gray-100 focus:border-blue-200 focus:ring-blue-100"
+                              className="border-blue-100 focus:border-blue-300 focus:ring-blue-200 
+                                dark:border-blue-800 dark:focus:border-blue-600 dark:focus:ring-blue-700
+                                bg-white/80 dark:bg-blue-900/50"
                             />
                             <Button
                               variant="ghost"
@@ -495,10 +527,8 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                       <div className="flex justify-center pt-2">
                         <Button
                           variant="primary"
-                          size="default"
                           onClick={handleContextVarSubmit}
-                          className="px-8 bg-gradient-to-r from-[#0071B2] to-[#0091E2] hover:from-[#0091E2] hover:to-[#0071B2] 
-                            text-white shadow-lg shadow-blue-500/25 transition-all duration-300 gap-2"
+                          className={startChatButtonStyle}
                         >
                           <MessageCircle className="h-4 w-4" />
                           Start Chat
