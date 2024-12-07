@@ -22,6 +22,8 @@ import {
   Download,
   GripVertical,
   X,
+  Settings,
+  Loader2,
 } from "lucide-react";
 import { FlowchartComponent } from "@/components/workflow/page";
 import { useDnD } from "./DnDContext";
@@ -39,6 +41,12 @@ import BreadCrumbs from "./Breadcrumbs";
 import ResizableDrawer from "./ResizeableDrawer";
 import { useKeyPress } from '@xyflow/react';
 import { useReactFlow, useOnSelectionChange } from '@xyflow/react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const createSwarm = async (payload) => {
   if (payload.id !== 'create') {
@@ -295,13 +303,14 @@ export function CreateSwarm({ id }) {
     console.log(`Running swarm in ${mode} mode`);
   };
 
-  const onRunSwarm = () => {
+  const onRunSwarm = (mode: 'normal' | 'context' = 'normal') => {
     if (portToRun) {
       setShowChatBubble(true);
       return;
     }
     runSwarmMutation.mutate({
-      instance_id: timestampToDownload
+      instance_id: timestampToDownload,
+      mode: mode
     })
   }
 
@@ -371,16 +380,55 @@ export function CreateSwarm({ id }) {
                   <Download className="h-4 w-4 mr-2" />
                   Download
                 </Button>
-                <Button 
-                  variant={'secondary'} 
-                  onClick={onRunSwarm} 
-                  loading={runSwarmMutation.isLoading} 
-                  loadingText=" Deploying"
-                  disabled={!isPublished || isCreate}
-                >
-                  <Play className="h-4 w-4 mr-2" />
-                  Test
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant={'secondary'} 
+                      disabled={!isPublished || isCreate || runSwarmMutation.isLoading}
+                      className="gap-2"
+                    >
+                      {runSwarmMutation.isLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span className="text-gray-700">Deploying</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4" />
+                          Run
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent 
+                    align="end" 
+                    className="w-56"
+                  >
+                    <DropdownMenuItem 
+                      onClick={() => onRunSwarm('normal')}
+                      className="flex items-center gap-2 py-2 cursor-pointer"
+                      disabled={runSwarmMutation.isLoading}
+                    >
+                      <Play className="h-4 w-4" />
+                      <div className="flex flex-col">
+                        <span className="font-medium">Run</span>
+                        <span className="text-xs text-gray-500">Execute swarm normally</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => onRunSwarm('context')}
+                      className="flex items-center gap-2 py-2 cursor-pointer"
+                      disabled={runSwarmMutation.isLoading}
+                    >
+                      <Settings className="h-4 w-4" />
+                      <div className="flex flex-col">
+                        <span className="font-medium">Run with Context Vars</span>
+                        <span className="text-xs text-gray-500">Execute with custom variables</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
