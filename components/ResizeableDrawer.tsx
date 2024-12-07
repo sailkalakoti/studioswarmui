@@ -156,24 +156,36 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
       {isOpen && !isExpanded ? (
         <div
           ref={drawerRef}
-          className="h-full border-l shadow-2xl flex flex-col relative
-            backdrop-blur-2xl bg-gray-50/95 dark:bg-gray-900/95
-            border-l-white/20 dark:border-l-white/10
-            rounded-l-2xl"
+          className="h-[calc(100vh-90px)] mx-6 my-4 border shadow-2xl flex flex-col relative
+            backdrop-blur-xl bg-white/95 dark:bg-gray-900/95
+            border-gray-200/40 dark:border-gray-700/40
+            rounded-2xl
+            shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1),0_0_20px_-12px_rgba(0,0,0,0.1),0_0_2px_0_rgba(0,0,0,0.05)]
+            dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.3),0_0_20px_-12px_rgba(0,0,0,0.2),0_0_2px_0_rgba(255,255,255,0.05)]
+            transition-all duration-500 ease-in-out
+            hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.12),0_0_30px_-12px_rgba(0,0,0,0.12),0_0_3px_0_rgba(0,0,0,0.06)]
+            dark:hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.4),0_0_30px_-12px_rgba(0,0,0,0.3),0_0_3px_0_rgba(255,255,255,0.06)]
+            hover:translate-y-[-2px]
+            transform"
           style={{ width: `${width}px` }}
         >
           <div
             ref={resizeHandleRef}
-            className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-500/50 transition-colors"
+            className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize 
+              hover:bg-blue-500/50 transition-colors
+              before:absolute before:left-[-2px] before:top-0 before:bottom-0 before:w-[3px]
+              before:bg-white/20 dark:before:bg-white/10"
             onMouseDown={startResizing}
           />
           
           {/* Header */}
           <div className="flex items-center justify-between p-4 
-            border-b border-white/10 
-            bg-gradient-to-r from-gray-100/90 to-gray-50/90 dark:from-gray-800/90 dark:to-gray-900/90 
+            border-b border-gray-200/40 dark:border-gray-700/40
+            bg-gradient-to-r from-white/50 via-white/80 to-white/50 
+            dark:from-gray-800/50 dark:via-gray-800/80 dark:to-gray-800/50
             backdrop-blur-xl
-            rounded-tl-2xl"
+            rounded-tl-2xl rounded-tr-2xl
+            shadow-sm"
           >
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
@@ -210,8 +222,9 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
           </div>
 
           <div className="flex-grow flex flex-col overflow-hidden 
-            bg-gradient-to-br from-gray-100/50 via-white/50 to-gray-100/50 
-            dark:from-gray-800/50 dark:via-gray-900/50 dark:to-gray-800/50"
+            bg-gradient-to-br from-gray-50/50 via-white/80 to-gray-50/50 
+            dark:from-gray-800/50 dark:via-gray-900/80 dark:to-gray-800/50
+            rounded-bl-2xl"
           >
             {mode === 'context' && !isChatEnabled ? (
               <div className="p-6 border-b">
