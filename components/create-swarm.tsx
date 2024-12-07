@@ -48,6 +48,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+type RunMode = 'normal' | 'context';
+
 const createSwarm = async (payload) => {
   if (payload.id !== 'create') {
     const { data } = await axiosInstance.put('/swarms/' + payload.id, payload.data);
@@ -303,11 +305,14 @@ export function CreateSwarm({ id }) {
     console.log(`Running swarm in ${mode} mode`);
   };
 
-  const onRunSwarm = (mode: 'normal' | 'context' = 'normal') => {
+  const [currentRunMode, setCurrentRunMode] = useState<RunMode>('normal');
+
+  const onRunSwarm = (mode: RunMode = 'normal') => {
     if (portToRun) {
       setShowChatBubble(true);
       return;
     }
+    setCurrentRunMode(mode);
     runSwarmMutation.mutate({
       instance_id: timestampToDownload,
       mode: mode
@@ -608,8 +613,9 @@ export function CreateSwarm({ id }) {
           port={portToRun}
           onClose={onChatClose}
           instanceId={timestampToDownload}
-          />
-        )}
+          mode={currentRunMode}
+        />
+      )}
 
       {/* Save Dialog */}
       <Dialog 
