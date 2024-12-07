@@ -235,7 +235,7 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                   <div className="space-y-3">
                     {contextVars.length === 0 ? (
                       <div className="text-center py-8 bg-blue-50/50 rounded-lg border border-blue-100 text-gray-500">
-                        Click "Add Variable" to get started
+                        Click &quot;Add Variable&quot; to get started
                       </div>
                     ) : (
                       contextVars.map((contextVar, index) => (
@@ -437,7 +437,7 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
                     <div className="space-y-3">
                       {contextVars.length === 0 ? (
                         <div className="text-center py-8 bg-blue-50/50 rounded-lg border border-blue-100 text-gray-500">
-                          Click "Add Variable" to get started
+                          Click &quot;Add Variable&quot; to get started
                         </div>
                       ) : (
                         contextVars.map((contextVar, index) => (
