@@ -155,7 +155,13 @@ const ResizableDrawer = ({ port, instanceId, onClose, mode }: ResizableDrawerPro
   const startChatButtonStyle = "px-8 bg-[#002856] hover:bg-[#002856]/90 text-white shadow-lg shadow-[#002856]/25 transition-all duration-300 gap-2"
 
   return (
-    <div className="fixed inset-y-0 right-0 flex top-[70px]">
+    <div className="fixed inset-y-0 right-0 flex top-[70px] z-50">
+      {(isOpen || isExpanded) && (
+        <div 
+          className="fixed inset-0 bg-transparent" 
+        />
+      )}
+
       {isOpen && !isExpanded ? (
         <div
           ref={drawerRef}
